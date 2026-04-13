@@ -1,28 +1,18 @@
-// MapSystem.js - V6.2.5 旗艦強化不刪減版
+// MapSystem.js - V6.2.6 職責校正與路徑修正版
 const MapSystem = {
     options: [],
     currentIndex: 0,
 
-    // [加強] 初始化鍵盤監聽：讓玩家按左右鍵也能切換地圖
-    bindKeys() {
-        window.addEventListener('keydown', (e) => {
-            if (typeof currentScreen !== 'undefined' && currentScreen === 'selection') {
-                if (e.key === 'ArrowLeft') this.change(-1);
-                if (e.key === 'ArrowRight') this.change(1);
-            }
-        });
-    },
-
-    // 1. 刷新地圖選項 (保留您原本的穩定 GitHub 來源邏輯)
+    // 1. 刷新地圖選項 (使用最穩定的 GitHub 來源)
     async refresh() {
         currentMapOptions = [];
+        // 穩定來源：GitHub 官方繪圖庫
         const imageBaseUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
         
         for (let i = 0; i < 5; i++) {
-            // 從機台庫存隨機挑選
             let p = machineInventory[Math.floor(Math.random() * machineInventory.length)];
             
-            // 修正：直接組合 URL，解決 PokeAPI 官網連結不穩定的問題
+            // 修正：確保圖片路徑強制指向穩定伺服器
             currentMapOptions.push({ 
                 ...p, 
                 image: `${imageBaseUrl}${p.id}.png` 
@@ -30,22 +20,23 @@ const MapSystem = {
         }
         
         this.currentIndex = 0;
-        this.render(); // 呼叫渲染
+        this.render(); 
     },
 
-    // 2. 切換選單 (保留您原本的導航邏輯)
+    // 2. 切換選單 (由外部 game.js 或按鈕觸發)
     change(dir) {
         if (typeof SoundSystem !== 'undefined') SoundSystem.play('button_click');
         this.currentIndex = (this.currentIndex + dir + 5) % 5;
         this.render();
     },
 
-    // 3. 渲染主畫面地圖卡匣 (保留結構並加強視覺欄位)
+    // 3. 渲染主畫面地圖卡匣 (圖左字右)
     render() {
         const data = currentMapOptions[this.currentIndex];
         const display = document.getElementById('single-map-display');
         
-        // 配合 CSS 的 .map-card 樣式，並預留屬性欄位
+        if(!data || !display) return;
+
         display.innerHTML = `
             <div class="map-card ${data.rarity >= 6 ? 'rarity-6' : ''}">
                 <img src="${data.image}" class="poke-sprite">
@@ -59,19 +50,18 @@ const MapSystem = {
             </div>`;
     },
 
-    // 4. 顯示投幣後的三選一 (保留您原本的 3D 按鈕邏輯並加強佈局)
+    // 4. 顯示投幣後的三選一 (橫式卡匣版)
     async showGuaranteed() {
         currentScreen = 'guaranteed';
         document.getElementById('selection-page').classList.add('hidden');
         document.getElementById('guaranteed-page').classList.remove('hidden');
         
         const container = document.getElementById('guaranteed-choices');
-        container.innerHTML = "<div style='font-size:28px; color:#00fbff; font-weight:bold; animation: pulse 1s infinite;'>📡 棲息地掃描中...</div>";
+        container.innerHTML = "<div style='font-size:28px; color:#00fbff; font-weight:bold;'>📡 棲息地掃描中...</div>";
         
         const imageBaseUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
         let choices = [];
         
-        // 隨機抽取三隻
         for(let i=0; i<3; i++) {
             let p = machineInventory[Math.floor(Math.random() * machineInventory.length)];
             choices.push({ 
@@ -80,13 +70,11 @@ const MapSystem = {
             });
         }
         
-        // 清空並渲染三張大卡匣
         container.innerHTML = "";
         choices.forEach(p => {
             const div = document.createElement('div');
             div.className = `choice-card ${p.rarity >= 6 ? 'rarity-6' : ''}`;
             
-            // 保留您的 3D 按鈕感，微調間距讓排版更「大氣」
             div.innerHTML = `
                 <img src="${p.image}" class="poke-sprite">
                 <div class="card-info">
@@ -103,6 +91,3 @@ const MapSystem = {
         });
     }
 };
-
-// 啟動鍵盤監聽
-MapSystem.bindKeys();
