@@ -1,61 +1,92 @@
+/* style.css - V6.0 卡匣視覺強化版 */
+
 body { 
     background-color: #1a1a1a; color: white; margin: 0; overflow: hidden; 
-    display: flex; flex-direction: column; align-items: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh;
     font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
 }
+
 .hidden { display: none !important; }
 
-/* 6 星虹光 */
+/* --- 戰鬥畫面置中優化 --- */
+#fighting-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 85vh; /* 佔據大部分垂直空間 */
+    gap: 15px;
+}
+
+/* --- 方向 A：橫式卡匣設計 (精緻化) --- */
+.combatant, .choice-card, .backpack-item { 
+    width: 320px; /* 寬度增加，改為橫式 */
+    background: linear-gradient(135deg, #333 0%, #111 100%);
+    border-radius: 12px;
+    padding: 15px;
+    border: 3px solid #777;
+    display: flex; /* 橫向排列內容 */
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    position: relative;
+}
+
+.poke-sprite { width: 100px; height: 100px; object-fit: contain; }
+
+.card-info { flex-grow: 1; text-align: left; }
+
+/* 虹光 6 星特效 */
 @keyframes rainbowGlow {
-    0% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
-    33% { border-color: #00ff00; box-shadow: 0 0 20px #00ff00; }
-    66% { border-color: #0000ff; box-shadow: 0 0 20px #0000ff; }
-    100% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
+    0% { border-color: #ff0000; box-shadow: 0 0 25px #ff0000; }
+    33% { border-color: #00ff00; box-shadow: 0 0 25px #00ff00; }
+    66% { border-color: #0000ff; box-shadow: 0 0 25px #0000ff; }
+    100% { border-color: #ff0000; box-shadow: 0 0 25px #ff0000; }
 }
-.rarity-6 { animation: rainbowGlow 1.5s linear infinite !important; border-width: 6px !important; }
+.rarity-6 { animation: rainbowGlow 1.5s linear infinite !important; border-width: 5px !important; }
 
-/* 捕獲搖晃 */
-.catch-shake { animation: catchShake 0.5s ease-in-out 3; }
-@keyframes catchShake {
-    0% { transform: rotate(0deg); }
-    25% { transform: rotate(-15deg); }
-    50% { transform: rotate(15deg); }
-    75% { transform: rotate(-15deg); }
-    100% { transform: rotate(0deg); }
+/* --- 進度條 (ATB 賽道) 強化 --- */
+#atb-track-container { 
+    width: 90%; 
+    max-width: 1000px; /* 加長賽道 */
+    margin: 30px 0; 
 }
 
-/* 對戰與佈局 */
-#carousel-area, #guaranteed-choices { display: flex; justify-content: center; align-items: center; gap: 30px; }
-.nav-arrow { font-size: 60px; color: #888; cursor: pointer; user-select: none; }
-.nav-arrow:hover { color: gold; }
-
-.map-card, .choice-card, .combatant { 
-    background: #2a2a2a; border-radius: 20px; padding: 20px; border: 4px solid #777; 
+.track-bg { 
+    width: 100%; 
+    height: 70px; /* 加厚賽道 */
+    background: #222; 
+    border: 4px solid #fff; 
+    border-radius: 35px; 
+    position: relative; 
+    overflow: hidden; 
 }
-.map-card { width: 220px; border-color: #ffeb3b; }
-.poke-sprite { width: 140px; height: 140px; object-fit: contain; filter: drop-shadow(0 5px 10px black); }
-.silhouette { filter: brightness(0); opacity: 0.8; }
 
-/* 血條 */
-.hp-info { display: flex; justify-content: space-between; color: #00ff00; font-family: monospace; font-size: 16px; margin-top: 5px; }
-.bar-bg { width: 100%; height: 20px; background: #111; border-radius: 10px; overflow: hidden; border: 2px solid #444; }
-.hp-bar { height: 100%; background: #4caf50; transition: width 0.3s; }
-
-/* 轉盤 */
-#wheel-container { position: relative; width: 280px; height: 280px; margin: 20px 0; }
-#wheel { 
-    width: 100%; height: 100%; border-radius: 50%; border: 8px solid white; 
-    background: conic-gradient(#9c27b0 0deg 90deg, #f44336 90deg 180deg, #2196f3 180deg 270deg, #ffeb3b 270deg 360deg);
-    transition: transform 3.5s cubic-bezier(0.15, 0, 0.15, 1);
+.finish-line { 
+    position: absolute; right: 0; width: 25px; height: 100%; 
+    background: repeating-linear-gradient(45deg, #ffeb3b, #ffeb3b 10px, #000 10px, #000 20px);
+    box-shadow: -5px 0 15px rgba(255, 235, 59, 0.5);
 }
-#wheel-pointer { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 35px solid white; z-index: 10; }
 
-/* 噴字與震動 */
-.damage-popup { position: absolute; color: #ff3d00; font-size: 45px; font-weight: 900; text-shadow: 2px 2px 0px white; animation: floatUp 0.8s ease-out forwards; pointer-events: none; }
-@keyframes floatUp { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-100px); opacity: 0; } }
-.shake { animation: shakeEffect 0.4s; border-color: red !important; }
-@keyframes shakeEffect { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-5px,-5px); } 75% { transform: translate(5px,5px); } }
+.racer-icon { 
+    position: absolute; top: 10px; width: 50px; height: 50px; 
+    border-radius: 50%; border: 3px solid white; background: #000; 
+    transition: left 0.1s linear; 
+}
 
-#coin-board { position: fixed; top: 15px; right: 20px; background: rgba(0,0,0,0.8); padding: 10px 15px; border-radius: 12px; border: 2px solid gold; z-index: 100; font-weight: bold; font-size: 24px; color: gold; }
-button { padding: 10px 20px; font-size: 18px; border-radius: 10px; border: none; cursor: pointer; background: #555; color: white; transition: 0.2s; }
-button:hover { transform: scale(1.1); filter: brightness(1.2); }
+/* --- 特效與噴字 --- */
+.damage-popup { 
+    position: absolute; color: #ff3d00; font-size: 50px; font-weight: 900; 
+    text-shadow: 3px 3px 0px white; animation: floatUp 0.8s ease-out forwards; pointer-events: none; 
+}
+@keyframes floatUp { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-120px); opacity: 0; } }
+
+.shake { animation: shakeEffect 0.4s; }
+@keyframes shakeEffect { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-8px,-8px); } 75% { transform: translate(8px,8px); } }
+
+/* --- 大廳與按鈕 --- */
+#coin-board { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.9); padding: 12px 20px; border-radius: 15px; border: 2px solid gold; color: gold; font-size: 24px; z-index: 100; }
+button { padding: 12px 25px; font-size: 18px; border-radius: 12px; border: none; cursor: pointer; background: #444; color: white; transition: 0.2s; }
+button:hover { transform: scale(1.05); filter: brightness(1.2); }
