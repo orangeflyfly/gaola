@@ -1,5 +1,5 @@
 /* ========================================== */
-/* ======== 基礎樣式與版面配置 ======== */
+/* ======== 基礎樣式與版面配置 (全置中) ======== */
 /* ========================================== */
 body { 
     background-color: #1a1a1a; 
@@ -9,14 +9,18 @@ body {
     padding: 0; 
     margin: 0; 
     overflow: hidden; 
+    /* 修正靠左問題：強制 body 內容置中 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 h1 { color: #ffeb3b; font-size: 40px; text-shadow: 0 0 15px rgba(255, 235, 59, 0.5); margin: 10px 0; }
 .hidden { display: none !important; }
 
-/* 頂部金幣與背包列 */
+/* 頂部金幣列 */
 #coin-board { 
-    position: absolute; 
+    position: fixed; 
     top: 15px; 
     right: 20px; 
     font-size: 24px; 
@@ -33,10 +37,11 @@ h1 { color: #ffeb3b; font-size: 40px; text-shadow: 0 0 15px rgba(255, 235, 59, 0
 }
 
 /* ========================================== */
-/* ======== 1. 大廳與地圖選擇樣式 ======== */
+/* ======== 1. 大廳與地圖 (找回箭頭與剪影) ======== */
 /* ========================================== */
-#selection-page { padding-top: 60px; }
+#selection-page { padding-top: 60px; width: 100%; }
 #carousel-area { display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 30px; }
+
 .nav-arrow { font-size: 60px; color: #888; cursor: pointer; transition: 0.2s; user-select: none; }
 .nav-arrow:hover { color: #ffeb3b; transform: scale(1.2); }
 
@@ -47,6 +52,15 @@ h1 { color: #ffeb3b; font-size: 40px; text-shadow: 0 0 15px rgba(255, 235, 59, 0
     border: 5px solid #ffeb3b; 
     border-radius: 20px; 
     box-shadow: 0 0 25px rgba(255, 235, 59, 0.4); 
+}
+
+/* 找回剪影功能 */
+.poke-sprite { width: 140px; height: 140px; object-fit: contain; filter: drop-shadow(0 5px 10px black); }
+.silhouette { filter: brightness(0); opacity: 0.8; }
+
+/* 三選一置中修正 */
+#guaranteed-choices, #battle-select-screen {
+    display: flex; justify-content: center; gap: 20px; margin-top: 20px;
 }
 
 .choice-card { 
@@ -60,68 +74,59 @@ h1 { color: #ffeb3b; font-size: 40px; text-shadow: 0 0 15px rgba(255, 235, 59, 0
 }
 .choice-card:hover { border-color: orange; transform: scale(1.05); }
 
-.poke-sprite { width: 140px; height: 140px; object-fit: contain; filter: drop-shadow(0 5px 10px black); }
-.silhouette { filter: brightness(0); opacity: 0.8; }
-
 /* ========================================== */
-/* ======== 2. 垂直對戰畫面 (上下對陣) ======== */
+/* ======== 2. 垂直對戰 (找回終點線與數值) ======== */
 /* ========================================== */
 #fighting-page { 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; 
-    height: 100vh; 
-    gap: 20px; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center; 
+    height: 100vh; gap: 20px; width: 100%;
 }
 
 .combatant { 
-    width: 220px; 
-    background: #2a2a2a; 
-    padding: 15px; 
-    border-radius: 20px; 
-    border: 4px solid #777; 
-    position: relative; 
-    transition: 0.1s;
+    width: 220px; background: #2a2a2a; padding: 15px; 
+    border-radius: 20px; border: 4px solid #777; position: relative; transition: 0.1s;
 }
 
-/* 血條樣式 */
+/* 新增：HP 數值顯示樣式 */
+.hp-info {
+    display: flex; justify-content: space-between;
+    font-size: 16px; margin: 5px 0; color: #00ff00; font-family: monospace;
+}
+
 .bar-bg { width: 100%; height: 20px; background: #111; border-radius: 10px; margin-top: 8px; overflow: hidden; border: 2px solid #444; }
 .hp-bar { width: 100%; height: 100%; background: #4caf50; transition: width 0.3s; }
 
-/* 行動賽道 */
+/* 行動賽道 (找回終點線) */
 #atb-track-container { width: 85%; max-width: 800px; }
 .track-bg { 
-    width: 100%; 
-    height: 50px; 
-    background: #222; 
-    border: 3px solid #fff; 
-    border-radius: 25px; 
-    position: relative; 
-    overflow: hidden; 
+    width: 100%; height: 50px; background: #222; border: 3px solid #fff; 
+    border-radius: 25px; position: relative; overflow: hidden; 
 }
 .finish-line { position: absolute; right: 0; width: 15px; height: 100%; background: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
 
 .racer-icon { 
-    position: absolute; 
-    top: 4px; 
-    width: 42px; 
-    height: 42px; 
-    background: #000; 
-    border: 2px solid white; 
-    border-radius: 50%; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    overflow: hidden;
-    transition: left 0.05s linear;
+    position: absolute; top: 4px; width: 42px; height: 42px; background: #000; 
+    border: 2px solid white; border-radius: 50%; display: flex; justify-content: center; 
+    align-items: center; overflow: hidden; transition: left 0.05s linear;
 }
 .racer-icon img { width: 35px; height: 35px; object-fit: contain; }
 
-.attack-hint { font-size: 24px; color: #ff5722; font-weight: bold; margin-top: 10px; min-height: 30px; }
+/* ========================================== */
+/* ======== 3. 6 星虹光傳說動畫 (全新) ======== */
+/* ========================================== */
+@keyframes rainbowGlow {
+    0% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
+    33% { border-color: #00ff00; box-shadow: 0 0 20px #00ff00; }
+    66% { border-color: #0000ff; box-shadow: 0 0 20px #0000ff; }
+    100% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
+}
+.rarity-6 {
+    animation: rainbowGlow 1.5s linear infinite !important;
+    border-width: 6px !important;
+}
 
 /* ========================================== */
-/* ======== 3. 圓形大轉盤樣式 ======== */
+/* ======== 4. 圓形大轉盤樣式 (修正判定) ======== */
 /* ========================================== */
 #roulette-page { 
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -129,53 +134,35 @@ h1 { color: #ffeb3b; font-size: 40px; text-shadow: 0 0 15px rgba(255, 235, 59, 0
     display: flex; flex-direction: column; justify-content: center; align-items: center; 
 }
 
-#wheel-container {
-    position: relative;
-    width: 280px;
-    height: 280px;
-    margin-bottom: 30px;
+#wheel-container { position: relative; width: 280px; height: 280px; margin-bottom: 30px; }
+#wheel-pointer { 
+    position: absolute; top: -20px; left: 50%; transform: translateX(-50%); 
+    width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 35px solid white; z-index: 10; 
 }
-
-#wheel-pointer {
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-top: 35px solid white;
-    z-index: 10;
-}
-
-#wheel {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    border: 8px solid white;
-    background: conic-gradient(
-        #9c27b0 0deg 90deg,     /* 大師球 */
-        #ffeb3b 90deg 180deg,   /* 高級球 */
-        #2196f3 180deg 270deg,  /* 超級球 */
-        #f44336 270deg 360deg   /* 精靈球 */
-    );
+#wheel { 
+    width: 100%; height: 100%; border-radius: 50%; border: 8px solid white; 
+    background: conic-gradient(#9c27b0 0deg 90deg, #f44336 90deg 180deg, #2196f3 180deg 270deg, #ffeb3b 270deg 360deg);
     transition: transform 3.5s cubic-bezier(0.15, 0, 0.15, 1);
-    box-shadow: 0 0 50px rgba(255,255,255,0.2);
 }
 
 /* ========================================== */
-/* ======== 4. 特效動畫 (噴字、震動) ======== */
+/* ======== 5. 背包、按鈕與特效 (找回標籤) ======== */
 /* ========================================== */
+#backpack-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 100; padding: 40px; overflow-y: auto; box-sizing: border-box; }
+#backpack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; max-width: 1000px; margin: 30px auto; }
+
+.backpack-item { background: #222; padding: 15px; border-radius: 15px; border: 3px solid #555; position: relative; }
+.partner-tag { position: absolute; top: -10px; right: -10px; background: #ff5722; padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: bold; z-index: 5; }
+
+button { padding: 12px 25px; font-size: 20px; cursor: pointer; border-radius: 10px; border: none; transition: 0.2s; background: #555; color: white; }
+button:hover { transform: scale(1.1); filter: brightness(1.2); }
+.btn-gold { background: #ff9800; color: white; font-weight: bold; margin-top: 20px; }
+
+/* 傷害與噴字 */
 .damage-popup {
-    position: absolute;
-    color: #ff3d00;
-    font-size: 45px;
-    font-weight: 900;
-    text-shadow: 2px 2px 0px white, 4px 4px 10px black;
-    pointer-events: none;
-    animation: floatUp 0.8s ease-out forwards;
-    z-index: 1000;
+    position: absolute; color: #ff3d00; font-size: 45px; font-weight: 900;
+    text-shadow: 2px 2px 0px white, 4px 4px 10px black; pointer-events: none;
+    animation: floatUp 0.8s ease-out forwards; z-index: 1000;
 }
 @keyframes floatUp {
     0% { transform: translateY(0) scale(0.5); opacity: 0; }
@@ -185,26 +172,7 @@ h1 { color: #ffeb3b; font-size: 40px; text-shadow: 0 0 15px rgba(255, 235, 59, 0
 
 .shake { animation: shake 0.4s; border-color: red !important; box-shadow: 0 0 30px red; }
 @keyframes shake {
-    0% { transform: translate(1px, 1px) rotate(0deg); }
-    10% { transform: translate(-3px, -2px) rotate(-1deg); }
-    30% { transform: translate(3px, 2px) rotate(1deg); }
-    50% { transform: translate(-1px, 2px) rotate(-1deg); }
-    70% { transform: translate(3px, 1px) rotate(0deg); }
-    100% { transform: translate(1px, -2px) rotate(-1deg); }
+    0% { transform: translate(1px, 1px); }
+    50% { transform: translate(-3px, -2px); }
+    100% { transform: translate(1px, 1px); }
 }
-
-.blink-text { animation: blink 0.5s infinite; }
-@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-
-/* ========================================== */
-/* ======== 5. 背包介面與按鈕 ======== */
-/* ========================================== */
-#backpack-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 100; padding: 40px; overflow-y: auto; box-sizing: border-box; }
-#backpack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; max-width: 1000px; margin: 30px auto; }
-
-.backpack-item { background: #222; padding: 15px; border-radius: 15px; border: 3px solid #555; position: relative; }
-.partner-tag { position: absolute; top: -10px; right: -10px; background: #ff5722; padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: bold; }
-
-button { padding: 12px 25px; font-size: 20px; cursor: pointer; border-radius: 10px; border: none; transition: 0.2s; background: #555; color: white; }
-button:hover { transform: scale(1.1); filter: brightness(1.2); }
-.btn-gold { background: #ff9800; color: white; font-weight: bold; margin-top: 20px; }
