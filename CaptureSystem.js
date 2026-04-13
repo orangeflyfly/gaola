@@ -1,4 +1,4 @@
-// CaptureSystem.js - V7.2 20等分精準轉盤與修復版
+// CaptureSystem.js - V7.2 20等分精準轉盤 (防呆綁定修復版)
 
 const CaptureSystem = {
     // 20 等分球種分佈 (M:大師x2, U:高級x5, G:超級x6, P:精靈x7)
@@ -22,15 +22,19 @@ const CaptureSystem = {
         this.targetEnemy = enemy;
         this.currentDeg = 0;
 
-        // [關鍵 Bug 修復] 解除轉盤頁面的隱藏狀態
+        // 解除轉盤頁面的隱藏狀態
         document.getElementById('roulette-page').classList.remove('hidden');
         
         // 重置 UI 狀態
         document.getElementById('roulette-result').classList.add('hidden');
         document.getElementById('pay-confirm-box').classList.add('hidden');
         document.getElementById('fail-exit-btn').classList.add('hidden');
-        document.getElementById('stop-btn').style.display = 'inline-block';
         document.getElementById('roulette-title').innerText = `準備捕獲：${enemy.name}`;
+
+        // [關鍵修復 1] 強制綁定按鈕事件，無視 HTML 的 onclick 屬性
+        const stopBtn = document.getElementById('stop-btn');
+        stopBtn.style.display = 'inline-block';
+        stopBtn.onclick = () => this.stop();
 
         this.renderWheel();
         this.startSpin();
@@ -51,8 +55,7 @@ const CaptureSystem = {
         wheel.style.height = '350px';
         wheel.style.border = '8px solid #fff';
         wheel.style.boxShadow = '0 0 30px rgba(255, 235, 59, 0.4)';
-        wheel.style.margin = '20px auto';
-        // 將 transition 設為 0，讓我們用 JS 精準控制旋轉
+        // [關鍵修復 2] 移除 margin，交給 CSS 的 wheel-container 控制
         wheel.style.transition = 'transform 0s'; 
     },
 
@@ -91,7 +94,7 @@ const CaptureSystem = {
         msgEl.style.color = "#fff";
 
         GameUI.shake('result-ball');
-        SoundSystem.play('attack_hit'); // 借用一下打擊音效當作丟球聲
+        SoundSystem.play('attack_hit'); 
 
         setTimeout(() => {
             let success = false;
@@ -116,9 +119,4 @@ const CaptureSystem = {
             }
         }, 1800);
     }
-};
-
-// 對接 HTML 上的 <button onclick="spinWheel()">
-window.spinWheel = function() {
-    CaptureSystem.stop();
 };
