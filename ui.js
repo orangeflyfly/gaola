@@ -1,6 +1,6 @@
-// ui.js - V7.2 旗艦重裝視覺執行版 (全代碼)
+// ui.js - V7.3 絕對防禦視覺版 (全代碼)
 const GameUI = {
-    // 1. 更新主畫面顯示 (包含血條與賽道)
+    // 1. 更新主畫面顯示
     updateDisplay: function(coins, pHP, eHP, pATB, eATB, partner, enemy) {
         const coinEl = document.getElementById('coin-count');
         if(coinEl) coinEl.innerText = coins;
@@ -15,7 +15,7 @@ const GameUI = {
         if(pText) pText.innerText = `${Math.ceil(pHP)} / 100`;
         if(eText) eText.innerText = `${Math.ceil(eHP)} / 100`;
         
-        // 🌟 [絕對鎖定公式] 0% 扣 0px，100% 剛好扣除圖片的 90px
+        // 🌟 [V7.3 絕對鎖定公式] 0% 扣 0px，100% 剛好扣除圖片的 90px
         const pRacer = document.getElementById('player-racer');
         const eRacer = document.getElementById('enemy-racer');
         if(pRacer) pRacer.style.left = `calc(${pATB}% - ${pATB * 0.9}px)`;
@@ -59,7 +59,7 @@ const GameUI = {
             </div>`;
     },
 
-    // 🌟 [V7.2 新增] 背包卡匣統一渲染 (修復無屬性標籤 Bug)
+    // 3. 背包卡匣統一渲染
     renderBackpack: function(backpackData) {
         const grid = document.getElementById('backpack-grid');
         if(!grid) return;
@@ -70,8 +70,7 @@ const GameUI = {
             return;
         }
 
-        backpackData.forEach((pokemon, index) => {
-            // 確保有圖片屬性
+        backpackData.forEach((pokemon) => {
             const imgUrl = pokemon.image || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`;
             const typeStr = pokemon.type || '一般';
             
@@ -95,7 +94,7 @@ const GameUI = {
         return m[type] || "";
     },
 
-    // 3. 傷害噴字特效 (加入閃避判斷)
+    // 4. 傷害噴字特效 (加入閃避判斷)
     showDamage: function(id, amt, multiplier = 1) {
         const card = document.getElementById(id);
         if(!card) return;
@@ -103,10 +102,9 @@ const GameUI = {
         const d = document.createElement('div');
         d.className = 'damage-popup';
         
-        // 🌟 [V7.2 新增] 如果傷害為 0，視為觸發閃避
         if (amt === 0) {
             d.innerText = `MISS!`;
-            d.classList.add('miss'); // 套用白色的 CSS
+            d.classList.add('miss'); 
         } else if(multiplier > 1) {
             d.innerText = `Critical! -${amt}`;
             d.style.color = "var(--arcade-gold)"; 
@@ -124,7 +122,6 @@ const GameUI = {
         setTimeout(() => d.remove(), 800);
     },
 
-    // 4. 卡片重擊震動
     shake: function(id) {
         const el = document.getElementById(id);
         if(el) {
@@ -133,17 +130,16 @@ const GameUI = {
         }
     },
 
-    // 🌟 [V7.2 新增] 按鍵物理回饋震動 (極短)
     shakeImpact: function(id) {
         const el = document.getElementById(id);
         if(el) {
-            el.classList.remove('shake-impact'); // 重置動畫
-            void el.offsetWidth; // 觸發重繪
+            el.classList.remove('shake-impact'); 
+            void el.offsetWidth; 
             el.classList.add('shake-impact');
         }
     },
 
-    // 🌟 [V7.2 新增] 動態 Combo 顯示引擎
+    // 5. 動態 Combo 顯示引擎
     updateCombo: function(count) {
         const display = document.getElementById('combo-display');
         const track = document.querySelector('.track-bg');
@@ -156,7 +152,6 @@ const GameUI = {
             return;
         }
 
-        // 重新觸發放大動畫
         display.style.transform = 'translateX(-50%) scale(1.5)';
         setTimeout(() => { display.style.transform = 'translateX(-50%) scale(1)'; }, 50);
 
