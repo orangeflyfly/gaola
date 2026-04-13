@@ -1,12 +1,13 @@
-// game.js - V6.2.6 總監專屬加強版 (基於您的 V6.1)
+// game.js - V6.2.7 旗艦重裝大腦版 (強制路徑修復 & 不簡化)
 
-// --- 1. [新增] 統一圖片路徑中控 ---
+// --- 1. [新增] 統一圖片路徑中控 (GitHub RAW 高清版) ---
 const imageBaseUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
 
 let state = GameStorage.load();
 let coins = state.coins;
 let myBackpack = state.backpack;
-// [修正] 預留我方圖片高清化
+
+// [修正] 初始化夥伴：強制使用高清路徑組合
 let myPartner = state.partner || { 
     id: 25, 
     name: "皮卡丘", 
@@ -19,14 +20,20 @@ let currentEnemy = null, isPaused = false, isExtraBattle = false, currentRotatio
 
 const App = {
     init() { 
-        // [修正] 確保一開始夥伴就不會破圖
-        if(myPartner) myPartner.image = `${imageBaseUrl}${myPartner.id}.png`;
+        // [強制修正] 確保一開始夥伴的圖片網址就是正確的
+        if(myPartner && myPartner.id) {
+            myPartner.image = `${imageBaseUrl}${myPartner.id}.png`;
+        }
         MapSystem.refresh(); 
         this.updateAll(); 
         setTimeout(() => SoundSystem.playBGM('bgm_lobby'), 1000);
     },
 
     updateAll() { 
+        // 在更新顯示前，再次確認夥伴圖片路徑
+        if(myPartner && myPartner.id) {
+            myPartner.image = `${imageBaseUrl}${myPartner.id}.png`;
+        }
         GameUI.updateDisplay(coins, playerHP, enemyHP, playerATB, enemyATB, myPartner); 
         GameStorage.save(coins, myBackpack, myPartner); 
     },
@@ -35,7 +42,7 @@ const App = {
         if (coins < cost) return alert("金幣不足！");
         coins -= cost;
         
-        // [新增] 確保新獲得的寶可夢路徑正確
+        // [新增] 確保新獲得的寶可夢路徑強制轉為高清版
         p.image = `${imageBaseUrl}${p.id}.png`;
 
         const exists = myBackpack.find(item => item.id === p.id);
@@ -75,7 +82,7 @@ const App = {
     }
 };
 
-// --- 全域橋樑函數 (針對佈局優化) ---
+// --- 全域橋樑函數 ---
 function earnCoins() { coins += 100; SoundSystem.play('button_click'); App.updateAll(); }
 function confirmMapSelection() { 
     if (coins < 30) return alert("金幣不足！"); 
@@ -95,7 +102,6 @@ function hideExtraPop() { App.reload(); }
 function finishCapture() { App.finish(); }
 function refreshMachine() { MapSystem.refresh(); }
 
-// [修正] 背包頁面開啟時標記狀態
 function openBackpack() { 
     currentScreen = 'backpack';
     document.getElementById('backpack-page').classList.remove('hidden'); 
@@ -106,7 +112,7 @@ function closeBackpack() {
     document.getElementById('backpack-page').classList.add('hidden'); 
 }
 
-// [重點修正] 移除 HTML 內的 style 標籤，讓它完全由 CSS 網格控制
+// [重點修正] 背包渲染時強制計算高清路徑，不依賴存檔中的路徑
 function renderBackpack() {
     const g = document.getElementById('backpack-grid');
     if(!g) return;
@@ -114,10 +120,13 @@ function renderBackpack() {
     myBackpack.forEach(p => {
         let isP = (myPartner && myPartner.id === p.id);
         const d = document.createElement('div');
-        // 加入 rarity-6 判斷，對接 CSS 的虹光特效
         d.className = `backpack-item ${p.rarity >= 6 ? 'rarity-6' : ''}`;
+        
+        // 這裡強制使用高清路徑 render
+        const currentImg = `${imageBaseUrl}${p.id}.png`;
+        
         d.innerHTML = `
-            <img src="${p.image}" class="poke-sprite">
+            <img src="${currentImg}" class="poke-sprite">
             <div class="card-info">
                 <b>${p.name}</b><br>
                 <span style="color:#ffeb3b; font-weight:bold;">★ ${p.rarity}</span><br>
@@ -146,12 +155,10 @@ App.init();
 
 // --- [加強] 中央鍵盤控制系統 ---
 window.addEventListener('keydown', (e) => {
-    // 戰鬥中的連打 (保留原本邏輯)
     if (currentScreen === 'fight' && !isPaused && (e.key.toLowerCase() === 'a' || e.key.toLowerCase() === 'd')) { 
-        playerATB += 5; // 稍微加強連打威力
+        playerATB += 5; 
         App.updateAll(); 
     }
-    // [新增] 大廳模式下的鍵盤控制
     if (currentScreen === 'selection') {
         if (e.key === 'ArrowLeft') changeMap(-1);
         if (e.key === 'ArrowRight') changeMap(1);
