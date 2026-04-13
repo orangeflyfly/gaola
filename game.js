@@ -168,24 +168,23 @@ function triggerAttack(attacker) {
 function checkWinLose() {
     setTimeout(() => {
         if (enemyHP <= 0) {
-            enemyHP = 0; updateUI(); clearInterval(battleLoop);
+            enemyHP = 0; 
+            updateUI(); 
+            clearInterval(battleLoop);
             
-            // ★ 收服與背包邏輯
-            let isDuplicate = myBackpack.find(p => p.id === currentEnemy.id);
-            if (isDuplicate) {
-                let rewardCoins = currentEnemy.rarity * 10;
-                coins += rewardCoins;
-                alert(`勝利！但你已經擁有 ${currentEnemy.name} 了。\n自動轉化為 ${rewardCoins} 金幣！`);
-            } else {
-                myBackpack.push(currentEnemy);
-                alert(`勝利！成功收服 ${currentEnemy.name}！已存入背包。`);
-            }
-            saveGame(); // 打贏存檔
-            backToMaps();
+            // ★ 修改點：這裡不再直接給獎勵，而是呼叫我們剛寫好的「轉盤模組」
+            // 轉盤模組會在玩家「拍擊停止」後，才決定是要給金幣、存背包，還是讓它逃跑。
+            startRoulette(); 
+            
         } else if (playerHP <= 0) {
-            playerHP = 0; updateUI(); clearInterval(battleLoop);
-            alert(`${myPartner.name} 倒下了... 挑戰失敗，寶可夢逃跑了！`); backToMaps();
+            playerHP = 0; 
+            updateUI(); 
+            clearInterval(battleLoop);
+            alert(`${myPartner.name} 倒下了... 挑戰失敗！`); 
+            backToMaps();
         }
+        
+        // 清除震動動畫
         document.getElementById('enemy-card').classList.remove('shake');
         document.getElementById('player-card').classList.remove('shake');
     }, 500); 
