@@ -68,6 +68,26 @@
         <div id="backpack-grid"></div>
     </div>
 
+    <div id="roulette-page" class="hidden">
+        <h1 style="color: #ff9800;">進入捕獲階段！</h1>
+        <h2 id="roulette-target-name">野生 寶可夢</h2>
+        
+        <div id="roulette-wheels" class="ball-container">
+            <div class="ball-box" id="ball-0"><div class="ball-img">🟣</div><div class="ball-name">大師球</div><div class="ball-rate">必中</div></div>
+            <div class="ball-box" id="ball-1"><div class="ball-img">🟡</div><div class="ball-name">高級球</div><div class="ball-rate">50%</div></div>
+            <div class="ball-box" id="ball-2"><div class="ball-img">🔵</div><div class="ball-name">超級球</div><div class="ball-rate">30%</div></div>
+            <div class="ball-box" id="ball-3"><div class="ball-img">🔴</div><div class="ball-name">精靈球</div><div class="ball-rate">10%</div></div>
+        </div>
+
+        <div id="roulette-result" class="hidden" style="text-align: center; margin: 20px 0;">
+            <div id="result-ball" style="font-size: 80px; margin-bottom: 20px;">🔴</div>
+            <h2 id="result-msg" style="font-size: 30px;"></h2>
+            <button onclick="finishCapture()" style="margin-top: 20px; background: #2196f3;">確認結果</button>
+        </div>
+
+        <button id="stop-btn" onclick="stopRoulette()">拍擊停下！ (或按空白鍵)</button>
+    </div>
+
     <script src="pokemonData.js"></script>
     <script src="game.js"></script>
 </body>
