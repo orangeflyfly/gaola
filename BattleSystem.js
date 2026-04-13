@@ -43,6 +43,7 @@ const BattleSystem = {
 
     triggerAttack(attacker) {
         isPaused = true;
+        SoundSystem.play('attack_hit');
         if (attacker === 'player') {
             enemyHP -= 20;
             GameUI.showDamage('enemy-card', 20);
