@@ -62,6 +62,13 @@ function closeBackpack() { document.getElementById('backpack-page').classList.ad
 
 // 啟動
 App.init();
+const App = {
+    init() {
+        MapSystem.refresh();
+        this.updateAll();
+        // 如果想讓大廳有音樂，但要記得玩家必須點過網頁任何地方音樂才會出來
+        SoundSystem.playBGM('bgm_lobby'); 
+    },
 
 // 監聽連打
 window.addEventListener('keydown', (e) => {
