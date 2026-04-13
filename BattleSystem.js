@@ -92,8 +92,8 @@ const BattleSystem = {
         const pRacer = document.getElementById('player-racer');
         const eRacer = document.getElementById('enemy-racer');
         
-        if (pRacer) pRacer.style.left = `calc(${playerATB}% - ${playerATB * 0.9}px)`;
-        if (eRacer) eRacer.style.left = `calc(${enemyATB}% - ${enemyATB * 0.9}px)`;
+        if (pRacer) pRacer.style.left = `calc(${playerATB}% - ${playerATB * 0.98}px)`;
+        if (eRacer) eRacer.style.left = `calc(${enemyATB}% - ${enemyATB * 0.98}px)`;
 
         if (playerATB >= 100) {
             this.executeAttack('player');
