@@ -1,10 +1,113 @@
-// 這裡是機台的「專屬資料庫」，未來新增寶可夢都在這裡加！
+// 🌟 寶可夢加傲樂 - 100 隻全明星究極卡池 🌟
+// 注意：因為已經連線 PokeAPI，這裡只需要填寫正確的「官方 ID」即可自動抓圖！
+
 const machineInventory = [
-    { id: 1, name: "小拉達", rarity: 1, icon: "🐭" },
-    { id: 2, name: "波波", rarity: 1, icon: "🐦" },
-    { id: 3, name: "皮卡丘", rarity: 3, icon: "⚡" },
-    { id: 4, name: "噴火龍", rarity: 4, icon: "🔥" },
-    { id: 5, name: "水箭龜", rarity: 4, icon: "🐢" },
-    { id: 6, name: "超夢", rarity: 5, icon: "🔮" }
-    // 如果要新增第 7 隻，就照上面的格式寫在下面，用逗號隔開
+    // === 【1 星卡：基礎寶可夢】 ===
+    { id: 1, name: "妙蛙種子", rarity: 1 },
+    { id: 4, name: "小火龍", rarity: 1 },
+    { id: 7, name: "傑尼龜", rarity: 1 },
+    { id: 10, name: "綠毛蟲", rarity: 1 },
+    { id: 13, name: "獨角蟲", rarity: 1 },
+    { id: 16, name: "波波", rarity: 1 },
+    { id: 19, name: "小拉達", rarity: 1 },
+    { id: 41, name: "超音蝠", rarity: 1 },
+    { id: 54, name: "可達鴨", rarity: 1 },
+    { id: 74, name: "小拳石", rarity: 1 },
+    { id: 129, name: "鯉魚王", rarity: 1 }, // 必備廢柴代表
+    { id: 172, name: "皮丘", rarity: 1 },
+    { id: 252, name: "木守宮", rarity: 1 },
+    { id: 255, name: "火稚雞", rarity: 1 },
+    { id: 258, name: "水躍魚", rarity: 1 },
+
+    // === 【2 星卡：進階與人氣萌寵】 ===
+    { id: 2, name: "妙蛙草", rarity: 2 },
+    { id: 5, name: "火恐龍", rarity: 2 },
+    { id: 8, name: "卡咪龜", rarity: 2 },
+    { id: 25, name: "皮卡丘", rarity: 2 },
+    { id: 35, name: "皮皮", rarity: 2 },
+    { id: 39, name: "胖丁", rarity: 2 },
+    { id: 52, name: "喵喵", rarity: 2 },
+    { id: 58, name: "卡蒂狗", rarity: 2 },
+    { id: 79, name: "呆呆獸", rarity: 2 },
+    { id: 92, name: "鬼斯", rarity: 2 },
+    { id: 133, name: "伊布", rarity: 2 },
+    { id: 447, name: "利歐路", rarity: 2 },
+    { id: 778, name: "謎擬Ｑ", rarity: 2 },
+
+    // === 【3 星卡：強大戰力與伊布家族】 ===
+    { id: 26, name: "雷丘", rarity: 3 },
+    { id: 59, name: "風速狗", rarity: 3 },
+    { id: 65, name: "胡地", rarity: 3 },
+    { id: 68, name: "怪力", rarity: 3 },
+    { id: 93, name: "鬼斯通", rarity: 3 },
+    { id: 134, name: "水伊布", rarity: 3 },
+    { id: 135, name: "雷伊布", rarity: 3 },
+    { id: 136, name: "火伊布", rarity: 3 },
+    { id: 143, name: "卡比獸", rarity: 3 },
+    { id: 196, name: "太陽伊布", rarity: 3 },
+    { id: 197, name: "月亮伊布", rarity: 3 },
+    { id: 212, name: "巨鉗螳螂", rarity: 3 },
+    { id: 470, name: "葉伊布", rarity: 3 },
+    { id: 471, name: "冰伊布", rarity: 3 },
+    { id: 700, name: "仙子伊布", rarity: 3 },
+
+    // === 【4 星卡：御三家最終型與準神獸 (會出現剪影)】 ===
+    { id: 3, name: "妙蛙花", rarity: 4 },
+    { id: 6, name: "噴火龍", rarity: 4 },
+    { id: 9, name: "水箭龜", rarity: 4 },
+    { id: 94, name: "耿鬼", rarity: 4 },
+    { id: 130, name: "暴鯉龍", rarity: 4 },
+    { id: 131, name: "拉普拉斯", rarity: 4 },
+    { id: 142, name: "化石翼龍", rarity: 4 },
+    { id: 149, name: "快龍", rarity: 4 },
+    { id: 248, name: "班基拉斯", rarity: 4 },
+    { id: 254, name: "蜥蜴王", rarity: 4 },
+    { id: 257, name: "火焰雞", rarity: 4 },
+    { id: 260, name: "巨沼怪", rarity: 4 },
+    { id: 373, name: "暴飛龍", rarity: 4 },
+    { id: 376, name: "巨金怪", rarity: 4 },
+    { id: 445, name: "烈咬陸鯊", rarity: 4 },
+    { id: 448, name: "路卡利歐", rarity: 4 },
+    { id: 658, name: "甲賀忍蛙", rarity: 4 },
+    { id: 887, name: "多龍巴魯托", rarity: 4 },
+
+    // === 【5 星卡：歷代傳說與幻之寶可夢 (極稀有剪影大獎)】 ===
+    // 關都 & 城都
+    { id: 144, name: "急凍鳥", rarity: 5 },
+    { id: 145, name: "閃電鳥", rarity: 5 },
+    { id: 146, name: "火焰鳥", rarity: 5 },
+    { id: 150, name: "超夢", rarity: 5 },
+    { id: 151, name: "夢幻", rarity: 5 },
+    { id: 243, name: "雷公", rarity: 5 },
+    { id: 244, name: "炎帝", rarity: 5 },
+    { id: 245, name: "水君", rarity: 5 },
+    { id: 249, name: "洛奇亞", rarity: 5 },
+    { id: 250, name: "鳳王", rarity: 5 },
+    { id: 251, name: "時拉比", rarity: 5 },
+    // 豐緣
+    { id: 382, name: "蓋歐卡", rarity: 5 },
+    { id: 383, name: "固拉多", rarity: 5 },
+    { id: 384, name: "烈空坐", rarity: 5 },
+    { id: 385, name: "基拉祈", rarity: 5 },
+    { id: 386, name: "代歐奇希斯", rarity: 5 },
+    // 神奧
+    { id: 483, name: "帝牙盧卡", rarity: 5 },
+    { id: 484, name: "帕路奇亞", rarity: 5 },
+    { id: 487, name: "騎拉帝納", rarity: 5 },
+    { id: 491, name: "達克萊伊", rarity: 5 },
+    { id: 493, name: "阿爾宙斯", rarity: 5 },
+    // 合眾 & 卡洛斯
+    { id: 643, name: "萊希拉姆", rarity: 5 },
+    { id: 644, name: "捷克羅姆", rarity: 5 },
+    { id: 646, name: "酋雷姆", rarity: 5 },
+    { id: 716, name: "哲爾尼亞斯", rarity: 5 },
+    { id: 717, name: "伊裴爾塔爾", rarity: 5 },
+    { id: 718, name: "基格爾德", rarity: 5 },
+    // 阿羅拉 & 伽勒爾
+    { id: 791, name: "索爾迦雷歐", rarity: 5 },
+    { id: 792, name: "露奈雅拉", rarity: 5 },
+    { id: 800, name: "奈克洛茲瑪", rarity: 5 },
+    { id: 888, name: "蒼響", rarity: 5 },
+    { id: 889, name: "藏瑪然特", rarity: 5 },
+    { id: 890, name: "無極汰那", rarity: 5 }
 ];
