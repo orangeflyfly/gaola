@@ -2,140 +2,128 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>寶可夢加傲樂模擬機 - 階段二</title>
+    <title>寶可夢加傲樂模擬機 - 階段三</title>
     <style>
-        /* --- 第二課：視覺樣式設定 --- */
-        body { 
-            background-color: #1a1a1a; /* 深灰色背景，更有機台感 */
-            color: white; 
-            font-family: "Microsoft JhengHei", sans-serif; 
-            text-align: center;
-            margin: 0;
-            padding: 20px;
+        body { background-color: #1a1a1a; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        h1 { color: #ffeb3b; }
+
+        /* 地圖選單容器 */
+        #map-container, #battle-select-screen {
+            display: flex; justify-content: center; gap: 15px; margin-top: 40px;
         }
 
-        h1 { color: #ffeb3b; text-shadow: 2px 2px 4px #000; }
-
-        /* 地圖容器：讓 5 張地圖橫向排列 */
-        #map-container {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 40px;
-        }
-
-        /* 地圖卡片基本樣式 */
+        /* 卡片樣式 */
         .map-card {
-            width: 130px;
-            padding: 15px;
-            background-color: #333;
-            border: 3px solid #555;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s; /* 動態效果：縮放與發光 */
+            width: 130px; padding: 15px; background-color: #333; border: 3px solid #555;
+            border-radius: 12px; cursor: pointer; transition: all 0.2s;
         }
+        .map-card:hover { transform: scale(1.1); border-color: #ffeb3b; box-shadow: 0 0 15px #ffeb3b; }
 
-        /* 滑鼠移上去時的效果 */
-        .map-card:hover {
-            transform: scale(1.1); /* 放大 1.1 倍 */
-            border-color: #ffeb3b; /* 邊框變黃色 */
-            box-shadow: 0 0 15px #ffeb3b; /* 增加發光感 */
-        }
+        /* 剪影魔法 */
+        .silhouette { filter: brightness(0); opacity: 0.8; }
+        .poke-sprite { font-size: 50px; margin-bottom: 10px; }
 
-        /* 寶可夢圖示樣式 */
-        .poke-sprite {
-            font-size: 50px;
-            margin-bottom: 10px;
-        }
+        /* 隱藏區塊的 CSS */
+        .hidden { display: none !important; }
 
-        /* 關鍵：剪影效果 (變黑魔法) */
-        .silhouette {
-            filter: brightness(0); /* 把亮度降到 0，圖像會變成全黑 */
-            opacity: 0.8;          /* 稍微帶一點透明度，更有神祕感 */
-        }
-
-        /* 刷新按鈕樣式 */
-        #refresh-btn {
-            margin-top: 40px;
-            padding: 10px 25px;
-            font-size: 16px;
-            background-color: #ff5722;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #refresh-btn:hover { background-color: #e64a19; }
+        /* 三選一專用樣式 */
+        .choice-card { border-color: #ff9800; background-color: #442200; }
     </style>
 </head>
 <body>
 
-    <h1>請選擇目的地</h1>
-    <p>機台內目前有 20 張卡片，隨機出現 5 張地圖</p>
+    <div id="selection-page">
+        <h1>請選擇目的地</h1>
+        <div id="map-container"></div>
+        <button id="refresh-btn" onclick="initMachine()" style="margin-top:30px; padding:10px 20px;">投入硬幣 (刷新地圖)</button>
+    </div>
 
-    <div id="map-container"></div>
-
-    <button id="refresh-btn" onclick="initMachine()">投入硬幣 (重新刷新地圖)</button>
+    <div id="battle-page" class="hidden">
+        <h1 style="color: #ff9800;">出現了三隻寶可夢！</h1>
+        <p>點擊你想挑戰的對手</p>
+        <div id="battle-select-screen"></div>
+        <button onclick="backToMaps()" style="margin-top:30px; padding:10px 20px; background:#666; color:white; border:none;">回到地圖</button>
+    </div>
 
     <script>
-        /* --- 第一課：資料與邏輯 --- */
-
-        // 1. 定義機台內的卡池 (模擬 20 張卡片的庫存)
         const machineInventory = [
             { id: 1, name: "小拉達", rarity: 1, icon: "🐭" },
             { id: 2, name: "波波", rarity: 1, icon: "🐦" },
-            { id: 3, name: "綠毛蟲", rarity: 1, icon: "🐛" },
-            { id: 4, name: "皮卡丘", rarity: 3, icon: "⚡" },
-            { id: 5, name: "喵喵", rarity: 2, icon: "🐱" },
-            { id: 6, name: "可達鴨", rarity: 2, icon: "🦆" },
-            { id: 7, name: "噴火龍", rarity: 4, icon: "🔥" },
-            { id: 8, name: "水箭龜", rarity: 4, icon: "🐢" },
-            { id: 9, name: "妙蛙花", rarity: 4, icon: "🌺" },
-            { id: 10, name: "超夢", rarity: 5, icon: "🔮" },
-            // ...以此類推可以加到 20 隻
+            { id: 3, name: "皮卡丘", rarity: 3, icon: "⚡" },
+            { id: 4, name: "噴火龍", rarity: 4, icon: "🔥" },
+            { id: 5, name: "水箭龜", rarity: 4, icon: "🐢" },
+            { id: 6, name: "超夢", rarity: 5, icon: "🔮" }
         ];
 
-        // 2. 初始化機台地圖的函式
+        // 初始化地圖
         function initMachine() {
             const container = document.getElementById('map-container');
-            container.innerHTML = ""; // 先清空目前的畫面
-
-            // 隨機抽取 5 張卡放到地圖上
+            container.innerHTML = "";
             for (let i = 0; i < 5; i++) {
-                // 從 0 到卡池長度之間隨機選一個數字
                 const randomIndex = Math.floor(Math.random() * machineInventory.length);
                 const pokemon = machineInventory[randomIndex];
-
-                // 呼叫「渲染卡片」的函式
                 createMapCard(pokemon, i + 1);
             }
         }
 
-        // 3. 把資料轉換成 HTML 卡片的函式
         function createMapCard(data, mapNumber) {
             const container = document.getElementById('map-container');
-
-            // 判斷：如果稀有度 (rarity) >= 4，就給它「silhouette」標籤（變黑影）
-            // 這就是你說的：讓玩家知道可能有強大的怪在裡面
             const silhouetteClass = (data.rarity >= 4) ? "silhouette" : "";
-
-            // 產生卡片的 HTML 內容
+            
+            // 注意這裡：點擊改為執行 enterMap 函數，並把這隻怪的資料傳進去
             const cardHTML = `
-                <div class="map-card" onclick="alert('進入地圖 ${mapNumber}：遇到 ${data.name}！')">
+                <div class="map-card" onclick='enterMap(${JSON.stringify(data)})'>
                     <div class="poke-sprite ${silhouetteClass}">${data.icon}</div>
                     <div style="font-weight: bold;">地圖 ${mapNumber}</div>
                     <div style="font-size: 14px; color: #aaa;">${data.name}</div>
-                    <div style="color: yellow;">★ ${data.rarity}</div>
                 </div>
             `;
-
-            // 將卡片加入到容器中
             container.innerHTML += cardHTML;
         }
 
-        // 當網頁一打開，自動跑一次初始化
-        window.onload = initMachine;
+        // --- 第三課核心：切換到三選一畫面 ---
+        function enterMap(boss) {
+            // 1. 切換顯示區域
+            document.getElementById('selection-page').classList.add('hidden');
+            document.getElementById('battle-page').classList.remove('hidden');
 
+            // 2. 準備三選一的清單 (原本那隻 + 兩隻隨機)
+            let battleChoices = [boss];
+            
+            while (battleChoices.length < 3) {
+                const randomIdx = Math.floor(Math.random() * machineInventory.length);
+                const randomPoke = machineInventory[randomIdx];
+                // 確保不會選到重複的 ID
+                if (!battleChoices.find(p => p.id === randomPoke.id)) {
+                    battleChoices.push(randomPoke);
+                }
+            }
+
+            // 3. 渲染三張戰鬥卡片 (這裡我們就不做剪影了，讓玩家看清楚要打誰)
+            const battleScreen = document.getElementById('battle-select-screen');
+            battleScreen.innerHTML = "";
+            battleChoices.forEach(p => {
+                battleScreen.innerHTML += `
+                    <div class="map-card choice-card" onclick="startBattle('${p.name}')">
+                        <div class="poke-sprite">${p.icon}</div>
+                        <div style="font-weight: bold;">${p.name}</div>
+                        <div style="color: yellow;">★ ${p.rarity}</div>
+                    </div>
+                `;
+            });
+        }
+
+        // 返回選單
+        function backToMaps() {
+            document.getElementById('selection-page').classList.remove('hidden');
+            document.getElementById('battle-page').classList.add('hidden');
+        }
+
+        function startBattle(name) {
+            alert("進入對戰！目標： " + name + "\n下一步：準備瘋狂連打 A / D 鍵！");
+        }
+
+        window.onload = initMachine;
     </script>
 </body>
 </html>
