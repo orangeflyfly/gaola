@@ -3,7 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <title>寶可夢加傲樂 - RPG 戰鬥版</title>
-    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        body { background-color: #1a1a1a; color: white; font-family: sans-serif; text-align: center; padding: 20px; overflow: hidden; }
+        h1 { color: #ffeb3b; font-size: 50px; text-shadow: 0 0 15px rgba(255, 235, 59, 0.5); margin-bottom: 10px; }
+        p { font-size: 20px; }
+        .hidden { display: none !important; }
+
+        /* 金幣顯示區 */
+        #coin-board { position: absolute; top: 20px; right: 30px; font-size: 28px; color: gold; font-weight: bold; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 15px; border: 2px solid gold; }
+
+        #carousel-area { display: flex; justify-content: center; align-items: center; gap: 60px; margin-top: 50px; }
+        .nav-arrow { font-size: 80px; color: #888; cursor: pointer; user-select: none; transition: 0.2s; }
+        .nav-arrow:hover { color: #ffeb3b; transform: scale(1.2); }
+
+        .map-card { width: 260px; padding: 30px; background-color: #333; border: 5px solid #ffeb3b; border-radius: 20px; box-shadow: 0 0 30px rgba(255, 235, 59, 0.6); transition: all 0.2s; }
+
+        #battle-select-screen { display: flex; justify-content: center; gap: 40px; margin-top: 50px; }
+        .choice-card { width: 220px; padding: 25px; background-color: #333; border: 5px solid #555; border-radius: 20px; cursor: pointer; transition: all 0.2s; }
+        .choice-card:hover { border-color: orange; transform: scale(1.1); box-shadow: 0 0 25px orange; }
+
+        .silhouette { filter: brightness(0); opacity: 0.85; }
+        img.poke-sprite { width: 160px; height: 160px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0px 8px 10px rgba(0,0,0,0.6)); }
+
+        /* 戰鬥區塊排版 */
+        #combat-arena { display: flex; justify-content: space-around; align-items: center; margin-top: 30px; }
+        .combatant { width: 300px; background: #333; padding: 20px; border-radius: 15px; border: 3px solid #777; }
+
+        /* 血條與行動條 (ATB) */
+        .bar-bg { width: 100%; height: 25px; background: #222; border-radius: 10px; margin: 10px 0; overflow: hidden; border: 2px solid #555; }
+        .hp-bar { width: 100%; height: 100%; background: #4caf50; transition: width 0.3s; }
+        .atb-bar { width: 0%; height: 100%; background: #2196f3; } 
+        .enemy-atb { background: #ff9800; } 
+
+        .attack-hint { font-size: 30px; color: #ff5722; font-weight: bold; animation: blink 0.5s infinite; margin-top: 20px; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        button { padding: 15px 30px; font-size: 24px; cursor: pointer; background: #555; color: white; border: none; border-radius: 10px; margin-top: 30px; transition: 0.2s; }
+        button:hover { background: #777; transform: scale(1.05); }
+        .btn-gold { background: #ff9800; color: white; font-weight: bold; }
+        .btn-gold:hover { background: #e68a00; }
+    </style>
 </head>
 <body>
 
