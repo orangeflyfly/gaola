@@ -43,7 +43,7 @@ const BattleSystem = {
                     playerATB += 1.8; 
                     // 為了不讓文字一直跳動，只有在平時顯示加速提示
                     if (document.getElementById('action-msg').innerText.includes("加速")) {
-                        this.showMsg("⚡ 衝刺中！！ ⚡");
+                        this.showMsg("⚡ 請按A.D鍵加速！！ ⚡");
                     }
                 }
             }
