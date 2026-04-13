@@ -1,10 +1,36 @@
-/* battle-fx.css - V7.1 戰鬥視覺校準版 */
+/* battle-fx.css - V7.2 旗艦重裝校準版 */
+
 #atb-track-container { 
     width: 95% !important; 
     max-width: 1200px !important;
-    margin: 30px auto !important; /* 縮小邊距 */
+    margin: 40px auto !important;
     position: relative; 
     flex-shrink: 0;
+}
+
+/* 🌟 [V7.2 新增] Combo 連擊顯示區 */
+#combo-display {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 3rem;
+    font-weight: 900;
+    font-style: italic;
+    pointer-events: none;
+    z-index: 100;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Combo 不同階段的發光顏色 */
+.combo-lv1 { color: #ffffff; text-shadow: 0 0 10px #fff; }
+.combo-lv2 { color: #ffeb3b; text-shadow: 0 0 20px #ffeb3b, 0 0 30px #ff9800; font-size: 3.5rem !important; }
+.combo-lv3 { color: #ff00ea; text-shadow: 0 0 25px #ff00ea, 0 0 45px #ff0000; font-size: 4rem !important; animation: feverShake 0.1s infinite; }
+
+@keyframes feverShake {
+    0% { transform: translate(-50%, 0); }
+    50% { transform: translate(-52%, 2px); }
+    100% { transform: translate(-48%, -2px); }
 }
 
 .track-bg { 
@@ -15,13 +41,27 @@
     box-shadow: 0 0 40px var(--primary-glow) !important; 
     position: relative; 
     overflow: visible;
+    transition: all 0.5s ease;
 }
 
-/* 頭像垂直居中校準 - 保持 50% 黃金比例 */
+/* 🌟 [V7.2 新增] FEVER 模式賽道特效 */
+.fever-mode {
+    border-color: #ff00ea !important;
+    box-shadow: 0 0 60px #ff00ea, inset 0 0 20px #ff00ea !important;
+    animation: feverPulse 0.5s infinite alternate;
+}
+
+@keyframes feverPulse {
+    from { filter: brightness(1); }
+    to { filter: brightness(1.5); }
+}
+
+/* 🌟 [V7.2 關鍵修正] 頭像垂直居中與邊界鎖定方案 */
+/* 使用 translate(-X%, -50%) 確保 0% 不出左界，100% 不出右界 */
 #player-racer, #enemy-racer {
     position: absolute !important; 
     top: 50% !important; 
-    transform: translateY(-50%) !important; 
+    /* 下方的 transform 會在 JS 中動態更新 translate 的百分比 */
     z-index: 10;
     transition: left 0.1s linear;
 }
@@ -37,33 +77,43 @@
 #player-racer img { border-color: var(--primary-glow); box-shadow: 0 0 20px var(--primary-glow); }
 #enemy-racer img { border-color: var(--arcade-red); box-shadow: 0 0 20px var(--arcade-red); }
 
-/* --- [修正] 縮小公告文字 --- */
 #action-msg {
     color: #fff; 
-    font-size: 2.2rem; /* 從 3rem 縮小到 2.2rem */
+    font-size: 2.2rem;
     font-weight: 900; 
     font-style: italic;
     text-shadow: 0 0 10px #ff0000, 0 0 20px #ffeb3b;
     animation: actionPulse 0.4s ease-in-out infinite alternate;
     text-align: center; 
-    margin: 15px 0; /* 縮小上下間距 */
-    min-height: 3rem; /* 確保高度固定，防止頁面跳動 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin: 15px 0;
+    min-height: 3.5rem; 
+    display: flex; align-items: center; justify-content: center;
 }
 
-@keyframes actionPulse { from { transform: scale(1); } to { transform: scale(1.08); } }
+/* 🌟 [V7.2 新增] 物理震動特效 (用於 A/D 按鍵回饋) */
+.shake-impact { animation: quickShake 0.1s ease-out; }
+@keyframes quickShake {
+    0% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(5px, -5px) scale(1.02); }
+    100% { transform: translate(0,0) scale(1); }
+}
 
-/* 傷害噴字 */
+/* 傷害噴字與 MISS 字體 */
 .damage-popup {
     position: absolute; 
     color: #ff1a1a; 
-    font-size: 65px; /* 稍微縮小一點噴字，配合標題 */
+    font-size: 65px; 
     font-weight: 900;
+    font-style: italic;
     text-shadow: 3px 3px 0px #fff, 0 0 20px #ff0000;
     z-index: 3000; 
     animation: damageFloat 0.7s forwards;
+}
+
+/* 🌟 [V7.2 新增] MISS 專用顏色 */
+.damage-popup.miss {
+    color: #ffffff !important;
+    text-shadow: 3px 3px 0px #888, 0 0 20px #ffffff !important;
 }
 
 @keyframes damageFloat {
