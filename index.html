@@ -2,35 +2,57 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>寶可夢加傲樂 - 專業版架構</title>
+    <title>寶可夢加傲樂 - RPG 戰鬥版</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <div id="coin-board">
+        💰 金幣: <span id="coin-display">0</span>
+        <button onclick="earnCoins()" style="font-size: 16px; padding: 5px 10px; margin: 0 0 0 10px; background: #4caf50;">打工 (+10)</button>
+    </div>
+
     <div id="selection-page">
-        <h1 id="main-title">請選擇目的地</h1>
+        <h1 id="main-title">遊樂場大廳</h1>
         <p style="color: #aaa;">使用鍵盤 ⬅ ➡ 切換地圖，按下 Enter 確認進入</p>
         <div id="carousel-area">
             <div class="nav-arrow" onclick="changeMap(-1)">◀</div>
             <div id="single-map-display"></div>
             <div class="nav-arrow" onclick="changeMap(1)">▶</div>
         </div>
-        <button onclick="confirmMapSelection()" style="background-color: #4caf50;">確認進入此地圖 (Enter)</button>
-        <button onclick="initMachine()">刷新機台</button>
+        <button onclick="confirmMapSelection()" class="btn-gold">投入 30 金幣並探索 (Enter)</button>
+        <button onclick="refreshMachine()">刷新機台</button>
     </div>
 
     <div id="battle-page" class="hidden">
         <h1 style="color: #ff9800;">發現寶可夢！挑戰哪一隻？</h1>
         <div id="battle-select-screen"></div>
-        <button onclick="backToMaps()">回上一頁 (Esc)</button>
+        <button onclick="backToMaps()">逃跑 (Esc)</button>
     </div>
 
     <div id="fighting-page" class="hidden">
         <h1 id="enemy-title">對戰開始！</h1>
-        <img class="poke-sprite" id="enemy-icon" src="" alt="enemy" style="width: 200px; height: 200px;">
-        <div class="attack-hint">瘋狂交替按 A 與 D 鍵！！</div>
-        <div class="energy-container"><div id="energy-bar"></div></div>
-        <p id="energy-text-display">能量蓄積: <span id="energy-text">0</span>%</p>
+        <div class="attack-hint">瘋狂交替按 A 與 D 鍵，搶先集滿行動條發動攻擊！！</div>
+        
+        <div id="combat-arena">
+            <div class="combatant" style="border-color: #2196f3;">
+                <div style="font-size: 80px; margin-bottom: 20px;">⚡</div>
+                <h2 style="margin: 5px;">皮卡丘 (我方)</h2>
+                <div>HP: <span id="player-hp-text">100</span> / 100</div>
+                <div class="bar-bg"><div id="player-hp-bar" class="hp-bar"></div></div>
+                <div>行動條 (ATB)</div>
+                <div class="bar-bg"><div id="player-atb-bar" class="atb-bar"></div></div>
+            </div>
+
+            <div class="combatant" style="border-color: #f44336;">
+                <img class="poke-sprite" id="enemy-icon" src="" alt="enemy" style="width: 120px; height: 120px; margin-bottom: 0;">
+                <h2 id="enemy-name" style="margin: 5px;">敵方</h2>
+                <div>HP: <span id="enemy-hp-text">100</span> / 100</div>
+                <div class="bar-bg"><div id="enemy-hp-bar" class="hp-bar"></div></div>
+                <div>行動條 (ATB)</div>
+                <div class="bar-bg"><div id="enemy-atb-bar" class="atb-bar enemy-atb"></div></div>
+            </div>
+        </div>
     </div>
 
     <script src="pokemonData.js"></script>
