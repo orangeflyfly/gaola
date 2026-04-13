@@ -112,6 +112,51 @@ const CaptureSystem = {
                 msgEl.style.color = "#4caf50";
                 document.getElementById('pay-ask-text').innerText = `是否投入 10 金幣將實體卡匣印出？`;
                 document.getElementById('pay-confirm-box').classList.remove('hidden');
+
+                // ==========================================
+                // 🛠️ [Bug 修復] 綁定「確認支付入包」按鈕邏輯
+                // ==========================================
+                document.getElementById('confirm-pay-btn').onclick = () => {
+                    // 1. 檢查金幣是否足夠 (假設全域變數為 coins)
+                    if (coins >= 10) {
+                        coins -= 10; 
+                        
+                        // 2. 加入背包 (確保 myBackpack 陣列存在)
+                        if (typeof myBackpack === 'undefined') window.myBackpack = [];
+                        
+                        // [V7.2 屬性防呆] 確保抓到的怪有屬性標籤
+                        if (!this.targetEnemy.type) this.targetEnemy.type = "一般";
+                        myBackpack.push(this.targetEnemy);
+                        
+                        // 3. 觸發存檔 (配合 storage.js 的寫法，這裡加上基礎的 localStorage 雙重保障)
+                        try {
+                            localStorage.setItem('gaole_coins', coins);
+                            localStorage.setItem('gaole_backpack', JSON.stringify(myBackpack));
+                            // 如果您 storage.js 裡有 saveGame()，也可以在這裡呼叫：
+                            if (typeof saveGame === 'function') saveGame();
+                        } catch(e) { console.warn("存檔失敗", e); }
+                        
+                        // 4. 更新畫面右上角的金幣顯示
+                        const coinEl = document.getElementById('coin-count');
+                        if (coinEl) coinEl.innerText = coins;
+
+                        // 5. 華麗的印卡提示與退場
+                        document.getElementById('pay-confirm-box').classList.add('hidden');
+                        msgEl.innerText = `🖨️ 卡匣印製中... 喀喀喀...`;
+                        msgEl.style.color = "#ffeb3b";
+                        
+                        setTimeout(() => {
+                            alert(`🎉 實體卡匣【${this.targetEnemy.name}】掉落！已存入背包。`);
+                            // 呼叫 game.js 裡的結束函數，回到大廳
+                            if (typeof finishCapture === 'function') finishCapture(); 
+                        }, 800);
+
+                    } else {
+                        // 金幣不夠的防呆警告
+                        alert("❌ 投幣餘額不足 10 枚！機台無法印出卡匣！");
+                    }
+                };
+
             } else {
                 msgEl.innerText = `💨 哎呀！ ${this.targetEnemy.name} 掙脫逃跑了...`;
                 msgEl.style.color = "#f44336";
