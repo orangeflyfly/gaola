@@ -2,90 +2,87 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>寶可夢加傲樂 - 背包存檔版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寶可夢加傲樂 - V3.0 視覺強化版</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="coin-board">
-        💰 金幣: <span id="coin-display">0</span>
-        <button onclick="earnCoins()" style="font-size: 16px; padding: 5px 10px; background: #4caf50;">打工 (+10)</button>
-        <button onclick="openBackpack()" style="font-size: 16px; padding: 5px 10px; background: #2196f3;">🎒 我的背包</button>
+        💰 <span id="coin-display">0</span>
+        <button onclick="earnCoins()" style="background: #4caf50;">打工</button>
+        <button onclick="openBackpack()" style="background: #2196f3;">🎒 背包</button>
     </div>
 
     <div id="selection-page">
-        <h1 id="main-title">遊樂場大廳</h1>
-        <p style="color: #aaa;">使用鍵盤 ⬅ ➡ 切換地圖，按下 Enter 確認進入</p>
+        <h1>遊樂場大廳</h1>
+        <p style="color: #aaa;">⬅ ➡ 切換地圖，Enter 確認進入</p>
         <div id="carousel-area">
             <div class="nav-arrow" onclick="changeMap(-1)">◀</div>
             <div id="single-map-display"></div>
             <div class="nav-arrow" onclick="changeMap(1)">▶</div>
         </div>
-        <button onclick="confirmMapSelection()" class="btn-gold">投入 30 金幣並探索 (Enter)</button>
-        <button onclick="refreshMachine()">刷新機台</button>
+        <button onclick="confirmMapSelection()" class="btn-gold">投入 30 金幣探索 (Enter)</button>
+        <button onclick="refreshMachine()" style="margin-top:10px;">刷新機台</button>
     </div>
 
     <div id="battle-page" class="hidden">
         <h1 style="color: #ff9800;">發現寶可夢！挑戰哪一隻？</h1>
         <div id="battle-select-screen"></div>
-        <button onclick="backToMaps()">逃跑 (Esc)</button>
+        <button onclick="backToMaps()" style="margin-top: 30px;">逃跑 (Esc)</button>
     </div>
 
     <div id="fighting-page" class="hidden">
-        <h1 id="enemy-title">對戰開始！</h1>
         
+        <div class="combatant" id="enemy-card" style="border-color: #f44336;">
+            <img class="poke-sprite" id="enemy-icon" src="" alt="enemy">
+            <h2 id="enemy-name" style="margin: 5px;">敵方</h2>
+            <div class="bar-bg">
+                <div id="enemy-hp-bar" class="hp-bar" style="background: #f44336;"></div>
+            </div>
+        </div>
+
         <div id="atb-track-container">
-            <h3 style="margin:0 0 5px 0;">行動賽道 (先抵達右方者攻擊)</h3>
             <div class="track-bg">
                 <div class="finish-line"></div>
-                <div id="player-racer" class="racer-icon"><img id="player-racer-img" src="" alt="me"></div>
-                <div id="enemy-racer" class="racer-icon"><img id="enemy-racer-img" src="" alt="enemy"></div>
+                <div id="player-racer" class="racer-icon"><img id="player-racer-img" src=""></div>
+                <div id="enemy-racer" class="racer-icon"><img id="enemy-racer-img" src=""></div>
             </div>
-            <div id="action-msg" class="attack-hint blink-text">瘋狂交替按 A 與 D 鍵加速前進！！</div>
+            <p id="action-msg" class="attack-hint blink-text">瘋狂按 A D 鍵加速！！</p>
         </div>
 
-        <div id="combat-arena">
-            <div class="combatant" id="player-card" style="border-color: #2196f3;">
-                <img class="poke-sprite" id="player-icon" src="" alt="player" style="width: 100px; height: 100px; margin-bottom: 0;">
-                <h2 id="player-name" style="margin: 5px;">我方搭檔</h2>
-                <div>HP: <span id="player-hp-text">100</span> / 100</div>
-                <div class="bar-bg"><div id="player-hp-bar" class="hp-bar"></div></div>
-            </div>
-
-            <div class="combatant" id="enemy-card" style="border-color: #f44336;">
-                <img class="poke-sprite" id="enemy-icon" src="" alt="enemy" style="width: 100px; height: 100px; margin-bottom: 0;">
-                <h2 id="enemy-name" style="margin: 5px;">敵方</h2>
-                <div>HP: <span id="enemy-hp-text">100</span> / 100</div>
-                <div class="bar-bg"><div id="enemy-hp-bar" class="hp-bar"></div></div>
+        <div class="combatant" id="player-card" style="border-color: #2196f3;">
+            <img class="poke-sprite" id="player-icon" src="" alt="player">
+            <h2 id="player-name" style="margin: 5px;">我方搭檔</h2>
+            <div class="bar-bg">
+                <div id="player-hp-bar-real" class="hp-bar"></div>
             </div>
         </div>
+    </div>
+
+    <div id="roulette-page" class="hidden">
+        <h1 style="color: #ffeb3b;">進入捕獲階段！</h1>
+        <h2 id="roulette-target-name">野生寶可夢</h2>
+        
+        <div id="wheel-container">
+            <div id="wheel-pointer"></div>
+            <div id="wheel"></div>
+        </div>
+
+        <div id="roulette-result" class="hidden">
+            <div id="result-ball" style="font-size: 100px; margin-bottom: 10px;">🔴</div>
+            <h2 id="result-msg" style="font-size: 28px;"></h2>
+            <button onclick="finishCapture()" style="background: #2196f3;">確認收錄</button>
+        </div>
+
+        <button id="stop-btn" onclick="spinWheel()" style="background:#ff5722">點擊旋轉轉盤！</button>
     </div>
 
     <div id="backpack-page" class="hidden">
         <h1>🎒 我的圖鑑背包</h1>
         <p>收集進度: <span id="collection-count">0</span> 隻</p>
-        <button onclick="closeBackpack()" style="margin-top: 0; background: #f44336;">關閉背包</button>
+        <button onclick="closeBackpack()" style="background: #f44336;">返回大廳</button>
         <div id="backpack-grid"></div>
-    </div>
-
-    <div id="roulette-page" class="hidden">
-        <h1 style="color: #ff9800;">進入捕獲階段！</h1>
-        <h2 id="roulette-target-name">野生 寶可夢</h2>
-        
-        <div id="roulette-wheels" class="ball-container">
-            <div class="ball-box" id="ball-0"><div class="ball-img">🟣</div><div class="ball-name">大師球</div><div class="ball-rate">必中</div></div>
-            <div class="ball-box" id="ball-1"><div class="ball-img">🟡</div><div class="ball-name">高級球</div><div class="ball-rate">50%</div></div>
-            <div class="ball-box" id="ball-2"><div class="ball-img">🔵</div><div class="ball-name">超級球</div><div class="ball-rate">30%</div></div>
-            <div class="ball-box" id="ball-3"><div class="ball-img">🔴</div><div class="ball-name">精靈球</div><div class="ball-rate">10%</div></div>
-        </div>
-
-        <div id="roulette-result" class="hidden" style="text-align: center; margin: 20px 0;">
-            <div id="result-ball" style="font-size: 80px; margin-bottom: 20px;">🔴</div>
-            <h2 id="result-msg" style="font-size: 30px;"></h2>
-            <button onclick="finishCapture()" style="margin-top: 20px; background: #2196f3;">確認結果</button>
-        </div>
-
-        <button id="stop-btn" onclick="stopRoulette()">拍擊停下！ (或按空白鍵)</button>
     </div>
 
     <script src="pokemonData.js"></script>
