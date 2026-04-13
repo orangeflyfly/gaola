@@ -2,41 +2,36 @@ let currentScreen = 'selection';
 let currentMapOptions = [];      
 let currentMapIndex = 0;         
 
-// --- 新增：RPG 狀態變數 ---
 let coins = 0;
 let playerHP = 100;
 let enemyHP = 100;
 let playerATB = 0;
 let enemyATB = 0;
-let currentEnemyRarity = 1; // 用來決定敵人速度
+let currentEnemyRarity = 1; 
 let battleLoop = null;
+let isPaused = false; // ★ 新增：控制畫面凍結的變數
 
-// 更新所有 UI 顯示 (金幣、血量、行動條)
 function updateUI() {
     document.getElementById('coin-display').innerText = coins;
     
     if (currentScreen === 'fight') {
         document.getElementById('player-hp-text').innerText = playerHP;
         document.getElementById('player-hp-bar').style.width = playerHP + '%';
-        document.getElementById('player-atb-bar').style.width = playerATB + '%';
-
+        
         document.getElementById('enemy-hp-text').innerText = enemyHP;
         document.getElementById('enemy-hp-bar').style.width = enemyHP + '%';
-        document.getElementById('enemy-atb-bar').style.width = enemyATB + '%';
+
+        // 更新賽道上圖標的位置 (最高 95%，預留終點線的寬度)
+        document.getElementById('player-racer').style.left = Math.min(playerATB, 95) + '%';
+        document.getElementById('enemy-racer').style.left = Math.min(enemyATB, 95) + '%';
     }
 }
 
-// 打工賺錢
-function earnCoins() {
-    coins += 10;
-    updateUI();
-}
+function earnCoins() { coins += 10; updateUI(); }
 
-// 刷新機台 (不用錢，但要重新抓資料)
 async function refreshMachine() {
     document.getElementById('single-map-display').innerHTML = '<h3 style="color: #aaa; font-size: 24px;">📡 正在下載官方圖片...</h3>';
     currentMapOptions = [];
-    
     for (let i = 0; i < 5; i++) {
         let randomPoke = machineInventory[Math.floor(Math.random() * machineInventory.length)];
         try {
@@ -71,13 +66,9 @@ function changeMap(direction) {
     renderCarousel();
 }
 
-// ★ 確認進入地圖 (扣除金幣判定)
 function confirmMapSelection() {
-    if (coins < 30) {
-        alert("金幣不足！請先點擊右上角「打工」賺取至少 30 金幣！");
-        return;
-    }
-    coins -= 30; // 扣錢
+    if (coins < 30) { alert("金幣不足！請先打工！"); return; }
+    coins -= 30; 
     updateUI();
     enterTripleChoice(currentMapOptions[currentMapIndex]);
 }
@@ -86,24 +77,18 @@ function enterTripleChoice(boss) {
     currentScreen = 'triple';
     document.getElementById('selection-page').classList.add('hidden');
     document.getElementById('battle-page').classList.remove('hidden');
-    
     let choices = [boss];
     while(choices.length < 3) {
         let r = currentMapOptions[Math.floor(Math.random() * currentMapOptions.length)];
         if(!choices.find(p => p.id === r.id)) choices.push(r);
     }
-
     const screen = document.getElementById('battle-select-screen');
     screen.innerHTML = "";
     choices.forEach(p => {
         const card = document.createElement('div');
         card.className = 'choice-card';
         card.onclick = () => startFighting(p);
-        card.innerHTML = `
-            <img src="${p.image}" class="poke-sprite">
-            <div style="font-size: 24px; font-weight: bold;">${p.name}</div>
-            <div style="font-size: 18px; color: yellow; margin-top: 10px;">★${p.rarity}</div>
-        `;
+        card.innerHTML = `<img src="${p.image}" class="poke-sprite"><div style="font-size: 24px; font-weight: bold;">${p.name}</div><div style="font-size: 18px; color: yellow; margin-top: 10px;">★${p.rarity}</div>`;
         screen.appendChild(card);
     });
 }
@@ -114,65 +99,96 @@ function backToMaps() {
     document.getElementById('battle-page').classList.add('hidden');
 }
 
-// ★ 核心戰鬥機制
 function startFighting(target) {
     currentScreen = 'fight';
+    isPaused = false;
     document.getElementById('battle-page').classList.add('hidden');
     document.getElementById('fighting-page').classList.remove('hidden');
     
     document.getElementById('enemy-title').innerText = "遭遇野生 " + target.name + "！";
     document.getElementById('enemy-name').innerText = target.name;
     document.getElementById('enemy-icon').src = target.image; 
-    currentEnemyRarity = target.rarity; // 記住敵人星級，決定他的速度
+    document.getElementById('enemy-racer-img').src = target.image; // 賽道上的小圖
+    currentEnemyRarity = target.rarity; 
     
-    // 戰鬥狀態重置
     playerHP = 100; enemyHP = 100;
     playerATB = 0; enemyATB = 0;
+    document.getElementById('action-msg').innerText = "瘋狂交替按 A 與 D 鍵加速前進！！";
     
     if(battleLoop) clearInterval(battleLoop);
     
-    // 戰鬥計時器：每 0.05 秒跑一次 (速度感)
     battleLoop = setInterval(() => {
-        if (currentScreen !== 'fight') return;
+        // ★ 如果畫面凍結中，賽跑暫停
+        if (currentScreen !== 'fight' || isPaused) return;
 
-        // 1. 雙方行動條自動增加 (敵人星級越高，長越快)
         playerATB += 0.5; 
-        enemyATB += (currentEnemyRarity * 0.4); // 5星敵人每次加 2.0，非常快！
+        enemyATB += (currentEnemyRarity * 0.4); 
 
-        // 2. 玩家攻擊判定
-        if (playerATB >= 100) {
-            playerATB = 0;
-            enemyHP -= 20; // 玩家每次攻擊扣敵人 20 血
-            checkWinLose();
-        }
-        
-        // 3. 敵人攻擊判定
-        if (enemyATB >= 100) {
-            enemyATB = 0;
-            playerHP -= 25; // 敵人打比較痛！
-            checkWinLose();
+        // 判定誰先到終點 (95% 就算摸到終點線)
+        if (playerATB >= 95) {
+            playerATB = 95;
+            triggerAttack('player');
+        } else if (enemyATB >= 95) {
+            enemyATB = 95;
+            triggerAttack('enemy');
         }
         
         updateUI();
     }, 50);
 }
 
-// 判定勝負
-function checkWinLose() {
-    if (enemyHP <= 0) {
-        enemyHP = 0;
-        clearInterval(battleLoop);
-        updateUI();
-        setTimeout(() => { alert("勝利！成功收服寶可夢！"); backToMaps(); }, 100);
-    } else if (playerHP <= 0) {
-        playerHP = 0;
-        clearInterval(battleLoop);
-        updateUI();
-        setTimeout(() => { alert("皮卡丘倒下了... 挑戰失敗，寶可夢逃跑了！"); backToMaps(); }, 100);
+// ★ 核心結算邏輯：凍結、扣血、震動、單方歸零
+function triggerAttack(attacker) {
+    isPaused = true; // 暫停賽跑
+    const msgBox = document.getElementById('action-msg');
+
+    if (attacker === 'player') {
+        enemyHP -= 20;
+        msgBox.innerText = "⚡ 皮卡丘發動攻擊！敵人受到 20 點傷害！";
+        document.getElementById('enemy-card').classList.add('shake'); // 敵人框震動
+    } else {
+        playerHP -= 25;
+        msgBox.innerText = "💥 敵人發動攻擊！皮卡丘受到 25 點傷害！";
+        document.getElementById('player-card').classList.add('shake'); // 我方框震動
     }
+    
+    updateUI();
+
+    // 檢查是否有人死掉
+    if (enemyHP <= 0 || playerHP <= 0) {
+        checkWinLose();
+        return; 
+    }
+
+    // ★ 等待 2 秒後恢復
+    setTimeout(() => {
+        if (attacker === 'player') {
+            playerATB = 0; // 只有攻擊者歸零
+            document.getElementById('enemy-card').classList.remove('shake');
+        } else {
+            enemyATB = 0; // 只有攻擊者歸零
+            document.getElementById('player-card').classList.remove('shake');
+        }
+        
+        msgBox.innerText = "瘋狂交替按 A 與 D 鍵加速前進！！";
+        isPaused = false; // 解除凍結，繼續賽跑！
+    }, 2000);
 }
 
-// 鍵盤控制器 (連打加速)
+function checkWinLose() {
+    setTimeout(() => {
+        if (enemyHP <= 0) {
+            enemyHP = 0; updateUI(); clearInterval(battleLoop);
+            alert("勝利！成功收服寶可夢！"); backToMaps();
+        } else if (playerHP <= 0) {
+            playerHP = 0; updateUI(); clearInterval(battleLoop);
+            alert("皮卡丘倒下了... 挑戰失敗，寶可夢逃跑了！"); backToMaps();
+        }
+        document.getElementById('enemy-card').classList.remove('shake');
+        document.getElementById('player-card').classList.remove('shake');
+    }, 500); // 延遲一下讓玩家看清楚血條歸零
+}
+
 window.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
     if (currentScreen === 'selection') {
@@ -182,13 +198,13 @@ window.addEventListener('keydown', (e) => {
     } else if (currentScreen === 'triple') {
         if (key === 'escape') backToMaps();
     } else if (currentScreen === 'fight') {
-        // ★ 玩家瘋狂連打 A 和 D 鍵，可以直接增加行動條！
-        if (key === 'a' || key === 'd') {
-            playerATB += 5; // 按一下加 5%，手速夠快就能一直揍敵人
+        // ★ 只有在沒有暫停的時候，連打才有效
+        if ((key === 'a' || key === 'd') && !isPaused) {
+            playerATB += 4; 
+            updateUI();
         }
     }
 });
 
-// 初始化
 refreshMachine();
 updateUI();
