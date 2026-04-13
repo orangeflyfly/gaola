@@ -252,3 +252,104 @@ window.addEventListener('keydown', (e) => {
 
 refreshMachine();
 updateUI();
+
+// ========================================== //
+// ======== 🎰 精靈球捕獲轉盤模組 ======== //
+// ========================================== //
+let rouletteInterval = null;
+let currentBallIndex = 0;
+let isRouletteRunning = false;
+
+// 定義球的機率 (總監設定版)
+const ballTypes = [
+    { id: 0, name: "大師球", emoji: "🟣", rate: 100 },
+    { id: 1, name: "高級球", emoji: "🟡", rate: 50 },
+    { id: 2, name: "超級球", emoji: "🔵", rate: 30 },
+    { id: 3, name: "精靈球", emoji: "🔴", rate: 10 }
+];
+
+function startRoulette() {
+    document.getElementById('roulette-page').classList.remove('hidden');
+    document.getElementById('roulette-target-name').innerText = `野生 ${currentEnemy.name} (★${currentEnemy.rarity})`;
+    
+    document.getElementById('roulette-wheels').classList.remove('hidden');
+    document.getElementById('stop-btn').classList.remove('hidden');
+    document.getElementById('roulette-result').classList.add('hidden');
+
+    isRouletteRunning = true;
+    currentBallIndex = 0;
+
+    // 啟動跑馬燈，每 0.1 秒換一格
+    if(rouletteInterval) clearInterval(rouletteInterval);
+    rouletteInterval = setInterval(() => {
+        for(let i=0; i<4; i++) document.getElementById(`ball-${i}`).classList.remove('active');
+        currentBallIndex = (currentBallIndex + 1) % 4;
+        document.getElementById(`ball-${currentBallIndex}`).classList.add('active');
+    }, 100);
+}
+
+function stopRoulette() {
+    if (!isRouletteRunning) return;
+    isRouletteRunning = false;
+    clearInterval(rouletteInterval);
+
+    const selectedBall = ballTypes[currentBallIndex];
+    document.getElementById('roulette-wheels').classList.add('hidden');
+    document.getElementById('stop-btn').classList.add('hidden');
+    
+    const resultBox = document.getElementById('roulette-result');
+    const resultBall = document.getElementById('result-ball');
+    const resultMsg = document.getElementById('result-msg');
+    
+    resultBox.classList.remove('hidden');
+    resultBall.innerText = selectedBall.emoji;
+    resultBall.className = 'catch-shake'; // 啟動搖晃 3 下的動畫
+    resultMsg.innerText = `丟出了 ${selectedBall.name}！搖晃中...`;
+    resultMsg.style.color = "white";
+
+    // 模擬搖晃等待時間 (1.5秒後開獎)
+    setTimeout(() => {
+        resultBall.classList.remove('catch-shake');
+        let randomNum = Math.random() * 100; 
+        
+        // 如果敵人星等較低，機率會有一點保底加成
+        let finalRate = selectedBall.rate;
+        if(currentEnemy.rarity <= 3) finalRate += 20;
+
+        if (randomNum <= finalRate) {
+            // 🌟 捕獲成功
+            resultBall.classList.add('catch-success');
+            resultMsg.style.color = "#4caf50";
+            
+            let reward = currentEnemy.rarity * 15;
+            if (myBackpack.find(p => p.id === currentEnemy.id)) {
+                coins += reward;
+                resultMsg.innerHTML = `成功！<br>已擁有 ${currentEnemy.name}，化為 ${reward} 金幣！`;
+            } else {
+                myBackpack.push(currentEnemy);
+                resultMsg.innerHTML = `成功！<br>${currentEnemy.name} 已存入背包！`;
+            }
+            saveGame();
+        } else {
+            // ❌ 捕獲失敗
+            resultBall.classList.add('catch-fail');
+            resultMsg.style.color = "#f44336";
+            resultMsg.innerHTML = `啊！<br>${currentEnemy.name} 掙脫逃跑了...`;
+        }
+    }, 1500);
+}
+
+// 支援按空白鍵拍擊停下轉盤
+window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && isRouletteRunning) {
+        e.preventDefault(); // 防止空白鍵讓網頁往下捲動
+        stopRoulette();
+    }
+});
+
+function finishCapture() {
+    document.getElementById('roulette-page').classList.add('hidden');
+    document.getElementById('result-ball').className = ''; // 重置動畫
+    backToMaps();
+    updateUI();
+}
