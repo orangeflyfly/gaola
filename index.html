@@ -2,89 +2,140 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>Ga-Olé 開發實驗室</title>
+    <title>寶可夢加傲樂模擬機 - 階段二</title>
     <style>
-        body { background-color: #333; color: white; font-family: sans-serif; text-align: center; }
-        
-        /* 地圖容器 */
-        #map-container { 
-            display: flex; 
-            justify-content: center; 
-            gap: 20px; 
-            margin-top: 30px; 
-            min-height: 200px; /* 確保沒東西時也有高度 */
+        /* --- 第二課：視覺樣式設定 --- */
+        body { 
+            background-color: #1a1a1a; /* 深灰色背景，更有機台感 */
+            color: white; 
+            font-family: "Microsoft JhengHei", sans-serif; 
+            text-align: center;
+            margin: 0;
+            padding: 20px;
         }
-        
-        .map-card {
-            width: 120px; padding: 15px; border: 2px solid #aaa; border-radius: 10px;
-            background-color: #444; transition: transform 0.2s; cursor: pointer;
-        }
-        .map-card:hover { transform: scale(1.1); border-color: yellow; }
 
-        /* 剪影魔法 */
-        .silhouette { filter: brightness(0); }
-        
-        .poke-sprite { font-size: 40px; margin-bottom: 10px; }
+        h1 { color: #ffeb3b; text-shadow: 2px 2px 4px #000; }
+
+        /* 地圖容器：讓 5 張地圖橫向排列 */
+        #map-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        /* 地圖卡片基本樣式 */
+        .map-card {
+            width: 130px;
+            padding: 15px;
+            background-color: #333;
+            border: 3px solid #555;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s; /* 動態效果：縮放與發光 */
+        }
+
+        /* 滑鼠移上去時的效果 */
+        .map-card:hover {
+            transform: scale(1.1); /* 放大 1.1 倍 */
+            border-color: #ffeb3b; /* 邊框變黃色 */
+            box-shadow: 0 0 15px #ffeb3b; /* 增加發光感 */
+        }
+
+        /* 寶可夢圖示樣式 */
+        .poke-sprite {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        /* 關鍵：剪影效果 (變黑魔法) */
+        .silhouette {
+            filter: brightness(0); /* 把亮度降到 0，圖像會變成全黑 */
+            opacity: 0.8;          /* 稍微帶一點透明度，更有神祕感 */
+        }
+
+        /* 刷新按鈕樣式 */
+        #refresh-btn {
+            margin-top: 40px;
+            padding: 10px 25px;
+            font-size: 16px;
+            background-color: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #refresh-btn:hover { background-color: #e64a19; }
     </style>
 </head>
 <body>
 
-    <h1>機台地圖選擇</h1>
-    
+    <h1>請選擇目的地</h1>
+    <p>機台內目前有 20 張卡片，隨機出現 5 張地圖</p>
+
     <div id="map-container"></div>
 
-    <br>
-    <button onclick="refreshTest()" style="padding: 10px 20px; cursor: pointer;">
-        刷新機台地圖 (投入硬幣)
-    </button>
+    <button id="refresh-btn" onclick="initMachine()">投入硬幣 (重新刷新地圖)</button>
 
     <script>
-        // 1. 卡池資料
+        /* --- 第一課：資料與邏輯 --- */
+
+        // 1. 定義機台內的卡池 (模擬 20 張卡片的庫存)
         const machineInventory = [
-            { id: 1, name: "小拉達", rarity: 1 },
-            { id: 2, name: "波波", rarity: 1 },
-            { id: 3, name: "皮卡丘", rarity: 3 },
-            { id: 4, name: "水箭龜", rarity: 4 },
-            { id: 5, name: "噴火龍", rarity: 4 },
-            { id: 6, name: "超夢", rarity: 5 }
+            { id: 1, name: "小拉達", rarity: 1, icon: "🐭" },
+            { id: 2, name: "波波", rarity: 1, icon: "🐦" },
+            { id: 3, name: "綠毛蟲", rarity: 1, icon: "🐛" },
+            { id: 4, name: "皮卡丘", rarity: 3, icon: "⚡" },
+            { id: 5, name: "喵喵", rarity: 2, icon: "🐱" },
+            { id: 6, name: "可達鴨", rarity: 2, icon: "🦆" },
+            { id: 7, name: "噴火龍", rarity: 4, icon: "🔥" },
+            { id: 8, name: "水箭龜", rarity: 4, icon: "🐢" },
+            { id: 9, name: "妙蛙花", rarity: 4, icon: "🌺" },
+            { id: 10, name: "超夢", rarity: 5, icon: "🔮" },
+            // ...以此類推可以加到 20 隻
         ];
 
-        // 2. 隨機抽 5 隻的邏輯
-        function generateMaps() {
-            let selectedPokemons = [];
-            for (let i = 0; i < 5; i++) {
-                const randomIndex = Math.floor(Math.random() * machineInventory.length);
-                selectedPokemons.push(machineInventory[randomIndex]);
-            }
-            return selectedPokemons;
-        }
-
-        // 3. 把資料顯示在畫面上的邏輯
-        function refreshTest() {
-            const maps = generateMaps();
-            // 抓取畫面上那個空的「容器」
+        // 2. 初始化機台地圖的函式
+        function initMachine() {
             const container = document.getElementById('map-container');
-            
-            // 先清空裡面的舊東西
-            container.innerHTML = ""; 
-            
-            // 把抽到的 5 隻變成 5 個卡片放進去
-            maps.forEach((p, index) => {
-                // 如果稀有度是 5，就加上 silhouette 這個 class 變黑影
-                const shadowClass = (p.rarity >= 5) ? "silhouette" : "";
-                
-                container.innerHTML += `
-                    <div class="map-card" onclick="alert('你選了地圖 ${index + 1}，遇到 ${p.name}！')">
-                        <div class="poke-sprite ${shadowClass}">🐲</div>
-                        <div>${p.name}</div>
-                        <div style="font-size:12px; color:yellow;">★${p.rarity}</div>
-                    </div>
-                `;
-            });
+            container.innerHTML = ""; // 先清空目前的畫面
+
+            // 隨機抽取 5 張卡放到地圖上
+            for (let i = 0; i < 5; i++) {
+                // 從 0 到卡池長度之間隨機選一個數字
+                const randomIndex = Math.floor(Math.random() * machineInventory.length);
+                const pokemon = machineInventory[randomIndex];
+
+                // 呼叫「渲染卡片」的函式
+                createMapCard(pokemon, i + 1);
+            }
         }
 
-        // 網頁一打開就先執行一次，讓畫面不留白
-        window.onload = refreshTest;
+        // 3. 把資料轉換成 HTML 卡片的函式
+        function createMapCard(data, mapNumber) {
+            const container = document.getElementById('map-container');
+
+            // 判斷：如果稀有度 (rarity) >= 4，就給它「silhouette」標籤（變黑影）
+            // 這就是你說的：讓玩家知道可能有強大的怪在裡面
+            const silhouetteClass = (data.rarity >= 4) ? "silhouette" : "";
+
+            // 產生卡片的 HTML 內容
+            const cardHTML = `
+                <div class="map-card" onclick="alert('進入地圖 ${mapNumber}：遇到 ${data.name}！')">
+                    <div class="poke-sprite ${silhouetteClass}">${data.icon}</div>
+                    <div style="font-weight: bold;">地圖 ${mapNumber}</div>
+                    <div style="font-size: 14px; color: #aaa;">${data.name}</div>
+                    <div style="color: yellow;">★ ${data.rarity}</div>
+                </div>
+            `;
+
+            // 將卡片加入到容器中
+            container.innerHTML += cardHTML;
+        }
+
+        // 當網頁一打開，自動跑一次初始化
+        window.onload = initMachine;
+
     </script>
 </body>
 </html>
