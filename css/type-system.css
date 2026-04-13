@@ -1,18 +1,22 @@
-/* 屬性標籤基礎樣式 */
+/* type-system.css - 屬性配色與特殊光暈 */
 .type-tag {
-    display: inline-block;
-    padding: 3px 12px;
-    border-radius: 5px;
-    font-size: 14px;
-    font-weight: bold;
-    text-transform: uppercase;
-    margin-bottom: 5px;
-    border: 1px solid rgba(255,255,255,0.3);
+    display: inline-block; padding: 4px 12px; border-radius: 6px;
+    font-size: 14px; font-weight: bold; color: white;
+    text-shadow: 1px 1px 2px black; border: 1px solid rgba(255,255,255,0.4);
 }
 
-/* 屬性配色方案 */
-.type-fire  { background: #ff4422; box-shadow: 0 0 10px #ff4422; }
-.type-water { background: #2288ff; box-shadow: 0 0 10px #2288ff; }
-.type-grass { background: #44bb44; box-shadow: 0 0 10px #44bb44; }
-.type-electric { background: #ffcc33; color: #000; box-shadow: 0 0 10px #ffcc33; }
-/* ... 之後以此類推 */
+/* 屬性配色表 */
+.type-fire  { background: linear-gradient(to bottom, #ff4422, #aa2200); box-shadow: 0 0 10px #ff4422; }
+.type-water { background: linear-gradient(to bottom, #2288ff, #0044aa); box-shadow: 0 0 10px #2288ff; }
+.type-grass { background: linear-gradient(to bottom, #44bb44, #116611); box-shadow: 0 0 10px #44bb44; }
+.type-electric { background: linear-gradient(to bottom, #ffcc33, #aa8800); color: black; box-shadow: 0 0 10px #ffcc33; }
+.type-normal { background: linear-gradient(to bottom, #999999, #444444); box-shadow: 0 0 10px #999999; }
+
+/* 6星虹光 */
+.rarity-6 { animation: rainbowGlow 1.5s linear infinite !important; border-width: 6px !important; }
+@keyframes rainbowGlow {
+    0% { border-color: #ff0000; box-shadow: 0 0 30px #ff0000; }
+    33% { border-color: #00ff00; box-shadow: 0 0 30px #00ff00; }
+    66% { border-color: #0000ff; box-shadow: 0 0 30px #0000ff; }
+    100% { border-color: #ff0000; box-shadow: 0 0 30px #ff0000; }
+}
