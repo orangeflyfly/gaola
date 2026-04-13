@@ -61,9 +61,9 @@
 #player-racer, #enemy-racer {
     position: absolute !important; 
     top: 50% !important; 
-    /* 下方的 transform 會在 JS 中動態更新 translate 的百分比 */
+    transform: translateY(-50%) !important; /* 🌟 鎖死垂直置中 */
     z-index: 10;
-    transition: left 0.1s linear;
+    transition: left 0.1s linear; /* 專心負責平移的滑順感 */
 }
 
 #player-racer img, #enemy-racer img {
