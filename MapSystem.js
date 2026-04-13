@@ -3,11 +3,13 @@ const MapSystem = {
     currentIndex: 0,
     async refresh() {
         currentMapOptions = [];
+        // PokeAPI 官方繪圖的 RAW 來源，非常穩定
+        const imageBaseUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
+        
         for (let i = 0; i < 5; i++) {
             let p = machineInventory[Math.floor(Math.random() * machineInventory.length)];
-            let resp = await fetch(`https://pokeapi.co/api/v2/pokemon/${p.id}`);
-            let data = await resp.json();
-            currentMapOptions.push({ ...p, image: data.sprites.other['official-artwork'].front_default });
+            // 替換：我們手動組合一個穩定的 RAW URL，直接指向 PokeAPI 託管在 GitHub 的 RAW 檔案
+            currentMapOptions.push({ ...p, image: `${imageBaseUrl}${p.id}.png` });
         }
         this.currentIndex = 0; GameUI.renderCarousel(this.currentIndex, currentMapOptions);
     },
