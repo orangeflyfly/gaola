@@ -1,126 +1,20 @@
-/* ========================================== */
-/* ======== 基礎樣式：保留你的字體與置中邏輯 ======== */
-/* ========================================== */
 body { 
-    background-color: #1a1a1a; 
-    color: white; 
-    font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; 
-    text-align: center; 
-    padding: 0; 
-    margin: 0; 
-    overflow: hidden; 
-    /* 修正靠左問題，但保留你的所有間距設定 */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    background-color: #1a1a1a; color: white; margin: 0; overflow: hidden; 
+    display: flex; flex-direction: column; align-items: center;
+    font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
 }
-
-h1 { color: #ffeb3b; font-size: 40px; text-shadow: 0 0 15px rgba(255, 235, 59, 0.5); margin: 10px 0; }
 .hidden { display: none !important; }
 
-/* 頂部金幣列 (保留你的 24px 與 右 20px 設定) */
-#coin-board { 
-    position: fixed; 
-    top: 15px; 
-    right: 20px; 
-    font-size: 24px; 
-    color: gold; 
-    font-weight: bold; 
-    background: rgba(0,0,0,0.7); 
-    padding: 10px 15px; 
-    border-radius: 12px; 
-    border: 2px solid gold; 
-    display: flex; 
-    align-items: center; 
-    gap: 10px; 
-    z-index: 50; 
-}
-
-/* ========================================== */
-/* ======== 1. 大廳與地圖 (保留箭頭、剪影、地圖卡輝) ======== */
-/* ========================================== */
-#selection-page { padding-top: 60px; width: 100%; }
-#carousel-area { display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 30px; }
-
-.nav-arrow { font-size: 60px; color: #888; cursor: pointer; transition: 0.2s; user-select: none; }
-.nav-arrow:hover { color: #ffeb3b; transform: scale(1.2); }
-
-.map-card { 
-    width: 240px; 
-    padding: 20px; 
-    background-color: #333; 
-    border: 5px solid #ffeb3b; 
-    border-radius: 20px; 
-    box-shadow: 0 0 25px rgba(255, 235, 59, 0.4); 
-}
-
-.choice-card { 
-    width: 180px; 
-    padding: 20px; 
-    background-color: #333; 
-    border: 4px solid #555; 
-    border-radius: 15px; 
-    cursor: pointer; 
-    transition: 0.2s; 
-}
-.choice-card:hover { border-color: orange; transform: scale(1.05); }
-
-/* 剪影功能絕對不能少 */
-.poke-sprite { width: 140px; height: 140px; object-fit: contain; filter: drop-shadow(0 5px 10px black); }
-.silhouette { filter: brightness(0); opacity: 0.8; }
-
-/* ========================================== */
-/* ======== 2. 垂直對戰 (保留終點線、HP數值、震動) ======== */
-/* ========================================== */
-#fighting-page { 
-    display: flex; flex-direction: column; align-items: center; justify-content: center; 
-    height: 100vh; gap: 20px; width: 100%;
-}
-
-.combatant { 
-    width: 220px; background: #2a2a2a; padding: 15px; 
-    border-radius: 20px; border: 4px solid #777; position: relative; transition: 0.1s;
-}
-
-/* 保留你的 HP 資訊與字體 */
-.hp-info {
-    display: flex; justify-content: space-between;
-    font-size: 16px; margin: 5px 0; color: #00ff00; font-family: monospace;
-}
-
-.bar-bg { width: 100%; height: 20px; background: #111; border-radius: 10px; margin-top: 8px; overflow: hidden; border: 2px solid #444; }
-.hp-bar { width: 100%; height: 100%; background: #4caf50; transition: width 0.3s; }
-
-/* 賽道 (保留終點線光效) */
-#atb-track-container { width: 85%; max-width: 800px; }
-.track-bg { 
-    width: 100%; height: 50px; background: #222; border: 3px solid #fff; 
-    border-radius: 25px; position: relative; overflow: hidden; 
-}
-.finish-line { position: absolute; right: 0; width: 15px; height: 100%; background: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
-
-.racer-icon { 
-    position: absolute; top: 4px; width: 42px; height: 42px; background: #000; 
-    border: 2px solid white; border-radius: 50%; display: flex; justify-content: center; 
-    align-items: center; overflow: hidden; transition: left 0.05s linear;
-}
-.racer-icon img { width: 35px; height: 35px; object-fit: contain; }
-
-/* ========================================== */
-/* ======== 3. 動畫特效 (保留虹光、新增搖晃) ======== */
-/* ========================================== */
+/* 6 星虹光 */
 @keyframes rainbowGlow {
     0% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
     33% { border-color: #00ff00; box-shadow: 0 0 20px #00ff00; }
     66% { border-color: #0000ff; box-shadow: 0 0 20px #0000ff; }
     100% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
 }
-.rarity-6 {
-    animation: rainbowGlow 1.5s linear infinite !important;
-    border-width: 6px !important;
-}
+.rarity-6 { animation: rainbowGlow 1.5s linear infinite !important; border-width: 6px !important; }
 
-/* ★ 新增：捕獲時的劇烈搖晃 ★ */
+/* 捕獲搖晃 */
 .catch-shake { animation: catchShake 0.5s ease-in-out 3; }
 @keyframes catchShake {
     0% { transform: rotate(0deg); }
@@ -130,50 +24,38 @@ h1 { color: #ffeb3b; font-size: 40px; text-shadow: 0 0 15px rgba(255, 235, 59, 0
     100% { transform: rotate(0deg); }
 }
 
-/* ========================================== */
-/* ======== 4. 圓形大轉盤樣式 ======== */
-/* ========================================== */
-#wheel-container { position: relative; width: 280px; height: 280px; margin-bottom: 30px; }
-#wheel-pointer { 
-    position: absolute; top: -20px; left: 50%; transform: translateX(-50%); 
-    width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 35px solid white; z-index: 10; 
+/* 對戰與佈局 */
+#carousel-area, #guaranteed-choices { display: flex; justify-content: center; align-items: center; gap: 30px; }
+.nav-arrow { font-size: 60px; color: #888; cursor: pointer; user-select: none; }
+.nav-arrow:hover { color: gold; }
+
+.map-card, .choice-card, .combatant { 
+    background: #2a2a2a; border-radius: 20px; padding: 20px; border: 4px solid #777; 
 }
+.map-card { width: 220px; border-color: #ffeb3b; }
+.poke-sprite { width: 140px; height: 140px; object-fit: contain; filter: drop-shadow(0 5px 10px black); }
+.silhouette { filter: brightness(0); opacity: 0.8; }
+
+/* 血條 */
+.hp-info { display: flex; justify-content: space-between; color: #00ff00; font-family: monospace; font-size: 16px; margin-top: 5px; }
+.bar-bg { width: 100%; height: 20px; background: #111; border-radius: 10px; overflow: hidden; border: 2px solid #444; }
+.hp-bar { height: 100%; background: #4caf50; transition: width 0.3s; }
+
+/* 轉盤 */
+#wheel-container { position: relative; width: 280px; height: 280px; margin: 20px 0; }
 #wheel { 
     width: 100%; height: 100%; border-radius: 50%; border: 8px solid white; 
     background: conic-gradient(#9c27b0 0deg 90deg, #f44336 90deg 180deg, #2196f3 180deg 270deg, #ffeb3b 270deg 360deg);
     transition: transform 3.5s cubic-bezier(0.15, 0, 0.15, 1);
-    box-shadow: 0 0 50px rgba(255,255,255,0.2);
 }
+#wheel-pointer { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 35px solid white; z-index: 10; }
 
-/* ========================================== */
-/* ======== 5. 背包與特效 (保留出戰標籤與傷害) ======== */
-/* ========================================== */
-#backpack-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 100; padding: 40px; overflow-y: auto; box-sizing: border-box; }
-#backpack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; max-width: 1000px; margin: 30px auto; }
+/* 噴字與震動 */
+.damage-popup { position: absolute; color: #ff3d00; font-size: 45px; font-weight: 900; text-shadow: 2px 2px 0px white; animation: floatUp 0.8s ease-out forwards; pointer-events: none; }
+@keyframes floatUp { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-100px); opacity: 0; } }
+.shake { animation: shakeEffect 0.4s; border-color: red !important; }
+@keyframes shakeEffect { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-5px,-5px); } 75% { transform: translate(5px,5px); } }
 
-.backpack-item { background: #222; padding: 15px; border-radius: 15px; border: 3px solid #555; position: relative; }
-/* 保留你的出戰標籤 */
-.partner-tag { position: absolute; top: -10px; right: -10px; background: #ff5722; padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: bold; z-index: 5; }
-
-button { padding: 12px 25px; font-size: 20px; cursor: pointer; border-radius: 10px; border: none; transition: 0.2s; background: #555; color: white; }
+#coin-board { position: fixed; top: 15px; right: 20px; background: rgba(0,0,0,0.8); padding: 10px 15px; border-radius: 12px; border: 2px solid gold; z-index: 100; font-weight: bold; font-size: 24px; color: gold; }
+button { padding: 10px 20px; font-size: 18px; border-radius: 10px; border: none; cursor: pointer; background: #555; color: white; transition: 0.2s; }
 button:hover { transform: scale(1.1); filter: brightness(1.2); }
-.btn-gold { background: #ff9800; color: white; font-weight: bold; margin-top: 20px; }
-
-/* 傷害與噴字 (保留原本特效) */
-.damage-popup {
-    position: absolute; color: #ff3d00; font-size: 45px; font-weight: 900;
-    text-shadow: 2px 2px 0px white, 4px 4px 10px black; pointer-events: none;
-    animation: floatUp 0.8s ease-out forwards; z-index: 1000;
-}
-@keyframes floatUp {
-    0% { transform: translateY(0) scale(0.5); opacity: 0; }
-    20% { transform: translateY(-20px) scale(1.2); opacity: 1; }
-    100% { transform: translateY(-100px) scale(1); opacity: 0; }
-}
-
-.shake { animation: shake 0.4s; border-color: red !important; box-shadow: 0 0 30px red; }
-@keyframes shake {
-    0% { transform: translate(1px, 1px); }
-    50% { transform: translate(-3px, -2px); }
-    100% { transform: translate(1px, 1px); }
-}
