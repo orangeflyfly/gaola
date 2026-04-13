@@ -2,35 +2,53 @@ let currentScreen = 'selection';
 let currentMapOptions = [];      
 let currentMapIndex = 0;         
 
-let coins = 0;
+// ★ 讀取存檔：金幣、背包、出戰搭檔 (如果沒有存檔就給預設值)
+let coins = parseInt(localStorage.getItem('gaoleCoins')) || 0;
+let myBackpack = JSON.parse(localStorage.getItem('gaoleBackpack')) || [];
+let myPartner = JSON.parse(localStorage.getItem('gaolePartner')) || { 
+    id: 25, name: "皮卡丘", rarity: 2, 
+    image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" 
+};
+
 let playerHP = 100;
 let enemyHP = 100;
 let playerATB = 0;
 let enemyATB = 0;
-let currentEnemyRarity = 1; 
+let currentEnemy = null; // 記住目前的敵人完整資料
 let battleLoop = null;
-let isPaused = false; // ★ 新增：控制畫面凍結的變數
+let isPaused = false; 
 
+// ★ 存檔函式
+function saveGame() {
+    localStorage.setItem('gaoleCoins', coins);
+    localStorage.setItem('gaoleBackpack', JSON.stringify(myBackpack));
+    localStorage.setItem('gaolePartner', JSON.stringify(myPartner));
+}
+
+// UI 更新 (修復 Bug 1：載入真實搭檔圖片)
 function updateUI() {
     document.getElementById('coin-display').innerText = coins;
     
     if (currentScreen === 'fight') {
         document.getElementById('player-hp-text').innerText = playerHP;
         document.getElementById('player-hp-bar').style.width = playerHP + '%';
-        
         document.getElementById('enemy-hp-text').innerText = enemyHP;
         document.getElementById('enemy-hp-bar').style.width = enemyHP + '%';
 
-        // 更新賽道上圖標的位置 (最高 95%，預留終點線的寬度)
         document.getElementById('player-racer').style.left = Math.min(playerATB, 95) + '%';
         document.getElementById('enemy-racer').style.left = Math.min(enemyATB, 95) + '%';
+
+        // 顯示目前搭檔
+        document.getElementById('player-name').innerText = myPartner.name + " (我方)";
+        document.getElementById('player-icon').src = myPartner.image;
+        document.getElementById('player-racer-img').src = myPartner.image;
     }
 }
 
-function earnCoins() { coins += 10; updateUI(); }
+function earnCoins() { coins += 10; saveGame(); updateUI(); }
 
 async function refreshMachine() {
-    document.getElementById('single-map-display').innerHTML = '<h3 style="color: #aaa; font-size: 24px;">📡 正在下載官方圖片...</h3>';
+    document.getElementById('single-map-display').innerHTML = '<h3 style="color: #aaa;">📡 正在下載官方圖片...</h3>';
     currentMapOptions = [];
     for (let i = 0; i < 5; i++) {
         let randomPoke = machineInventory[Math.floor(Math.random() * machineInventory.length)];
@@ -51,13 +69,7 @@ function renderCarousel() {
     if(currentMapOptions.length === 0) return;
     const data = currentMapOptions[currentMapIndex];
     const silhouette = (data.rarity >= 4) ? "silhouette" : "";
-    document.getElementById('single-map-display').innerHTML = `
-        <div class="map-card">
-            <img src="${data.image}" class="poke-sprite ${silhouette}">
-            <div style="font-size: 28px; font-weight: bold;">地圖 ${currentMapIndex + 1}</div>
-            <div style="font-size: 20px; color: #aaa; margin-top: 15px;">${data.name}</div>
-        </div>
-    `;
+    document.getElementById('single-map-display').innerHTML = `<div class="map-card"><img src="${data.image}" class="poke-sprite ${silhouette}"><div style="font-size: 28px; font-weight: bold;">地圖 ${currentMapIndex + 1}</div><div style="font-size: 20px; color: #aaa; margin-top: 15px;">${data.name}</div></div>`;
 }
 
 function changeMap(direction) {
@@ -68,8 +80,7 @@ function changeMap(direction) {
 
 function confirmMapSelection() {
     if (coins < 30) { alert("金幣不足！請先打工！"); return; }
-    coins -= 30; 
-    updateUI();
+    coins -= 30; saveGame(); updateUI();
     enterTripleChoice(currentMapOptions[currentMapIndex]);
 }
 
@@ -102,76 +113,55 @@ function backToMaps() {
 function startFighting(target) {
     currentScreen = 'fight';
     isPaused = false;
+    currentEnemy = target; // 記住目前的對手
+    
     document.getElementById('battle-page').classList.add('hidden');
     document.getElementById('fighting-page').classList.remove('hidden');
+    document.getElementById('enemy-title').innerText = "遭遇野生 " + currentEnemy.name + "！";
+    document.getElementById('enemy-name').innerText = currentEnemy.name;
+    document.getElementById('enemy-icon').src = currentEnemy.image; 
+    document.getElementById('enemy-racer-img').src = currentEnemy.image; 
     
-    document.getElementById('enemy-title').innerText = "遭遇野生 " + target.name + "！";
-    document.getElementById('enemy-name').innerText = target.name;
-    document.getElementById('enemy-icon').src = target.image; 
-    document.getElementById('enemy-racer-img').src = target.image; // 賽道上的小圖
-    currentEnemyRarity = target.rarity; 
-    
-    playerHP = 100; enemyHP = 100;
-    playerATB = 0; enemyATB = 0;
+    playerHP = 100; enemyHP = 100; playerATB = 0; enemyATB = 0;
     document.getElementById('action-msg').innerText = "瘋狂交替按 A 與 D 鍵加速前進！！";
+    updateUI(); // 先更新一次，確保皮卡丘圖片載入
     
     if(battleLoop) clearInterval(battleLoop);
-    
     battleLoop = setInterval(() => {
-        // ★ 如果畫面凍結中，賽跑暫停
         if (currentScreen !== 'fight' || isPaused) return;
 
         playerATB += 0.5; 
-        enemyATB += (currentEnemyRarity * 0.4); 
+        enemyATB += (currentEnemy.rarity * 0.4); 
 
-        // 判定誰先到終點 (95% 就算摸到終點線)
-        if (playerATB >= 95) {
-            playerATB = 95;
-            triggerAttack('player');
-        } else if (enemyATB >= 95) {
-            enemyATB = 95;
-            triggerAttack('enemy');
-        }
-        
+        if (playerATB >= 95) { playerATB = 95; triggerAttack('player'); } 
+        else if (enemyATB >= 95) { enemyATB = 95; triggerAttack('enemy'); }
         updateUI();
     }, 50);
 }
 
-// ★ 核心結算邏輯：凍結、扣血、震動、單方歸零
+// ★ 修復 Bug 2：攻擊字眼帶入雙方真實名字
 function triggerAttack(attacker) {
-    isPaused = true; // 暫停賽跑
+    isPaused = true; 
     const msgBox = document.getElementById('action-msg');
 
     if (attacker === 'player') {
         enemyHP -= 20;
-        msgBox.innerText = "⚡ 皮卡丘發動攻擊！敵人受到 20 點傷害！";
-        document.getElementById('enemy-card').classList.add('shake'); // 敵人框震動
+        msgBox.innerText = `⚡ ${myPartner.name} 發動攻擊！${currentEnemy.name} 受到 20 點傷害！`;
+        document.getElementById('enemy-card').classList.add('shake'); 
     } else {
         playerHP -= 25;
-        msgBox.innerText = "💥 敵人發動攻擊！皮卡丘受到 25 點傷害！";
-        document.getElementById('player-card').classList.add('shake'); // 我方框震動
+        msgBox.innerText = `💥 ${currentEnemy.name} 發動攻擊！${myPartner.name} 受到 25 點傷害！`;
+        document.getElementById('player-card').classList.add('shake'); 
     }
-    
     updateUI();
 
-    // 檢查是否有人死掉
-    if (enemyHP <= 0 || playerHP <= 0) {
-        checkWinLose();
-        return; 
-    }
+    if (enemyHP <= 0 || playerHP <= 0) { checkWinLose(); return; }
 
-    // ★ 等待 2 秒後恢復
     setTimeout(() => {
-        if (attacker === 'player') {
-            playerATB = 0; // 只有攻擊者歸零
-            document.getElementById('enemy-card').classList.remove('shake');
-        } else {
-            enemyATB = 0; // 只有攻擊者歸零
-            document.getElementById('player-card').classList.remove('shake');
-        }
-        
+        if (attacker === 'player') { playerATB = 0; document.getElementById('enemy-card').classList.remove('shake'); } 
+        else { enemyATB = 0; document.getElementById('player-card').classList.remove('shake'); }
         msgBox.innerText = "瘋狂交替按 A 與 D 鍵加速前進！！";
-        isPaused = false; // 解除凍結，繼續賽跑！
+        isPaused = false; 
     }, 2000);
 }
 
@@ -179,14 +169,71 @@ function checkWinLose() {
     setTimeout(() => {
         if (enemyHP <= 0) {
             enemyHP = 0; updateUI(); clearInterval(battleLoop);
-            alert("勝利！成功收服寶可夢！"); backToMaps();
+            
+            // ★ 收服與背包邏輯
+            let isDuplicate = myBackpack.find(p => p.id === currentEnemy.id);
+            if (isDuplicate) {
+                let rewardCoins = currentEnemy.rarity * 10;
+                coins += rewardCoins;
+                alert(`勝利！但你已經擁有 ${currentEnemy.name} 了。\n自動轉化為 ${rewardCoins} 金幣！`);
+            } else {
+                myBackpack.push(currentEnemy);
+                alert(`勝利！成功收服 ${currentEnemy.name}！已存入背包。`);
+            }
+            saveGame(); // 打贏存檔
+            backToMaps();
         } else if (playerHP <= 0) {
             playerHP = 0; updateUI(); clearInterval(battleLoop);
-            alert("皮卡丘倒下了... 挑戰失敗，寶可夢逃跑了！"); backToMaps();
+            alert(`${myPartner.name} 倒下了... 挑戰失敗，寶可夢逃跑了！`); backToMaps();
         }
         document.getElementById('enemy-card').classList.remove('shake');
         document.getElementById('player-card').classList.remove('shake');
-    }, 500); // 延遲一下讓玩家看清楚血條歸零
+    }, 500); 
+}
+
+// ★ 背包管理系統
+function openBackpack() {
+    document.getElementById('backpack-page').classList.remove('hidden');
+    document.getElementById('collection-count').innerText = myBackpack.length;
+    const grid = document.getElementById('backpack-grid');
+    grid.innerHTML = "";
+    
+    if(myBackpack.length === 0) {
+        grid.innerHTML = "<h3 style='color:#aaa;'>你的背包空空如也，趕快去抓寶可夢吧！</h3>";
+        return;
+    }
+
+    myBackpack.forEach(poke => {
+        let isPartner = (myPartner.id === poke.id) ? `<div class="partner-tag">出戰中</div>` : "";
+        let btnHtml = (myPartner.id === poke.id) 
+            ? `<button class="btn-small" style="background:#555;" disabled>已派上場</button>`
+            : `<button class="btn-small" onclick="setPartner(${poke.id})">設為出戰</button>`;
+
+        grid.innerHTML += `
+            <div class="backpack-item">
+                ${isPartner}
+                <img src="${poke.image}" class="poke-sprite">
+                <div style="font-size: 20px; font-weight: bold;">${poke.name}</div>
+                <div style="color: yellow; margin-bottom: 5px;">★${poke.rarity}</div>
+                ${btnHtml}
+            </div>
+        `;
+    });
+}
+
+function closeBackpack() {
+    document.getElementById('backpack-page').classList.add('hidden');
+}
+
+function setPartner(id) {
+    let selected = myBackpack.find(p => p.id === id);
+    if(selected) {
+        myPartner = selected;
+        saveGame();
+        alert(`已將 ${myPartner.name} 設為出戰搭檔！`);
+        openBackpack(); // 重新整理背包畫面
+        updateUI(); // 更新大廳的數字等
+    }
 }
 
 window.addEventListener('keydown', (e) => {
@@ -198,10 +245,8 @@ window.addEventListener('keydown', (e) => {
     } else if (currentScreen === 'triple') {
         if (key === 'escape') backToMaps();
     } else if (currentScreen === 'fight') {
-        // ★ 只有在沒有暫停的時候，連打才有效
         if ((key === 'a' || key === 'd') && !isPaused) {
-            playerATB += 4; 
-            updateUI();
+            playerATB += 4; updateUI();
         }
     }
 });
