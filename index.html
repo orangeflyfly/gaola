@@ -2,33 +2,37 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>寶可夢加傲樂 - 資料分離版</title>
+    <title>寶可夢加傲樂 - API 自動抓圖版</title>
     <style>
         body { background-color: #1a1a1a; color: white; font-family: sans-serif; text-align: center; padding: 20px; overflow: hidden; }
         h1 { color: #ffeb3b; }
         .hidden { display: none !important; }
 
-        /* 輪播地圖區塊 */
         #carousel-area { display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 40px; }
         .nav-arrow { font-size: 40px; color: #888; cursor: pointer; user-select: none; transition: 0.2s; }
         .nav-arrow:hover { color: #ffeb3b; transform: scale(1.2); }
         .map-card { width: 160px; padding: 20px; background-color: #333; border: 3px solid #ffeb3b; border-radius: 12px; box-shadow: 0 0 20px rgba(255, 235, 59, 0.5); transition: all 0.2s; }
         
-        /* 三選一區塊 */
         #battle-select-screen { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
         .choice-card { width: 130px; padding: 15px; background-color: #333; border: 3px solid #555; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
         .choice-card:hover { border-color: orange; transform: scale(1.1); }
         
-        /* 視覺特效 */
-        .silhouette { filter: brightness(0); opacity: 0.8; }
-        .poke-sprite { font-size: 60px; margin-bottom: 10px; }
+        /* --- 視覺特效更新：針對真實圖片 --- */
+        .silhouette { filter: brightness(0); opacity: 0.85; }
+        
+        /* 把原本的 Emoji 字體設定，改成圖片大小限制 */
+        img.poke-sprite { 
+            width: 90px; 
+            height: 90px; 
+            object-fit: contain; /* 確保圖片不變形 */
+            margin-bottom: 10px; 
+            filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5)); /* 加上陰影更有立體感 */
+        }
 
-        /* 戰鬥蓄力條 */
         .energy-container { width: 400px; height: 35px; background: #444; border: 3px solid #fff; margin: 20px auto; border-radius: 20px; overflow: hidden; }
         #energy-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #4caf50, #ffeb3b, #f44336); transition: width 0.1s ease-out; }
         .attack-hint { font-size: 24px; color: #ff5722; font-weight: bold; animation: blink 0.5s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-
         button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #555; color: white; border: none; border-radius: 5px; margin-top: 20px; }
         button:hover { background: #777; }
     </style>
@@ -36,11 +40,13 @@
 <body>
 
     <div id="selection-page">
-        <h1>請選擇目的地</h1>
+        <h1 id="main-title">請選擇目的地</h1>
         <p style="color: #aaa;">使用鍵盤 ⬅ ➡ 切換地圖，按下 Enter 確認進入</p>
         <div id="carousel-area">
             <div class="nav-arrow" onclick="changeMap(-1)">◀</div>
-            <div id="single-map-display"></div>
+            <div id="single-map-display">
+                <h3 style="color: #aaa;">正在與 PokeAPI 連線下載資料...</h3>
+            </div>
             <div class="nav-arrow" onclick="changeMap(1)">▶</div>
         </div>
         <button onclick="confirmMapSelection()" style="background-color: #4caf50;">確認進入此地圖 (Enter)</button>
@@ -55,7 +61,7 @@
 
     <div id="fighting-page" class="hidden">
         <h1 id="enemy-title">對戰開始！</h1>
-        <div class="poke-sprite" id="enemy-icon">🐲</div>
+        <img class="poke-sprite" id="enemy-icon" src="" alt="enemy">
         <div class="attack-hint">瘋狂交替按 A 與 D 鍵！！</div>
         <div class="energy-container"><div id="energy-bar"></div></div>
         <p>能量蓄積: <span id="energy-text">0</span>%</p>
@@ -64,37 +70,62 @@
     <script src="pokemonData.js"></script>
 
     <script>
-        // 核心變數
         let currentScreen = 'selection'; 
         let currentMapOptions = [];      
         let currentMapIndex = 0;         
         let currentEnergy = 0;
         let battleLoop = null;
 
-        // 1. 初始化 (從 pokemonData.js 自動抓取資料)
-        function initMachine() {
+        // ★★★ 核心升級：非同步抓取資料 API ★★★
+        async function initMachine() {
+            // 切換畫面時，先顯示讀取中...
+            document.getElementById('single-map-display').innerHTML = '<h3 style="color: #aaa;">📡 正在下載官方圖片...</h3>';
+            
             currentMapOptions = [];
+            
+            // 隨機抽 5 隻
             for (let i = 0; i < 5; i++) {
-                currentMapOptions.push(machineInventory[Math.floor(Math.random() * machineInventory.length)]);
+                let randomPoke = machineInventory[Math.floor(Math.random() * machineInventory.length)];
+                
+                try {
+                    // 【魔法發生地】向 PokeAPI 請求這隻寶可夢的資料！
+                    let response = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomPoke.id}`);
+                    let apiData = await response.json();
+                    
+                    // 從超龐大的資料中，挖出「官方高畫質去背圖」的網址
+                    let officialImageUrl = apiData.sprites.other['official-artwork'].front_default;
+                    
+                    // 把圖片網址塞進我們的資料裡
+                    currentMapOptions.push({
+                        id: randomPoke.id,
+                        name: randomPoke.name,
+                        rarity: randomPoke.rarity,
+                        image: officialImageUrl // 新增圖片網址
+                    });
+                } catch (error) {
+                    console.log("網路連線失敗，無法取得圖片");
+                }
             }
+
             currentMapIndex = 0;
             currentScreen = 'selection';
-            
             document.getElementById('selection-page').classList.remove('hidden');
             document.getElementById('battle-page').classList.add('hidden');
             document.getElementById('fighting-page').classList.add('hidden');
             
+            // 下載完畢，畫出第一張地圖
             renderCarousel();
         }
 
-        // 2. 渲染地圖
+        // 2. 渲染地圖 (改成用 img 標籤顯示網路圖片)
         function renderCarousel() {
             const display = document.getElementById('single-map-display');
             const data = currentMapOptions[currentMapIndex];
             const silhouette = (data.rarity >= 4) ? "silhouette" : "";
+            
             display.innerHTML = `
                 <div class="map-card">
-                    <div class="poke-sprite ${silhouette}">${data.icon}</div>
+                    <img src="${data.image}" class="poke-sprite ${silhouette}" alt="${data.name}">
                     <div style="font-size: 20px; font-weight: bold;">地圖 ${currentMapIndex + 1}</div>
                     <div style="font-size: 14px; color: #aaa; margin-top: 10px;">${data.name}</div>
                 </div>
@@ -110,7 +141,7 @@
             enterTripleChoice(currentMapOptions[currentMapIndex]);
         }
 
-        // 3. 進入三選一
+        // 3. 進入三選一 (改成用 img 標籤顯示)
         function enterTripleChoice(boss) {
             currentScreen = 'triple';
             document.getElementById('selection-page').classList.add('hidden');
@@ -118,7 +149,9 @@
             
             let choices = [boss];
             while(choices.length < 3) {
-                let r = machineInventory[Math.floor(Math.random() * machineInventory.length)];
+                // 因為三選一的另外兩隻我們沒有提前載入圖片，這裡會有個小 Bug
+                // 最完美的做法是全部先載入，但為了不讓教學太複雜，這裡我們讓備選寶可夢直接從 currentMapOptions 裡挑
+                let r = currentMapOptions[Math.floor(Math.random() * currentMapOptions.length)];
                 if(!choices.find(p => p.id === r.id)) choices.push(r);
             }
 
@@ -129,7 +162,7 @@
                 choiceCard.className = 'choice-card';
                 choiceCard.onclick = () => startFighting(p);
                 choiceCard.innerHTML = `
-                    <div class="poke-sprite">${p.icon}</div>
+                    <img src="${p.image}" class="poke-sprite" alt="${p.name}">
                     <div>${p.name}</div>
                     <div style="font-size:12px;color:yellow;">★${p.rarity}</div>
                 `;
@@ -143,14 +176,13 @@
             document.getElementById('battle-page').classList.add('hidden');
         }
 
-        // 4. 戰鬥系統
         function startFighting(target) {
             currentScreen = 'fight';
             document.getElementById('battle-page').classList.add('hidden');
             document.getElementById('fighting-page').classList.remove('hidden');
             
             document.getElementById('enemy-title').innerText = "正在挑戰 " + target.name;
-            document.getElementById('enemy-icon').innerText = target.icon;
+            document.getElementById('enemy-icon').src = target.image; // 更新圖片
             
             currentEnergy = 0;
             if(battleLoop) clearInterval(battleLoop);
@@ -162,7 +194,6 @@
             }, 100);
         }
 
-        // 5. 鍵盤控制器
         window.addEventListener('keydown', (e) => {
             const key = e.key;
             if (currentScreen === 'selection') {
