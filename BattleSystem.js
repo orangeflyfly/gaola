@@ -108,11 +108,12 @@ const BattleSystem = {
         const pRacer = document.getElementById('player-racer');
         const eRacer = document.getElementById('enemy-racer');
         
-        pRacer.style.left = `${playerATB}%`;
-        pRacer.style.transform = `translate(-${playerATB}%, -50%)`;
+        // 🌟 [絕對鎖定公式] 同步套用在戰鬥循環中
+        const pRacer = document.getElementById('player-racer');
+        const eRacer = document.getElementById('enemy-racer');
         
-        eRacer.style.left = `${enemyATB}%`;
-        eRacer.style.transform = `translate(-${enemyATB}%, -50%)`;
+        pRacer.style.left = `calc(${playerATB}% - ${playerATB * 0.9}px)`;
+        eRacer.style.left = `calc(${enemyATB}% - ${enemyATB * 0.9}px)`;
 
         // 判定進度條
         if (playerATB >= 100) {
