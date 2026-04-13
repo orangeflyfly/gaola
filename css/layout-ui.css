@@ -33,3 +33,23 @@
     box-sizing: border-box; flex-shrink: 0;
 }
 .poke-sprite { width: 110px; height: 110px; flex-shrink: 0; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
+/* --- 轉盤 2.0 專用定位 --- */
+#wheel-container {
+    position: relative;
+    width: 350px;
+    height: 350px;
+    margin: 50px auto; /* 讓整個轉盤在畫面上居中 */
+}
+
+#wheel-pointer {
+    position: absolute; 
+    top: -30px; /* 指針稍微插進轉盤裡一點點 */
+    left: 50%; 
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 45px solid var(--arcade-gold);
+    z-index: 10001;
+    filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
+}
