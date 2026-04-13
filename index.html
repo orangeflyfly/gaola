@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>寶可夢加傲樂 V3.1 - 虹光傳說</title>
+    <title>寶可夢加傲樂 V3.1 正式版</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,34 +20,31 @@
             <div id="single-map-display"></div>
             <div class="nav-arrow" onclick="changeMap(1)">▶</div>
         </div>
-        <button onclick="confirmMapSelection()" style="background: gold; color:black; font-weight:bold; margin-top:20px;">投入 30 金幣開局</button>
+        <button onclick="confirmMapSelection()" style="background: gold; color:black; font-weight:bold; margin-top:20px; padding:15px 40px;">投入 30 金幣開局 (Enter)</button>
+        <button onclick="refreshMachine()" style="margin-top:10px; font-size:14px;">刷新機台內容</button>
     </div>
 
     <div id="guaranteed-page" class="hidden">
-        <h1 style="color:cyan">投幣獎勵：選擇一隻寶可夢印製</h1>
-        <div id="guaranteed-choices" style="display:flex; justify-content:center; gap:20px;"></div>
-        <p>※ 需花費 20 金幣印製，或點擊「放棄」直接進入對戰</p>
-        <button onclick="skipGuaranteed()" style="background:#555">放棄印製，開始對戰</button>
+        <h1 style="color:cyan">🎁 投幣獎勵：免費選擇一隻寶可夢</h1>
+        <div id="guaranteed-choices"></div>
     </div>
 
     <div id="fighting-page" class="hidden">
         <div class="combatant" id="enemy-card">
-            <img id="enemy-icon" class="poke-sprite" src="" style="width:120px">
+            <img id="enemy-icon" class="poke-sprite" src="">
             <h2 id="enemy-name">敵方</h2>
             <div class="hp-info"><span>HP</span><span id="enemy-hp-text">100/100</span></div>
             <div class="bar-bg"><div id="enemy-hp-bar" class="hp-bar" style="background:#f44336"></div></div>
         </div>
-
-        <div id="atb-track-container" style="width:80%; background:rgba(0,0,0,0.5); padding:10px; border-radius:20px;">
-            <div class="track-bg" style="height:40px; background:#222; position:relative; border:2px solid #555; border-radius:20px; overflow:hidden;">
-                <div id="player-racer" style="position:absolute; left:0;"><img id="player-racer-img" src="" style="width:35px"></div>
-                <div id="enemy-racer" style="position:absolute; left:0;"><img id="enemy-racer-img" src="" style="width:35px"></div>
+        <div id="atb-track-container" style="width:80%;">
+            <div class="track-bg" style="height:40px; background:#222; position:relative; border-radius:20px; border:2px solid white;">
+                <div id="player-racer" style="position:absolute;"><img id="player-racer-img" src="" style="width:35px"></div>
+                <div id="enemy-racer" style="position:absolute;"><img id="enemy-racer-img" src="" style="width:35px"></div>
             </div>
             <p id="action-msg" style="color:orange; font-weight:bold;">瘋狂按 A D 鍵！！</p>
         </div>
-
         <div class="combatant" id="player-card">
-            <img id="player-icon" class="poke-sprite" src="" style="width:120px">
+            <img id="player-icon" class="poke-sprite" src="">
             <h2 id="player-name">我方</h2>
             <div class="hp-info"><span>HP</span><span id="player-hp-text">100/100</span></div>
             <div class="bar-bg"><div id="player-hp-bar-real" class="hp-bar"></div></div>
@@ -64,26 +61,26 @@
             <div id="result-ball" style="font-size: 80px;">🔴</div>
             <h2 id="result-msg">判定中...</h2>
             <div id="pay-confirm-box" class="hidden">
-                <p id="pay-ask-text">成功捕獲！要花費金幣印製嗎？</p>
-                <button id="confirm-pay-btn" style="background:#4caf50">確認支付</button>
+                <p id="pay-ask-text"></p>
+                <button id="confirm-pay-btn" style="background:#4caf50">確認支付入包</button>
                 <button onclick="finishCapture()" style="background:#f44336">放棄離開</button>
             </div>
-            <button id="fail-exit-btn" class="hidden" onclick="finishCapture()">結束</button>
+            <button id="fail-exit-btn" class="hidden" onclick="finishCapture()">結束戰鬥</button>
         </div>
-        <button id="stop-btn" onclick="spinWheel()" style="background:#ff5722; font-size:24px; padding:10px 30px;">拍擊旋轉！</button>
+        <button id="stop-btn" onclick="spinWheel()" style="background:#ff5722; font-size:24px;">拍擊旋轉！</button>
     </div>
 
-    <div id="extra-battle-pop" class="hidden" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#000; border:5px solid #00bcd4; padding:30px; z-index:300; border-radius:20px;">
-        <h2 style="color:#00bcd4; animation: blink 0.5s infinite;">⚡ 偵測到強大的氣息！ ⚡</h2>
-        <p>是否進行加賽？(增加 6 星出現率！)</p>
-        <button onclick="startExtraBattle()" style="background:#00bcd4; color:black; font-weight:bold;">開始加賽</button>
+    <div id="extra-battle-pop" class="hidden" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#000; border:4px solid #00bcd4; padding:30px; border-radius:20px; z-index:300;">
+        <h2 style="color:#00bcd4;">⚡ 偵測到強大的氣息！ ⚡</h2>
+        <p>是否進行加賽？ (加賽場 6 星機率提升！)</p>
+        <button onclick="startExtraBattle()" style="background:#00bcd4; color:black;">進行加賽</button>
         <button onclick="hideExtraPop()" style="background:#555">結束遊玩</button>
     </div>
 
     <div id="backpack-page" class="hidden">
-        <h1>🎒 背包圖鑑</h1>
+        <h1>🎒 我的背包</h1>
         <button onclick="closeBackpack()" style="background:red">關閉</button>
-        <div id="backpack-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:20px;"></div>
+        <div id="backpack-grid"></div>
     </div>
 
     <script src="pokemonData.js"></script>
