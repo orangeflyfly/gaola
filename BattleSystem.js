@@ -88,7 +88,11 @@ const BattleSystem = {
         playerATB += 0.005; 
         enemyATB += (0.25 + (currentEnemy.rarity * 0.06));
 
-        // 🌟 [V7.3 絕對鎖定公式] 直接在 loop 中使用 calc
+        // 🌟 [V7.4 終極防線] 強制鎖死數值，不准因為玩家手速過快而溢出 100%！
+        if (playerATB > 100) playerATB = 100;
+        if (enemyATB > 100) enemyATB = 100;
+
+        // 絕對鎖定公式
         const pRacer = document.getElementById('player-racer');
         const eRacer = document.getElementById('enemy-racer');
         
