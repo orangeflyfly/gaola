@@ -10,6 +10,43 @@
     <button onclick="refreshTest()">重新整理機台地圖</button>
 
     <script>
+        // 1. 這就是機台裡的 20 張卡片庫存（先用 6 隻代表）
+const machineInventory = [
+    { id: 1, name: "小拉達", rarity: 1, type: "一般" },
+    { id: 2, name: "波波", rarity: 1, type: "飛行" },
+    { id: 3, name: "皮卡丘", rarity: 3, type: "電" },
+    { id: 4, name: "水箭龜", rarity: 4, type: "水" },
+    { id: 5, name: "噴火龍", rarity: 4, type: "火" },
+    { id: 6, name: "超夢", rarity: 5, type: "超能力" }
+];
+        function generateMaps() {
+    let selectedPokemons = [];
+    
+    // 隨機抽 5 次
+    for (let i = 0; i < 5; i++) {
+        // 隨機產生一個數字，範圍是 0 到 (卡池長度-1)
+        const randomIndex = Math.floor(Math.random() * machineInventory.length);
+        // 把抽到的寶可夢放進地圖清單
+        selectedPokemons.push(machineInventory[randomIndex]);
+    }
+    
+    return selectedPokemons;
+}
+        function refreshTest() {
+    const maps = generateMaps();
+    const output = document.getElementById('debug-output');
+    
+    // 清空舊的內容
+    output.innerHTML = "<h3>目前 5 張地圖出現的寶可夢：</h3>";
+    
+    // 把抽到的 5 隻印出來
+    maps.forEach((p, index) => {
+        output.innerHTML += `<p>地圖 ${index + 1}：${p.name} (稀有度: ${p.rarity})</p>`;
+    });
+}
+
+// 網頁開啟時先跑一次
+refreshTest();
         // 程式碼將寫在這裡
     </script>
 </body>
