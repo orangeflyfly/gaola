@@ -2,77 +2,15 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>寶可夢加傲樂 - 單軌賽跑戰鬥版</title>
-    <style>
-        body { background-color: #1a1a1a; color: white; font-family: sans-serif; text-align: center; padding: 20px; overflow: hidden; }
-        h1 { color: #ffeb3b; font-size: 50px; text-shadow: 0 0 15px rgba(255, 235, 59, 0.5); margin-bottom: 10px; }
-        p { font-size: 20px; }
-        .hidden { display: none !important; }
-
-        #coin-board { position: absolute; top: 20px; right: 30px; font-size: 28px; color: gold; font-weight: bold; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 15px; border: 2px solid gold; }
-
-        #carousel-area { display: flex; justify-content: center; align-items: center; gap: 60px; margin-top: 50px; }
-        .nav-arrow { font-size: 80px; color: #888; cursor: pointer; user-select: none; transition: 0.2s; }
-        .nav-arrow:hover { color: #ffeb3b; transform: scale(1.2); }
-
-        .map-card { width: 260px; padding: 30px; background-color: #333; border: 5px solid #ffeb3b; border-radius: 20px; box-shadow: 0 0 30px rgba(255, 235, 59, 0.6); transition: all 0.2s; }
-
-        #battle-select-screen { display: flex; justify-content: center; gap: 40px; margin-top: 50px; }
-        .choice-card { width: 220px; padding: 25px; background-color: #333; border: 5px solid #555; border-radius: 20px; cursor: pointer; transition: all 0.2s; }
-        .choice-card:hover { border-color: orange; transform: scale(1.1); box-shadow: 0 0 25px orange; }
-
-        .silhouette { filter: brightness(0); opacity: 0.85; }
-        img.poke-sprite { width: 160px; height: 160px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0px 8px 10px rgba(0,0,0,0.6)); }
-
-        #combat-arena { display: flex; justify-content: space-around; align-items: center; margin-top: 10px; }
-        .combatant { width: 250px; background: #333; padding: 20px; border-radius: 15px; border: 3px solid #777; transition: 0.1s; }
-
-        /* 血條 */
-        .bar-bg { width: 100%; height: 25px; background: #222; border-radius: 10px; margin: 10px 0; overflow: hidden; border: 2px solid #555; }
-        .hp-bar { width: 100%; height: 100%; background: #4caf50; transition: width 0.3s; }
-
-        /* ★ 全新：單一時間軸賽道 ★ */
-        #atb-track-container { width: 80%; margin: 30px auto; text-align: left; position: relative; }
-        .track-bg { width: 100%; height: 60px; background: #222; border: 4px solid #fff; border-radius: 30px; position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        .finish-line { position: absolute; right: 0; width: 20px; height: 100%; background: #ffeb3b; box-shadow: 0 0 15px #ffeb3b; }
-        
-        /* 賽跑圖標 */
-        .racer-icon { position: absolute; top: 5px; width: 50px; height: 50px; transition: left 0.05s linear; z-index: 2; border-radius: 50%; background: rgba(0,0,0,0.5); border: 2px solid white; display: flex; justify-content: center; align-items: center; font-size: 30px; }
-        #player-racer { left: 0%; border-color: #2196f3; background: #000; }
-        #enemy-racer { left: 0%; border-color: #f44336; background: #000; z-index: 1; }
-        #enemy-racer img { width: 40px; height: 40px; object-fit: contain; }
-
-        .attack-hint { font-size: 30px; color: #ff5722; font-weight: bold; margin-top: 10px; height: 40px; }
-        .blink-text { animation: blink 0.5s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-
-        /* ★ 攻擊震動特效 ★ */
-        .shake { animation: shake 0.4s; border-color: red !important; box-shadow: 0 0 30px red; }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-
-        button { padding: 15px 30px; font-size: 24px; cursor: pointer; background: #555; color: white; border: none; border-radius: 10px; margin-top: 30px; transition: 0.2s; }
-        button:hover { background: #777; transform: scale(1.05); }
-        .btn-gold { background: #ff9800; color: white; font-weight: bold; }
-        .btn-gold:hover { background: #e68a00; }
-    </style>
+    <title>寶可夢加傲樂 - 背包存檔版</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="coin-board">
         💰 金幣: <span id="coin-display">0</span>
-        <button onclick="earnCoins()" style="font-size: 16px; padding: 5px 10px; margin: 0 0 0 10px; background: #4caf50;">打工 (+10)</button>
+        <button onclick="earnCoins()" style="font-size: 16px; padding: 5px 10px; background: #4caf50;">打工 (+10)</button>
+        <button onclick="openBackpack()" style="font-size: 16px; padding: 5px 10px; background: #2196f3;">🎒 我的背包</button>
     </div>
 
     <div id="selection-page">
@@ -100,16 +38,16 @@
             <h3 style="margin:0 0 5px 0;">行動賽道 (先抵達右方者攻擊)</h3>
             <div class="track-bg">
                 <div class="finish-line"></div>
-                <div id="player-racer" class="racer-icon">⚡</div>
-                <div id="enemy-racer" class="racer-icon"><img id="enemy-racer-img" src="" alt="?"></div>
+                <div id="player-racer" class="racer-icon"><img id="player-racer-img" src="" alt="me"></div>
+                <div id="enemy-racer" class="racer-icon"><img id="enemy-racer-img" src="" alt="enemy"></div>
             </div>
             <div id="action-msg" class="attack-hint blink-text">瘋狂交替按 A 與 D 鍵加速前進！！</div>
         </div>
 
         <div id="combat-arena">
             <div class="combatant" id="player-card" style="border-color: #2196f3;">
-                <div style="font-size: 80px; margin-bottom: 10px;">⚡</div>
-                <h2 style="margin: 5px;">皮卡丘 (我方)</h2>
+                <img class="poke-sprite" id="player-icon" src="" alt="player" style="width: 100px; height: 100px; margin-bottom: 0;">
+                <h2 id="player-name" style="margin: 5px;">我方搭檔</h2>
                 <div>HP: <span id="player-hp-text">100</span> / 100</div>
                 <div class="bar-bg"><div id="player-hp-bar" class="hp-bar"></div></div>
             </div>
@@ -121,6 +59,13 @@
                 <div class="bar-bg"><div id="enemy-hp-bar" class="hp-bar"></div></div>
             </div>
         </div>
+    </div>
+
+    <div id="backpack-page" class="hidden">
+        <h1>🎒 我的圖鑑背包</h1>
+        <p>收集進度: <span id="collection-count">0</span> 隻</p>
+        <button onclick="closeBackpack()" style="margin-top: 0; background: #f44336;">關閉背包</button>
+        <div id="backpack-grid"></div>
     </div>
 
     <script src="pokemonData.js"></script>
