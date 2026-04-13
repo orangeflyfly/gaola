@@ -1,0 +1,48 @@
+/* base.css - 核心基礎與變數 */
+:root {
+    --primary-glow: #00d4ff;
+    --arcade-red: #ff3b3b;
+    --arcade-gold: #ffeb3b;
+    --rarity-6: #ff00ea;
+    --card-bg: linear-gradient(135deg, #444 0%, #111 100%);
+    --btn-shadow: 0 6px 0 #222;
+}
+
+body { 
+    background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+    color: white; margin: 0; overflow: hidden; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh;
+    font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+}
+
+body::before {
+    content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: linear-gradient(rgba(0, 212, 255, 0.08) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(0, 212, 255, 0.08) 1px, transparent 1px);
+    background-size: 60px 60px; z-index: -1;
+}
+
+.hidden { display: none !important; }
+
+/* 街機質感按鈕 */
+button {
+    padding: 12px 24px; font-size: 18px; font-weight: bold;
+    border-radius: 12px; border: 3px solid #666; cursor: pointer;
+    background: linear-gradient(to bottom, #555, #222); color: white;
+    box-shadow: var(--btn-shadow); transition: 0.1s;
+}
+button:hover { filter: brightness(1.2); transform: translateY(-2px); }
+button:active { transform: translateY(4px); box-shadow: 0 2px 0 #000; }
+
+.arcade-btn-main {
+    width: 140px; height: 140px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ff5f5f, #b30000);
+    border: 8px solid #ddd; color: white; font-weight: 900; font-size: 22px;
+    cursor: pointer; box-shadow: 0 10px 0 #660000, 0 15px 30px rgba(255,0,0,0.4);
+    animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center;
+}
+@keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 10px 0 #660000, 0 0 10px rgba(255,0,0,0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 10px 0 #660000, 0 0 35px rgba(255,0,0,0.7); }
+}
