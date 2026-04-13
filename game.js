@@ -18,12 +18,23 @@ const App = {
         if (currentScreen === 'roulette') this.finish();
     },
     finish() {
+        // 1. 徹底隱藏轉盤分層
         document.getElementById('roulette-page').classList.add('hidden');
-        if(!isExtraBattle && Math.random() < GAME_CONFIG.EXTRA_BATTLE_RATE) { document.getElementById('extra-battle-pop').classList.remove('hidden'); }
-        else { this.reload(); }
+        document.getElementById('pay-confirm-box').classList.add('hidden');
+        document.getElementById('fail-exit-btn').classList.add('hidden');
+        document.getElementById('roulette-result').classList.add('hidden'); // 新增：隱藏結果文字
+        
+        // 2. 判定加賽 (只有非加賽場才會觸發加賽感應)
+        if (!isExtraBattle && Math.random() < GAME_CONFIG.EXTRA_BATTLE_RATE) { 
+            document.getElementById('extra-battle-pop').classList.remove('hidden'); 
+        } else { 
+            this.reload(); // 沒有加賽就回大廳
+        }
     },
-    reload() { location.reload(); }
-};
+    reload() { 
+        // 使用 location.reload() 是最乾淨的重置方式，確保所有變數歸零
+        location.reload(); 
+    }
 
 function earnCoins() { coins += 10; SoundSystem.play('button_click'); App.updateAll(); }
 function confirmMapSelection() { if (coins < 30) return alert("金幣不足！"); coins -= 30; SoundSystem.play('coin_in'); SoundSystem.playBGM('bgm_battle'); MapSystem.showGuaranteed(); }
