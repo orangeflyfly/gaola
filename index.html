@@ -111,4 +111,88 @@
         }
 
         // 3. 進入三選一
-        function enterTripleChoice(
+        function enterTripleChoice(boss) {
+            currentScreen = 'triple';
+            document.getElementById('selection-page').classList.add('hidden');
+            document.getElementById('battle-page').classList.remove('hidden');
+            
+            let choices = [boss];
+            while(choices.length < 3) {
+                let r = machineInventory[Math.floor(Math.random() * machineInventory.length)];
+                if(!choices.find(p => p.id === r.id)) choices.push(r);
+            }
+
+            const screen = document.getElementById('battle-select-screen');
+            screen.innerHTML = "";
+            choices.forEach(p => {
+                const choiceCard = document.createElement('div');
+                choiceCard.className = 'choice-card';
+                choiceCard.onclick = () => startFighting(p);
+                choiceCard.innerHTML = `
+                    <div class="poke-sprite">${p.icon}</div>
+                    <div>${p.name}</div>
+                    <div style="font-size:12px;color:yellow;">★${p.rarity}</div>
+                `;
+                screen.appendChild(choiceCard);
+            });
+        }
+
+        function backToMaps() {
+            currentScreen = 'selection';
+            document.getElementById('selection-page').classList.remove('hidden');
+            document.getElementById('battle-page').classList.add('hidden');
+        }
+
+        // 4. 戰鬥系統
+        function startFighting(target) {
+            currentScreen = 'fight';
+            document.getElementById('battle-page').classList.add('hidden');
+            document.getElementById('fighting-page').classList.remove('hidden');
+            
+            document.getElementById('enemy-title').innerText = "正在挑戰 " + target.name;
+            document.getElementById('enemy-icon').innerText = target.icon;
+            
+            currentEnergy = 0;
+            if(battleLoop) clearInterval(battleLoop);
+            battleLoop = setInterval(() => {
+                if (currentScreen === 'fight' && currentEnergy > 0) {
+                    currentEnergy -= 0.8; 
+                    updateUI();
+                }
+            }, 100);
+        }
+
+        // 5. 鍵盤控制器
+        window.addEventListener('keydown', (e) => {
+            const key = e.key;
+            if (currentScreen === 'selection') {
+                if (key === 'ArrowLeft') changeMap(-1);
+                if (key === 'ArrowRight') changeMap(1);
+                if (key === 'Enter') confirmMapSelection();
+            } else if (currentScreen === 'triple') {
+                if (key === 'Escape') backToMaps();
+            } else if (currentScreen === 'fight') {
+                const lowerKey = key.toLowerCase();
+                if (lowerKey === 'a' || lowerKey === 'd') {
+                    currentEnergy += 4;
+                    if (currentEnergy >= 100) {
+                        currentEnergy = 100;
+                        clearInterval(battleLoop);
+                        alert("究極攻擊成功！成功收服！");
+                        initMachine();
+                    }
+                    updateUI();
+                }
+            }
+        });
+
+        function updateUI() {
+            const bar = document.getElementById('energy-bar');
+            bar.style.width = currentEnergy + "%";
+            document.getElementById('energy-text').innerText = Math.floor(currentEnergy);
+        }
+
+        window.onload = initMachine;
+    </script>
+</body>
+</html>
