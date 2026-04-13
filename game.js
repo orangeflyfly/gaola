@@ -45,7 +45,12 @@ const App = {
 
 // 全域掛載函數（讓 HTML 上的 onclick 能找到）
 function earnCoins() { coins += 10; App.updateAll(); }
-function confirmMapSelection() { if (coins < 30) return alert("金幣不足！"); coins -= 30; MapSystem.showGuaranteed(); }
+function confirmMapSelection() { if (coins < 30) return alert("金幣不足，請先打工！"); 
+    // --- 這裡就是補音效的黃金位置 ---
+    SoundSystem.play('coin_in');       // 讓玩家聽到「叮」一聲投幣聲
+    SoundSystem.playBGM('bgm_battle'); // 背景音樂從大廳換成戰鬥 BGM
+    // ----------------------------
+    coins -= 30; MapSystem.showGuaranteed(); }
 function changeMap(dir) { MapSystem.change(dir); }
 function spinWheel() { CaptureSystem.spin(); }
 function startExtraBattle() { document.getElementById('extra-battle-pop').classList.add('hidden'); isExtraBattle = true; BattleSystem.start(null); }
