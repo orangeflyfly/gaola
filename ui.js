@@ -15,11 +15,11 @@ const GameUI = {
         if(pText) pText.innerText = `${Math.ceil(pHP)} / 100`;
         if(eText) eText.innerText = `${Math.ceil(eHP)} / 100`;
         
-        // 🌟 [V7.2 修復] 更新賽道位置 (CSS 已負責 translate(-X%))
+        // 🌟 [絕對鎖定公式] 0% 扣 0px，100% 剛好扣除圖片的 90px
         const pRacer = document.getElementById('player-racer');
         const eRacer = document.getElementById('enemy-racer');
-        if(pRacer) pRacer.style.left = pATB + '%';
-        if(eRacer) eRacer.style.left = eATB + '%';
+        if(pRacer) pRacer.style.left = `calc(${pATB}% - ${pATB * 0.9}px)`;
+        if(eRacer) eRacer.style.left = `calc(${eATB}% - ${eATB * 0.9}px)`;
         
         this.updateTypeTag('player-type', partner ? partner.type : '一般');
         this.updateTypeTag('enemy-type', enemy ? enemy.type : '一般');
