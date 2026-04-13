@@ -1,92 +1,111 @@
-/* style.css - V6.0 卡匣視覺強化版 */
+/* style.css - V6.2 旗艦版總體檢 */
+
+:root {
+    --primary-glow: #00d4ff;
+    --arcade-red: #ff3b3b;
+    --rarity-6: #ff00ea;
+}
 
 body { 
-    background-color: #1a1a1a; color: white; margin: 0; overflow: hidden; 
+    background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+    color: white; margin: 0; overflow: hidden; 
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     min-height: 100vh;
     font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
 }
 
+/* 背景網格線 - 增加街機感 */
+body::before {
+    content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px; z-index: -1;
+}
+
 .hidden { display: none !important; }
 
-/* --- 戰鬥畫面置中優化 --- */
-#fighting-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    min-height: 85vh; /* 佔據大部分垂直空間 */
-    gap: 15px;
+/* --- 標題美化 --- */
+h1 {
+    font-size: 3rem; font-style: italic; font-weight: 900;
+    text-shadow: 0 0 10px var(--primary-glow), 0 0 20px var(--primary-glow);
+    letter-spacing: 2px; margin-bottom: 30px;
 }
 
-/* --- 方向 A：橫式卡匣設計 (精緻化) --- */
-.combatant, .choice-card, .backpack-item { 
-    width: 320px; /* 寬度增加，改為橫式 */
+/* --- 3D 呼吸燈投幣按鈕 --- */
+.arcade-btn-main {
+    width: 120px; height: 120px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ff5f5f, #b30000);
+    border: 8px solid #444; color: white; font-weight: bold; font-size: 20px;
+    cursor: pointer; box-shadow: 0 10px 0 #660000, 0 15px 25px rgba(0,0,0,0.5);
+    transition: 0.1s; animation: pulse 2s infinite;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+}
+.arcade-btn-main:active { transform: translateY(8px); box-shadow: 0 2px 0 #660000; }
+@keyframes pulse {
+    0% { box-shadow: 0 10px 0 #660000, 0 0 0px rgba(255, 59, 59, 0.4); }
+    50% { box-shadow: 0 10px 0 #660000, 0 0 30px rgba(255, 59, 59, 0.8); }
+    100% { box-shadow: 0 10px 0 #660000, 0 0 0px rgba(255, 59, 59, 0.4); }
+}
+
+/* --- 背包與佈局修正 (解決重疊與捲動) --- */
+#backpack-page {
+    width: 100%; height: 100vh; position: fixed; top: 0; left: 0;
+    background: rgba(0,0,0,0.95); z-index: 200;
+    display: flex; flex-direction: column; align-items: center; padding-top: 50px;
+}
+
+#backpack-grid {
+    width: 90%; max-width: 1100px;
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px; padding: 20px;
+    overflow-y: auto; /* 解決無法下拉的問題 */
+    max-height: 70vh;
+}
+
+/* --- 橫式卡匣設計 --- */
+.combatant, .choice-card, .backpack-item, .map-card { 
+    width: 320px; height: 110px;
     background: linear-gradient(135deg, #333 0%, #111 100%);
-    border-radius: 12px;
-    padding: 15px;
-    border: 3px solid #777;
-    display: flex; /* 橫向排列內容 */
-    align-items: center;
-    gap: 15px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-    position: relative;
+    border-radius: 10px; border: 3px solid #555;
+    display: flex; align-items: center; padding: 10px; gap: 15px;
+    box-sizing: border-box; position: relative;
 }
 
-.poke-sprite { width: 100px; height: 100px; object-fit: contain; }
+.poke-sprite { width: 85px; height: 85px; object-shrink: 0; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8)); }
+.card-info { flex-grow: 1; text-align: left; line-height: 1.4; }
 
-.card-info { flex-grow: 1; text-align: left; }
-
-/* 虹光 6 星特效 */
+/* 虹光 6 星 */
 @keyframes rainbowGlow {
-    0% { border-color: #ff0000; box-shadow: 0 0 25px #ff0000; }
-    33% { border-color: #00ff00; box-shadow: 0 0 25px #00ff00; }
-    66% { border-color: #0000ff; box-shadow: 0 0 25px #0000ff; }
-    100% { border-color: #ff0000; box-shadow: 0 0 25px #ff0000; }
+    0% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
+    33% { border-color: #00ff00; box-shadow: 0 0 20px #00ff00; }
+    66% { border-color: #0000ff; box-shadow: 0 0 20px #0000ff; }
+    100% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
 }
 .rarity-6 { animation: rainbowGlow 1.5s linear infinite !important; border-width: 5px !important; }
 
 /* --- 進度條 (ATB 賽道) 強化 --- */
-#atb-track-container { 
-    width: 90%; 
-    max-width: 1000px; /* 加長賽道 */
-    margin: 30px 0; 
-}
-
+#atb-track-container { width: 85%; max-width: 850px; margin: 30px 0; }
 .track-bg { 
-    width: 100%; 
-    height: 70px; /* 加厚賽道 */
-    background: #222; 
-    border: 4px solid #fff; 
-    border-radius: 35px; 
-    position: relative; 
-    overflow: hidden; 
+    height: 60px; background: #222; border: 4px solid #fff; 
+    border-radius: 30px; position: relative; overflow: hidden;
+    box-shadow: inset 0 0 15px rgba(0,212,255,0.5);
 }
-
 .finish-line { 
     position: absolute; right: 0; width: 25px; height: 100%; 
     background: repeating-linear-gradient(45deg, #ffeb3b, #ffeb3b 10px, #000 10px, #000 20px);
-    box-shadow: -5px 0 15px rgba(255, 235, 59, 0.5);
 }
 
-.racer-icon { 
-    position: absolute; top: 10px; width: 50px; height: 50px; 
-    border-radius: 50%; border: 3px solid white; background: #000; 
-    transition: left 0.1s linear; 
-}
+/* --- 轉盤頁面修正 --- */
+#roulette-page { z-index: 150; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+#wheel-container { border: 10px solid #fff; box-shadow: 0 0 30px rgba(255,255,255,0.3); border-radius: 50%; }
 
-/* --- 特效與噴字 --- */
-.damage-popup { 
-    position: absolute; color: #ff3d00; font-size: 50px; font-weight: 900; 
-    text-shadow: 3px 3px 0px white; animation: floatUp 0.8s ease-out forwards; pointer-events: none; 
-}
-@keyframes floatUp { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-120px); opacity: 0; } }
+/* --- 特效 --- */
+.catch-shake { animation: catchShake 0.4s ease-in-out 3; }
+@keyframes catchShake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
 
-.shake { animation: shakeEffect 0.4s; }
-@keyframes shakeEffect { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-8px,-8px); } 75% { transform: translate(8px,8px); } }
+.shake { animation: shakeEffect 0.3s; }
+@keyframes shakeEffect { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
 
-/* --- 大廳與按鈕 --- */
-#coin-board { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.9); padding: 12px 20px; border-radius: 15px; border: 2px solid gold; color: gold; font-size: 24px; z-index: 100; }
-button { padding: 12px 25px; font-size: 18px; border-radius: 12px; border: none; cursor: pointer; background: #444; color: white; transition: 0.2s; }
-button:hover { transform: scale(1.05); filter: brightness(1.2); }
+/* 金幣顯示板 */
+#coin-board { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.85); padding: 10px 20px; border-radius: 12px; border: 2px solid gold; font-size: 24px; color: gold; z-index: 300; }
