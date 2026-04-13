@@ -2,29 +2,28 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>寶可夢加傲樂模擬機 - 階段四</title>
+    <title>寶可夢加傲樂 - 最終修復版</title>
     <style>
         body { background-color: #1a1a1a; color: white; font-family: sans-serif; text-align: center; padding: 20px; overflow: hidden; }
         h1 { color: #ffeb3b; }
         .hidden { display: none !important; }
 
-        /* 地圖與三選一容器 */
+        /* 容器佈局 */
         #map-container, #battle-select-screen { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
 
-        /* 卡片樣式 */
+        /* 卡片設計 */
         .map-card {
             width: 130px; padding: 15px; background-color: #333; border: 3px solid #555;
             border-radius: 12px; cursor: pointer; transition: all 0.2s;
         }
-        .map-card:hover { transform: scale(1.1); border-color: #ffeb3b; }
+        .map-card:hover { transform: scale(1.1); border-color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
         .silhouette { filter: brightness(0); opacity: 0.8; }
         .poke-sprite { font-size: 50px; margin-bottom: 10px; }
 
-        /* --- 戰鬥畫面專屬樣式 --- */
-        #battle-stage { margin-top: 50px; }
+        /* 戰鬥蓄力條樣式 */
         .energy-container {
-            width: 400px; height: 30px; background: #444; border: 3px solid #fff;
-            margin: 20px auto; border-radius: 15px; overflow: hidden;
+            width: 400px; height: 35px; background: #444; border: 3px solid #fff;
+            margin: 20px auto; border-radius: 20px; overflow: hidden;
         }
         #energy-bar {
             width: 0%; height: 100%; background: linear-gradient(90deg, #4caf50, #ffeb3b, #f44336);
@@ -32,6 +31,9 @@
         }
         .attack-hint { font-size: 24px; color: #ff5722; font-weight: bold; animation: blink 0.5s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #555; color: white; border: none; border-radius: 5px; margin-top: 20px; }
+        button:hover { background: #777; }
     </style>
 </head>
 <body>
@@ -39,23 +41,24 @@
     <div id="selection-page">
         <h1>請選擇目的地</h1>
         <div id="map-container"></div>
-        <button onclick="initMachine()" style="margin-top:30px;">投入硬幣 (刷新)</button>
+        <button onclick="initMachine()">刷新機台 (重新投幣)</button>
     </div>
 
     <div id="battle-page" class="hidden">
-        <h1>發現寶可夢！挑戰哪一隻？</h1>
+        <h1 style="color: #ff9800;">發現寶可夢！挑戰哪一隻？</h1>
         <div id="battle-select-screen"></div>
+        <button onclick="backToMaps()">回上一頁</button>
     </div>
 
     <div id="fighting-page" class="hidden">
         <h1 id="enemy-title">對戰開始！</h1>
         <div class="poke-sprite" id="enemy-icon">🐲</div>
-        <div class="attack-hint">瘋狂按 A 與 D 鍵集氣！！</div>
+        <div class="attack-hint">瘋狂交替按 A 與 D 鍵！！</div>
         
         <div class="energy-container">
             <div id="energy-bar"></div>
         </div>
-        <p>能量值: <span id="energy-text">0</span>%</p>
+        <p>能量蓄積: <span id="energy-text">0</span>%</p>
     </div>
 
     <script>
@@ -70,69 +73,87 @@
 
         let currentEnergy = 0;
         let isFighting = false;
+        let battleLoop = null;
 
+        // 初始化地圖
         function initMachine() {
             const container = document.getElementById('map-container');
             container.innerHTML = "";
             for (let i = 0; i < 5; i++) {
                 const randomPoke = machineInventory[Math.floor(Math.random() * machineInventory.length)];
                 const silhouette = (randomPoke.rarity >= 4) ? "silhouette" : "";
-                container.innerHTML += `
-                    <div class="map-card" onclick='enterMap(${JSON.stringify(randomPoke)})'>
-                        <div class="poke-sprite ${silhouette}">${randomPoke.icon}</div>
-                        <div>地圖 ${i+1}</div>
-                        <div style="font-size:12px;color:#aaa;">${randomPoke.name}</div>
-                    </div>`;
+                
+                // 修正：使用更穩定的傳值方式
+                const card = document.createElement('div');
+                card.className = 'map-card';
+                card.onclick = () => enterMap(randomPoke);
+                card.innerHTML = `
+                    <div class="poke-sprite ${silhouette}">${randomPoke.icon}</div>
+                    <div>地圖 ${i+1}</div>
+                    <div style="font-size:12px;color:#aaa;">${randomPoke.name}</div>
+                `;
+                container.appendChild(card);
             }
         }
 
+        // 進入三選一畫面
         function enterMap(boss) {
             document.getElementById('selection-page').classList.add('hidden');
             document.getElementById('battle-page').classList.remove('hidden');
+            
             let choices = [boss];
             while(choices.length < 3) {
                 let r = machineInventory[Math.floor(Math.random() * machineInventory.length)];
                 if(!choices.find(p => p.id === r.id)) choices.push(r);
             }
+
             const screen = document.getElementById('battle-select-screen');
             screen.innerHTML = "";
             choices.forEach(p => {
-                screen.innerHTML += `
-                    <div class="map-card" onclick="startFighting(${JSON.stringify(p)})">
-                        <div class="poke-sprite">${p.icon}</div>
-                        <div>${p.name}</div>
-                    </div>`;
+                const choiceCard = document.createElement('div');
+                choiceCard.className = 'map-card';
+                choiceCard.style.borderColor = 'orange';
+                choiceCard.onclick = () => startFighting(p);
+                choiceCard.innerHTML = `
+                    <div class="poke-sprite">${p.icon}</div>
+                    <div>${p.name}</div>
+                    <div style="font-size:12px;color:yellow;">★${p.rarity}</div>
+                `;
+                screen.appendChild(choiceCard);
             });
         }
 
-        // --- 第四課：連打戰鬥邏輯 ---
+        // 返回地圖
+        function backToMaps() {
+            document.getElementById('selection-page').classList.remove('hidden');
+            document.getElementById('battle-page').classList.add('hidden');
+        }
+
+        // 開始對戰
         function startFighting(target) {
             document.getElementById('battle-page').classList.add('hidden');
             document.getElementById('fighting-page').classList.remove('hidden');
             
-            document.getElementById('enemy-title').innerText = "挑戰 " + target.name;
+            document.getElementById('enemy-title').innerText = "正在挑戰 " + target.name;
             document.getElementById('enemy-icon').innerText = target.icon;
             
             isFighting = true;
             currentEnergy = 0;
             
-            // 啟動能量自動流失循環
-            const loop = setInterval(() => {
-                if (!isFighting) {
-                    clearInterval(loop);
-                    return;
-                }
-                if (currentEnergy > 0) currentEnergy -= 0.5; // 每 0.1 秒掉 0.5 能量
+            // 能量自動減少的計時器
+            if(battleLoop) clearInterval(battleLoop);
+            battleLoop = setInterval(() => {
+                if (currentEnergy > 0) currentEnergy -= 0.8; 
                 updateUI();
             }, 100);
         }
 
-        // 監聽鍵盤 A 和 D
+        // 鍵盤監聽
         window.addEventListener('keydown', (e) => {
             if (!isFighting) return;
-            
-            if (e.key.toLowerCase() === 'a' || e.key.toLowerCase() === 'd') {
-                currentEnergy += 3; // 每按一下加 3 能量
+            const key = e.key.toLowerCase();
+            if (key === 'a' || key === 'd') {
+                currentEnergy += 4; // 按一下加 4
                 if (currentEnergy >= 100) {
                     currentEnergy = 100;
                     winBattle();
@@ -149,8 +170,9 @@
 
         function winBattle() {
             isFighting = false;
-            alert("究極攻擊！成功捕捉！");
-            location.reload(); // 重新整理回到開頭
+            clearInterval(battleLoop);
+            alert("究極攻擊成功！成功收服！");
+            location.reload(); // 回到最初地圖畫面
         }
 
         window.onload = initMachine;
