@@ -179,19 +179,27 @@ button.close-btn, button[onclick*="close"], button[onclick*="finish"] {
     transition: transform 3.5s cubic-bezier(0.15, 0, 0.15, 1); 
 }
 
-/* --- 戰鬥賽道強化 (拉長、加厚版) --- */
+/* --- 戰鬥賽道：巨大化修正 --- */
 #atb-track-container { 
-    width: 95%;          /* 讓它佔據螢幕 95% 的寬度 */
-    max-width: 1200px;   /* 把上限從 1000px 拔高到 1200px 或更高 */
-    margin: 50px 0;      /* 增加上下間距，讓它在中間更顯眼 */
+    width: 95% !important;     /* 佔據 95% 寬度 */
+    max-width: 1300px !important; /* 最大寬度拉到 1300px */
+    margin: 60px auto !important; /* 增加上下間距 */
 }
-
 .track-bg { 
-    height: 100px;       /* 增加高度，讓進度條變「粗」，更有街機感 */
-    background: #000; 
-    border: 8px solid #fff; /* 邊框加厚 */
-    border-radius: 50px; 
-    box-shadow: 0 0 30px var(--primary-glow); /* 增加發光範圍 */
+    height: 110px !important;    /* 高度從原本的幾十 px 暴力拉到 110px */
+    background: #000 !important; 
+    border: 8px solid #fff !important; 
+    border-radius: 60px !important; 
+    box-shadow: 0 0 40px var(--primary-glow) !important; 
+}
+/* 讓賽道上的圖標也跟著變大，不然會看起來縮在裡面 */
+.track-icon {
+    width: 90px !important; 
+    height: 90px !important;
+}
+.finish-line { 
+    width: 50px !important; 
+    background: repeating-linear-gradient(45deg, #ffeb3b, #ffeb3b 20px, #000 20px, #000 40px) !important; 
 }
 /* 金幣顯示 */
 #coin-board { 
