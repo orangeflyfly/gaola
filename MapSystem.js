@@ -1,9 +1,19 @@
-// MapSystem.js - V6.2.4 影像修復與橫式卡匣適配版
+// MapSystem.js - V6.2.5 旗艦強化不刪減版
 const MapSystem = {
     options: [],
     currentIndex: 0,
 
-    // 1. 刷新地圖選項 (使用最穩定的 GitHub 來源)
+    // [加強] 初始化鍵盤監聽：讓玩家按左右鍵也能切換地圖
+    bindKeys() {
+        window.addEventListener('keydown', (e) => {
+            if (typeof currentScreen !== 'undefined' && currentScreen === 'selection') {
+                if (e.key === 'ArrowLeft') this.change(-1);
+                if (e.key === 'ArrowRight') this.change(1);
+            }
+        });
+    },
+
+    // 1. 刷新地圖選項 (保留您原本的穩定 GitHub 來源邏輯)
     async refresh() {
         currentMapOptions = [];
         const imageBaseUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
@@ -23,38 +33,40 @@ const MapSystem = {
         this.render(); // 呼叫渲染
     },
 
-    // 2. 切換選單 (搭配導航箭頭)
+    // 2. 切換選單 (保留您原本的導航邏輯)
     change(dir) {
-        SoundSystem.play('button_click');
+        if (typeof SoundSystem !== 'undefined') SoundSystem.play('button_click');
         this.currentIndex = (this.currentIndex + dir + 5) % 5;
         this.render();
     },
 
-    // 3. 渲染主畫面地圖卡匣 (圖左字右)
+    // 3. 渲染主畫面地圖卡匣 (保留結構並加強視覺欄位)
     render() {
         const data = currentMapOptions[this.currentIndex];
         const display = document.getElementById('single-map-display');
         
-        // 配合 CSS 的 .map-card 樣式
+        // 配合 CSS 的 .map-card 樣式，並預留屬性欄位
         display.innerHTML = `
             <div class="map-card ${data.rarity >= 6 ? 'rarity-6' : ''}">
                 <img src="${data.image}" class="poke-sprite">
                 <div class="card-info">
-                    <div style="font-size: 16px; color: #00d4ff; font-weight: bold; margin-bottom: 5px;">REGION 0${this.currentIndex + 1}</div>
-                    <b>${data.name}</b>
-                    <div style="font-size: 20px; color: #aaa; margin-top: 5px;">★ ${data.rarity}</div>
+                    <div style="font-size: 16px; color: #00d4ff; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px;">REGION 0${this.currentIndex + 1}</div>
+                    <b style="font-size: 28px;">${data.name}</b>
+                    <div style="margin: 5px 0;">
+                        <span style="background: rgba(255,255,255,0.1); padding: 2px 10px; border-radius: 4px; font-size: 14px; color: #eee;">★ ${data.rarity} 星等</span>
+                    </div>
                 </div>
             </div>`;
     },
 
-    // 4. 顯示投幣後的三選一 (橫式卡匣版)
+    // 4. 顯示投幣後的三選一 (保留您原本的 3D 按鈕邏輯並加強佈局)
     async showGuaranteed() {
         currentScreen = 'guaranteed';
         document.getElementById('selection-page').classList.add('hidden');
         document.getElementById('guaranteed-page').classList.remove('hidden');
         
         const container = document.getElementById('guaranteed-choices');
-        container.innerHTML = "<div style='font-size:24px; color:cyan;'>📡 掃描棲息地中...</div>";
+        container.innerHTML = "<div style='font-size:28px; color:#00fbff; font-weight:bold; animation: pulse 1s infinite;'>📡 棲息地掃描中...</div>";
         
         const imageBaseUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
         let choices = [];
@@ -74,18 +86,23 @@ const MapSystem = {
             const div = document.createElement('div');
             div.className = `choice-card ${p.rarity >= 6 ? 'rarity-6' : ''}`;
             
-            // 這裡使用了總監要求的 3D 按鈕感，並確保卡匣內容橫向對齊
+            // 保留您的 3D 按鈕感，微調間距讓排版更「大氣」
             div.innerHTML = `
                 <img src="${p.image}" class="poke-sprite">
                 <div class="card-info">
-                    <b>${p.name}</b><br>
-                    <span style="font-size: 18px; color: #aaa;">星等: ★${p.rarity}</span><br>
+                    <b style="font-size: 26px;">${p.name}</b><br>
+                    <div style="margin: 8px 0;">
+                        <span style="font-size: 18px; color: #ffeb3b; font-weight: bold;">GRADE ★${p.rarity}</span>
+                    </div>
                     <button onclick='App.buyPokemon(${JSON.stringify(p)}, 0)' 
-                            style="margin-top: 10px; width: 100%; background: linear-gradient(to bottom, #00fbff, #008183); color: #000;">
-                        捕捉這張
+                            style="margin-top: 5px; width: 100%; height: 45px; background: linear-gradient(to bottom, #00fbff, #008183); color: #000; font-weight: 900; border: 2px solid #fff; border-radius: 8px; cursor: pointer;">
+                        確認收服
                     </button>
                 </div>`;
             container.appendChild(div);
         });
     }
 };
+
+// 啟動鍵盤監聽
+MapSystem.bindKeys();
