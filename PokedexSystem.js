@@ -1,18 +1,28 @@
-// PokedexSystem.js - V8.0 典藏之書邏輯中樞
+// PokedexSystem.js - V8.0.1 數據同步修正版
 
 const PokedexSystem = {
-    currentPage: 0, // 當前對開頁索引 (0 代表 1-6 號)
-    seenIds: [],    // 已遇見的 ID 陣列
-    caughtIds: [],  // 已收服的 ID 陣列
+    currentPage: 0, 
+    seenIds: [],    
+    caughtIds: [],  
 
-    // 1. 初始化並開啟圖鑑
+    // 1. 修正版：初始化並開啟圖鑑 (加入背包同步邏輯)
     open() {
-        console.log("正在打開典藏之書...");
+        console.log("正在同步數據並打開典藏之書...");
         
-        // 從 Storage 讀取最新的圖鑑紀錄 (若無則初始化)
         const record = GameStorage.loadPokedexRecord();
         this.seenIds = record.seen || [];
         this.caughtIds = record.caught || [];
+
+        // 🚀 [數據同步修正] 檢查當前背包，將舊資料補進圖鑑
+        if (typeof myBackpack !== 'undefined' && myBackpack.length > 0) {
+            myBackpack.forEach(p => {
+                if (!this.caughtIds.includes(p.id)) {
+                    this.caughtIds.push(p.id);
+                    // 同步寫入 LocalStorage 確保永久生效
+                    GameStorage.updatePokedex(p.id, 'caught');
+                }
+            });
+        }
 
         this.render();
         this.updateStats();
@@ -22,7 +32,6 @@ const PokedexSystem = {
         if(typeof SoundSystem !== 'undefined') SoundSystem.play('ui_click');
     },
 
-    // 2. 核心渲染邏輯：分配左右頁面
     render() {
         const leftPageEl = document.getElementById('pokedex-left-page');
         const rightPageEl = document.getElementById('pokedex-right-page');
@@ -30,16 +39,12 @@ const PokedexSystem = {
 
         if (!leftPageEl || !rightPageEl) return;
 
-        // 清空當前書頁
         leftPageEl.innerHTML = '';
         rightPageEl.innerHTML = '';
 
-        // 計算當前對開頁的起始 ID
-        // 每對開一次顯示 6 張 (左3右3)
         const itemsPerSpread = POKEDEX_CONFIG.ITEMS_PER_SPREAD || 6;
         const startIdx = this.currentPage * itemsPerSpread;
 
-        // 渲染左頁 (3張)
         for (let i = 0; i < 3; i++) {
             const pokeData = machineInventory[startIdx + i];
             if (pokeData) {
@@ -47,7 +52,6 @@ const PokedexSystem = {
             }
         }
 
-        // 渲染右頁 (3張)
         for (let i = 3; i < 6; i++) {
             const pokeData = machineInventory[startIdx + i];
             if (pokeData) {
@@ -55,24 +59,20 @@ const PokedexSystem = {
             }
         }
 
-        // 更新頁碼資訊
         const totalPages = Math.ceil(machineInventory.length / itemsPerSpread);
         if (pageInfoEl) {
             pageInfoEl.innerText = `第 ${this.currentPage + 1} / ${totalPages} 頁`;
         }
     },
 
-    // 3. 條目渲染器：處理剪影與全彩邏輯
     createEntryHtml(poke) {
         const isCaught = this.caughtIds.includes(poke.id);
         const isSeen = this.seenIds.includes(poke.id) || isCaught;
         
-        // 狀態判斷
         let contentHtml = '';
         let statusClass = 'locked';
 
         if (isCaught) {
-            // 已收服：全彩顯示
             statusClass = 'caught';
             contentHtml = `
                 <img src="${GAME_CONFIG.ASSET_PATH}${poke.id}.png" class="pokedex-img">
@@ -83,7 +83,6 @@ const PokedexSystem = {
                 </div>
             `;
         } else if (isSeen) {
-            // 已遇見：剪影顯示
             statusClass = 'seen';
             contentHtml = `
                 <img src="${GAME_CONFIG.ASSET_PATH}${poke.id}.png" class="pokedex-img silhouette">
@@ -93,7 +92,6 @@ const PokedexSystem = {
                 </div>
             `;
         } else {
-            // 未發現：空白/問號
             statusClass = 'unknown';
             contentHtml = `
                 <div class="pokedex-placeholder">?</div>
@@ -106,7 +104,6 @@ const PokedexSystem = {
         return `<div class="pokedex-entry ${statusClass}">${contentHtml}</div>`;
     },
 
-    // 4. 換頁控制
     nextPage() {
         const totalPages = Math.ceil(machineInventory.length / (POKEDEX_CONFIG.ITEMS_PER_SPREAD || 6));
         if (this.currentPage < totalPages - 1) {
@@ -124,7 +121,6 @@ const PokedexSystem = {
         }
     },
 
-    // 5. 更新頂部統計數據
     updateStats() {
         const countEl = document.getElementById('pokedex-count');
         if (countEl) {
@@ -133,11 +129,7 @@ const PokedexSystem = {
     }
 };
 
-// --- 🌟 V8.0 橋接函數：供 index.html 呼叫 ---
-function openPokedex() {
-    PokedexSystem.open();
-}
-
+function openPokedex() { PokedexSystem.open(); }
 function closePokedex() {
     currentScreen = 'selection';
     if(typeof GameUI !== 'undefined') GameUI.switchPage('selection-page');
