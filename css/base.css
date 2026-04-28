@@ -1,4 +1,4 @@
-/* base.css - V9.0 街機框體與螢幕覺醒版 */
+/* base.css - V9.0 街機框體與螢幕覺醒修正版 (全代碼不簡化) */
 :root {
     --primary-glow: #00d4ff;
     --arcade-red: #ff3b3b;
@@ -7,9 +7,9 @@
     --card-bg: linear-gradient(135deg, #444 0%, #111 100%);
     --btn-shadow: 0 6px 0 #222;
     
-    /* 🌟 新增機台視覺變數 */
+    /* 🌟 修正機台視覺變數：螢幕預設改回待機展示漸層，不再是死機黑屏 */
     --monitor-border: #111;
-    --screen-bg: #000;
+    --screen-bg: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
 }
 
 body { 
@@ -47,21 +47,17 @@ body {
     transition: background 0.5s ease;
 }
 
-/* 🌟 3. 螢幕關閉狀態 (亮屏前) */
-.screen-off #selection-page {
-    opacity: 0;
-    pointer-events: none;
-}
+/* (刪除了導致大廳消失的 .screen-off 語法，解鎖投幣按鈕) */
 
-/* 🌟 4. 亮屏覺醒動畫 */
+/* 🌟 3. 亮屏覺醒動畫 */
 .screen-wake {
     animation: screenWakeFlash 0.8s forwards;
 }
 
 @keyframes screenWakeFlash {
-    0% { background: #000; filter: brightness(1); }
+    0% { filter: brightness(1); }
     30% { background: #fff; filter: brightness(5); } /* 瞬間閃白光 */
-    100% { background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%); filter: brightness(1); }
+    100% { background: var(--screen-bg); filter: brightness(1); }
 }
 
 .hidden { display: none !important; }
