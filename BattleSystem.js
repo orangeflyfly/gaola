@@ -1,15 +1,14 @@
-// BattleSystem.js - V7.4 視覺與策略進化版 (全代碼)
+// BattleSystem.js - V7.4.1 變數對接修正版 (全代碼不簡化)
 
 const BattleSystem = {
     comboCount: 0,
     comboTimer: null,
 
-    // 🌟 [V7.4 新增] 1. 戰前準備階段
+    // 1. 戰前準備階段
     initPrep(enemyData) {
-        currentScreen = 'prep'; // 設定目前狀態為準備中
+        currentScreen = 'prep'; 
         const imageBaseUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
         
-        // 隨機選定對手 (如果沒有傳入資料)
         if (!enemyData) {
             enemyData = machineInventory[Math.floor(Math.random() * machineInventory.length)];
         }
@@ -19,30 +18,29 @@ const BattleSystem = {
             image: `${imageBaseUrl}${enemyData.id}.png`
         };
 
-        // 呼叫 UI 渲染準備頁面 (傳入敵方資料與我方背包)
-        GameUI.renderPrepPage(currentEnemy, backpack);
+        // 🌟 [關鍵修正] 將 backpack 改為您 game.js 裡定義的 myBackpack
+        const targetBackpack = (typeof myBackpack !== 'undefined') ? myBackpack : [];
+        GameUI.renderPrepPage(currentEnemy, targetBackpack);
         
-        // 隱藏其他頁面
         document.getElementById('selection-page').classList.add('hidden');
         document.getElementById('fighting-page').classList.add('hidden');
+        document.getElementById('prep-page').classList.remove('hidden');
     },
 
-    // 🌟 [V7.4 新增] 2. 正式開打 (從準備頁面的按鈕點擊啟動)
+    // 2. 正式開打
     launch() {
-        if (!myPartner) return; // 防呆：沒選夥伴不能開打
+        if (!myPartner) return; 
 
         currentScreen = 'fight';
         isPaused = false;
         playerHP = 100; enemyHP = 100; playerATB = 0; enemyATB = 0;
         
-        // 圖片與名稱初始化
         const imageBaseUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
         myPartner.image = `${imageBaseUrl}${myPartner.id}.png`;
 
         document.getElementById('prep-page').classList.add('hidden');
         document.getElementById('fighting-page').classList.remove('hidden');
 
-        // UI 數值更新
         document.getElementById('player-name').innerText = myPartner.name;
         document.getElementById('player-icon').src = myPartner.image;
         document.getElementById('player-racer-img').src = myPartner.image;
@@ -51,12 +49,10 @@ const BattleSystem = {
         document.getElementById('enemy-icon').src = currentEnemy.image;
         document.getElementById('enemy-racer-img').src = currentEnemy.image;
 
-        // 重置 Combo
         this.comboCount = 0;
         if(this.comboTimer) clearTimeout(this.comboTimer);
         GameUI.updateCombo(0);
 
-        // 鍵盤監聽引擎
         window.onkeydown = (e) => {
             if (currentScreen === 'fight' && !isPaused) {
                 const key = e.key.toLowerCase();
@@ -103,7 +99,6 @@ const BattleSystem = {
         playerATB += 0.005; 
         enemyATB += (0.25 + (currentEnemy.rarity * 0.06));
 
-        // 🌟 [V7.4 終極防線]
         if (playerATB > 100) playerATB = 100;
         if (enemyATB > 100) enemyATB = 100;
 
@@ -122,16 +117,12 @@ const BattleSystem = {
         requestAnimationFrame(() => this.loop());
     },
 
-    // 🌟 [V7.4 升級] 攻擊執行 (加入大招演出與粒子特效)
     executeAttack(attacker) {
         isPaused = true;
         let attackerObj = (attacker === 'player') ? myPartner : currentEnemy;
-        let defenderId = (attacker === 'player') ? 'enemy-card' : 'player-card';
         
-        // 1. 啟動大招過場演出
         GameUI.showSkillCutIn(attackerObj);
 
-        // 演出約 1 秒後結算傷害
         setTimeout(() => {
             let baseDamage = (attacker === 'player') ? 20 : 15;
             let multiplier = 1.0;
@@ -150,7 +141,6 @@ const BattleSystem = {
                 else this.showMsg(`💥 ${myPartner.skill}！！`);
                 
                 enemyHP -= finalDmg;
-                // 🌟 傳入屬性參數，觸發正確顏色的粒子
                 GameUI.showDamage('enemy-card', finalDmg, multiplier, myPartner.type);
             } else {
                 multiplier = getDamageMultiplier(currentEnemy.type, myPartner.type);
@@ -164,10 +154,11 @@ const BattleSystem = {
                 GameUI.showDamage('player-card', finalDmg, multiplier, currentEnemy.type);
             }
 
-            if (!isMiss) SoundSystem.play('attack_hit');
+            if (!isMiss) {
+                if(typeof SoundSystem !== 'undefined') SoundSystem.play('attack_hit');
+            }
             this.updateBars();
 
-            // 給予短暫停頓後繼續戰鬥
             setTimeout(() => {
                 if (enemyHP <= 0 || playerHP <= 0) {
                     this.end();
@@ -179,11 +170,13 @@ const BattleSystem = {
                 }
             }, 1000);
 
-        }, 1000); // 這裡的 1000 必須對齊 GameUI.showSkillCutIn 的演出時間
+        }, 1000);
     },
 
     updateBars() {
-        GameUI.updateDisplay(coins, playerHP, enemyHP, playerATB, enemyATB, myPartner, currentEnemy);
+        if(typeof GameUI !== 'undefined') {
+            GameUI.updateDisplay(coins, playerHP, enemyHP, playerATB, enemyATB, myPartner, currentEnemy);
+        }
     },
 
     end() {
@@ -196,7 +189,9 @@ const BattleSystem = {
         
         setTimeout(() => {
             document.getElementById('fighting-page').classList.add('hidden');
-            CaptureSystem.init(currentEnemy);
+            if(typeof CaptureSystem !== 'undefined') {
+                CaptureSystem.init(currentEnemy);
+            }
         }, 1500);
     }
 };
