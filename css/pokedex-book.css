@@ -1,200 +1,248 @@
-/* pokedex-book.css - V8.0 典藏之書視覺定義 */
+/* pokedex-book.css - V9.0.8 螢幕絕對約束版 (全代碼不簡化) */
 
 :root {
-    --book-bg: #f4e4bc;      /* 紙張底色 */
-    --book-border: #8b5a2b;  /* 書皮邊框色 */
-    --page-shadow: rgba(0,0,0,0.3);
+    --pokedex-bg: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+    --pokedex-accent: #00d4ff;
+    --pokedex-gold: #ffeb3b;
+    --pokedex-border: #444;
+    --card-bg: rgba(0, 0, 0, 0.6);
 }
 
-/* 1. 圖鑑整頁容器 */
+/* 1. 圖鑑整頁容器：鎖定在 1100x800 內 */
 #pokedex-book-page {
-    position: fixed;
+    position: absolute; /* 修改：從 fixed 改為 absolute，對齊機台螢幕 */
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.9); /* 背景變暗，聚焦在書本上 */
-    z-index: 2000;
+    width: 100%;       /* 修改：從 100vw 改為 100%，約束在父層 */
+    height: 100%;      /* 修改：從 100vh 改為 100% */
+    background: var(--pokedex-bg);
+    z-index: 700;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding: 20px;
+    box-sizing: border-box; /* 確保 padding 不會撐破寬度 */
     font-family: "Microsoft JhengHei", sans-serif;
+    overflow: hidden;
 }
 
 /* 2. 圖鑑標題與統計 */
 .pokedex-header {
     text-align: center;
     margin-bottom: 20px;
-    color: #ffd700;
+}
+
+.pokedex-header h1 {
+    font-size: 36px;
+    color: var(--pokedex-gold);
+    text-shadow: 0 0 15px rgba(255, 235, 59, 0.5);
+    margin: 0;
+    letter-spacing: 4px;
 }
 
 .pokedex-stats {
     font-size: 18px;
-    background: #444;
-    padding: 5px 15px;
-    border-radius: 20px;
-    border: 1px solid #ffd700;
+    color: var(--pokedex-accent);
+    background: rgba(0, 212, 255, 0.1);
+    padding: 5px 20px;
+    border-radius: 30px;
+    border: 1px solid var(--pokedex-accent);
+    display: inline-block;
+    margin-top: 10px;
 }
 
 /* 3. 書本主體封套 */
 .book-wrapper {
     display: flex;
     align-items: center;
-    gap: 30px;
+    justify-content: center;
+    gap: 20px;
+    width: 1050px; /* 寬度略小於 1100px */
+    height: 520px;
 }
 
 .book-main {
     display: flex;
-    width: 900px;
-    height: 550px;
-    background: var(--book-bg);
-    border: 10px solid var(--book-border);
-    border-radius: 10px;
-    box-shadow: 0 0 50px var(--page-shadow);
+    width: 920px;
+    height: 100%;
+    background: #111;
+    border: 5px solid var(--pokedex-border);
+    border-radius: 15px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 1);
     position: relative;
     overflow: hidden;
 }
 
-/* 中間裝訂線 */
+/* 中間裝訂線 (書脊) */
 .book-spine {
-    width: 2px;
+    width: 12px;
     height: 100%;
-    background: rgba(0,0,0,0.1);
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    z-index: 5;
+    background: linear-gradient(to right, #000, #333, #000);
+    z-index: 10;
+    border-left: 1px solid #111;
+    border-right: 1px solid #111;
 }
 
 /* 4. 單頁佈局 (左頁與右頁) */
 .book-side {
     flex: 1;
-    padding: 30px;
+    padding: 20px;
     display: grid;
-    grid-template-rows: repeat(3, 1fr); /* 一頁垂直放 3 個 */
+    grid-template-rows: repeat(3, 1fr); /* 核心：一頁垂直 3 隻 */
     gap: 15px;
-    z-index: 2;
+    z-index: 5;
+    background: rgba(255, 255, 255, 0.02);
 }
 
 /* 5. 寶可夢條目卡片 */
 .pokedex-entry {
-    background: rgba(255, 255, 255, 0.4);
-    border: 2px solid #8b5a2b;
-    border-radius: 8px;
+    background: var(--card-bg);
+    border: 2px solid #333;
+    border-radius: 12px;
     display: flex;
     align-items: center;
-    padding: 10px;
-    transition: transform 0.2s;
+    padding: 10px 20px;
+    gap: 20px;
+    position: relative;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
-.pokedex-entry:hover {
-    transform: scale(1.02);
-    background: rgba(255, 255, 255, 0.7);
+/* 不同狀態的卡片邊框 */
+.pokedex-entry.status-caught {
+    border-color: var(--pokedex-accent);
+    box-shadow: inset 0 0 15px rgba(0, 212, 255, 0.1);
 }
 
-/* 圖片與濾鏡 */
-.pokedex-img {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
-    margin-right: 15px;
+.pokedex-entry.status-seen {
+    border-color: #777;
 }
 
-/* 🌟 [核心] 剪影特效：黑化處理 */
-.silhouette {
-    filter: brightness(0) contrast(1); /* 變成純黑剪影 */
-    opacity: 0.6;
+.pokedex-entry.status-unknown {
+    border-color: #222;
+    opacity: 0.5;
 }
 
-.pokedex-info {
-    flex: 1;
-    color: #432;
-}
-
-.pokedex-id {
-    font-size: 12px;
-    font-weight: bold;
-    color: #8b5a2b;
-}
-
-.pokedex-name {
-    font-size: 20px;
-    font-weight: bold;
-    margin: 2px 0;
-}
-
-.pokedex-rarity {
-    color: #d4af37;
-    font-weight: bold;
-}
-
-/* 鎖定狀態樣式 */
-.locked {
-    background: rgba(0, 0, 0, 0.05);
-    border-color: #ccc;
-}
-
-.pokedex-placeholder {
-    width: 80px;
-    height: 80px;
-    background: #ddd;
-    border-radius: 50%;
+/* 圖片容器 */
+.entry-sprite {
+    width: 90px;
+    height: 90px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 40px;
-    color: #999;
-    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.entry-sprite img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* 🌟 剪影效果 */
+.silhouette {
+    filter: brightness(0) contrast(1);
+    opacity: 0.7;
+}
+
+/* 資訊文字 */
+.entry-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.entry-no {
+    font-size: 14px;
+    color: #666;
+    font-family: monospace;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+}
+
+.entry-name {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    margin: 0;
+}
+
+.entry-status-tag {
+    font-size: 12px;
+    margin-top: 8px;
+    padding: 2px 10px;
+    border-radius: 4px;
+    background: #333;
+    color: #aaa;
+    display: inline-block;
+    width: fit-content;
+}
+
+.status-caught .entry-status-tag {
+    background: var(--pokedex-accent);
+    color: #000;
 }
 
 /* 6. 翻頁導覽按鈕 */
 .book-nav {
-    background: #ffd700;
-    border: none;
-    width: 60px;
-    height: 60px;
+    background: #222;
+    border: 2px solid #555;
+    width: 54px;
+    height: 54px;
     border-radius: 50%;
-    font-size: 30px;
+    font-size: 24px;
+    color: white;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.2s;
 }
 
 .book-nav:hover {
-    background: #fff;
+    border-color: var(--pokedex-gold);
+    color: var(--pokedex-gold);
     transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(255, 235, 59, 0.3);
 }
 
-.book-nav:active {
-    transform: scale(0.9);
-}
-
-/* 7. 底部資訊 */
+/* 7. 底部資訊與關閉按鈕 */
 .pokedex-footer {
-    margin-top: 30px;
+    margin-top: 20px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 40px;
 }
 
 #pokedex-page-info {
-    color: #ffd700;
+    color: #888;
     font-size: 18px;
-    letter-spacing: 2px;
+    font-weight: bold;
 }
 
 .close-btn {
-    background: #f44336;
+    background: #e91e63;
     color: white;
-    padding: 10px 40px;
+    padding: 12px 50px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 18px;
+    font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 4px 0 #b71c1c;
+    box-shadow: 0 5px 0 #ad1457;
+    transition: all 0.1s;
 }
 
 .close-btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 0 #b71c1c;
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #ad1457;
+}
+
+/* 適配：當寬度不足時的內部縮放 (選用) */
+@media screen and (max-height: 800px) {
+    .book-wrapper {
+        transform: scale(0.95);
+    }
 }
