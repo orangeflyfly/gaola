@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>寶可夢加傲樂 V8.5.1 - 大師進化：佈局修正版</title>
+    <title>寶可夢加傲樂 V9.0 - 街機沉浸體驗版</title>
     
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/layout-ui.css">
@@ -11,158 +11,173 @@
     <link rel="stylesheet" href="css/pokedex-book.css">
 </head>
 <body>
-    <div id="coin-board">
-        💰 <span id="coin-count">0</span> 
-        <button onclick="earnCoins()">打工</button>
-        <button onclick="openBackpack()">🎒 背包</button>
-        <button onclick="openPokedex()" style="background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; font-weight: bold; border: 2px solid #fff;">📖 圖鑑</button>
-    </div>
 
-    <div id="selection-page">
-        <h1>遊樂場大廳</h1>
-        <div id="carousel-area">
-            <div class="nav-arrow" onclick="changeMap(-1)">◀</div>
-            <div id="single-map-display"></div>
-            <div class="nav-arrow" onclick="changeMap(1)">▶</div>
-        </div>
-        <button class="arcade-btn-main" onclick="confirmMapSelection()" style="margin-top:40px;">投入 30<br>金幣開局</button>
-        <button onclick="refreshMachine()" style="margin-top:20px; font-size:14px; opacity: 0.6;">刷新機台內容</button>
-    </div>
-
-    <div id="guaranteed-page" class="hidden">
-        <h1 style="color:cyan">🎁 投幣獎勵：選擇一隻寶可夢</h1>
-        <div id="guaranteed-choices"></div>
-    </div>
-
-    <div id="prep-page" class="hidden">
-        <div class="prep-header">
-            <h1 style="color:#ffeb3b;">⚠️ 偵測到野生寶可夢！</h1>
-            <p>請根據屬性相剋，派出最適合的隊員</p>
-        </div>
-        
-        <div class="prep-container">
-            <div id="prep-enemy-info" class="prep-card">
-                <h3>敵方戰力</h3>
-                <img id="prep-enemy-img" src="" alt="敵方">
-                <div id="prep-enemy-name" class="prep-name">---</div>
-                <div id="prep-enemy-type-tag" class="type-tag">--</div>
+    <div class="arcade-monitor">
+        <div class="screen-glass screen-off" id="main-screen">
+            
+            <div id="coin-board">
+                💰 <span id="coin-count">0</span> 
+                <button onclick="earnCoins()">打工</button>
+                <button onclick="openBackpack()">🎒 背包</button>
+                <button onclick="openPokedex()" style="background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; font-weight: bold; border: 2px solid #fff;">📖 圖鑑</button>
             </div>
 
-            <div class="prep-vs">VS</div>
-
-            <div id="prep-selection-area" class="prep-card">
-                <h3>選擇你的夥伴</h3>
-                <div id="prep-backpack-list"></div>
-            </div>
-        </div>
-        <button id="start-battle-btn" class="arcade-btn-main" style="display:none;" onclick="BattleSystem.launch()">正式開打！</button>
-    </div>
-
-    <div id="fighting-page" class="hidden">
-        <div id="vfx-layer"></div>
-
-        <div class="combatant" id="enemy-card">
-            <img id="enemy-icon" class="poke-sprite" src="">
-            <div class="card-info">
-                <div class="type-tag" id="enemy-type">--</div> <h2 id="enemy-name" style="margin:0;">敵方</h2>
-                <div class="hp-info"><span>HP</span> <span id="enemy-hp-text">100/100</span></div>
-                <div class="bar-bg"><div id="enemy-hp-bar" class="hp-bar" style="background:#f44336"></div></div>
-            </div>
-        </div>
-
-        <div id="atb-track-container">
-            <div id="combo-display"></div>
-            <div class="track-bg">
-                <div class="finish-line"></div>
-                <div id="player-racer">
-                    <img id="player-racer-img" src="">
+            <div id="selection-page">
+                <h1>遊樂場大廳</h1>
+                <div id="carousel-area">
+                    <div class="nav-arrow" onclick="changeMap(-1)">◀</div>
+                    <div id="single-map-display"></div>
+                    <div class="nav-arrow" onclick="changeMap(1)">▶</div>
                 </div>
-                <div id="enemy-racer">
-                    <img id="enemy-racer-img" src="">
+
+                <div id="map-silhouettes-container">
+                    <p style="font-size: 14px; color: #aaa; margin-bottom: 10px;">區域出沒預報</p>
+                    <div id="map-silhouettes">
+                        </div>
+                </div>
+
+                <button class="arcade-btn-main" onclick="confirmMapSelection()" style="margin-top:20px;">投入 30<br>金幣開局</button>
+                <button onclick="refreshMachine()" style="margin-top:15px; font-size:14px; opacity: 0.6;">刷新機台內容</button>
+            </div>
+
+            <div id="grass-event-page" class="hidden">
+                <h1 style="color: #8bc34a;">🌿 草叢裡有動靜...</h1>
+                <p>請點擊一株草叢來尋找寶可夢！</p>
+                <div class="grass-container">
+                    <div class="grass-box" onclick="MapSystem.selectGrass(0)">
+                        <div class="grass-sprite"></div>
+                    </div>
+                    <div class="grass-box" onclick="MapSystem.selectGrass(1)">
+                        <div class="grass-sprite"></div>
+                    </div>
+                    <div class="grass-box" onclick="MapSystem.selectGrass(2)">
+                        <div class="grass-sprite"></div>
+                    </div>
                 </div>
             </div>
-            <p id="action-msg">瘋狂按 A D 鍵加速！！</p>
-        </div>
 
-        <div class="combatant" id="player-card">
-            <img id="player-icon" class="poke-sprite" src="">
-            <div class="card-info">
-                <div class="type-tag" id="player-type">--</div> <h2 id="player-name" style="margin:0;">我方</h2>
-                <div class="hp-info"><span>HP</span> <span id="player-hp-text">100/100</span></div>
-                <div class="bar-bg"><div id="player-hp-bar-real" class="hp-bar"></div></div>
+            <div id="guaranteed-page" class="hidden">
+                <h1 style="color:cyan">🎁 投幣獎勵：選擇一隻寶可夢</h1>
+                <div id="guaranteed-choices"></div>
             </div>
-        </div>
-    </div>
 
-    <div id="skill-overlay" class="hidden">
-        <div class="skill-background-beam"></div> 
-        <div class="skill-cutin-box">
-            <img id="skill-poke-img" src="" alt="大招大圖">
-            <div class="skill-name-banner">
-                <span id="skill-name-text">招式名稱</span>
+            <div id="prep-page" class="hidden">
+                <div class="prep-header">
+                    <h1 style="color:#ffeb3b;">⚠️ 偵測到野生寶可夢！</h1>
+                    <p>請根據屬性相剋，派出最適合的隊員</p>
+                </div>
+                <div class="prep-container">
+                    <div id="prep-enemy-info" class="prep-card">
+                        <h3>敵方戰力</h3>
+                        <img id="prep-enemy-img" src="" alt="敵方">
+                        <div id="prep-enemy-name" class="prep-name">---</div>
+                        <div id="prep-enemy-type-tag" class="type-tag">--</div>
+                    </div>
+                    <div class="prep-vs">VS</div>
+                    <div id="prep-selection-area" class="prep-card">
+                        <h3>選擇你的夥伴</h3>
+                        <div id="prep-backpack-list"></div>
+                    </div>
+                </div>
+                <button id="start-battle-btn" class="arcade-btn-main" style="display:none;" onclick="BattleSystem.launch()">正式開打！</button>
             </div>
-        </div>
-    </div>
 
-    <div id="pokedex-book-page" class="hidden">
-        <div class="pokedex-header">
-            <h1>📖 寶可夢典藏之書</h1>
-            <div class="pokedex-stats">目前進度: <span id="pokedex-count">0 / 100</span></div>
-        </div>
-
-        <div class="book-wrapper">
-            <button class="book-nav prev" onclick="PokedexSystem.prevPage()">◀</button>
-            <div class="book-main">
-                <div id="pokedex-left-page" class="book-side"></div>
-                <div class="book-spine"></div>
-                <div id="pokedex-right-page" class="book-side"></div>
+            <div id="fighting-page" class="hidden">
+                <div id="vfx-layer"></div>
+                <div class="combatant" id="enemy-card">
+                    <img id="enemy-icon" class="poke-sprite" src="">
+                    <div class="card-info">
+                        <div class="type-tag" id="enemy-type">--</div> <h2 id="enemy-name" style="margin:0;">敵方</h2>
+                        <div class="hp-info"><span>HP</span> <span id="enemy-hp-text">100/100</span></div>
+                        <div class="bar-bg"><div id="enemy-hp-bar" class="hp-bar" style="background:#f44336"></div></div>
+                    </div>
+                </div>
+                <div id="atb-track-container">
+                    <div id="combo-display"></div>
+                    <div class="track-bg">
+                        <div class="finish-line"></div>
+                        <div id="player-racer"><img id="player-racer-img" src=""></div>
+                        <div id="enemy-racer"><img id="enemy-racer-img" src=""></div>
+                    </div>
+                    <p id="action-msg">瘋狂按 A D 鍵加速！！</p>
+                </div>
+                <div class="combatant" id="player-card">
+                    <img id="player-icon" class="poke-sprite" src="">
+                    <div class="card-info">
+                        <div class="type-tag" id="player-type">--</div> <h2 id="player-name" style="margin:0;">我方</h2>
+                        <div class="hp-info"><span>HP</span> <span id="player-hp-text">100/100</span></div>
+                        <div class="bar-bg"><div id="player-hp-bar-real" class="hp-bar"></div></div>
+                    </div>
+                </div>
             </div>
-            <button class="book-nav next" onclick="PokedexSystem.nextPage()">▶</button>
-        </div>
 
-        <div class="pokedex-footer">
-            <span id="pokedex-page-info">第 1 / 17 頁</span>
-            <button onclick="closePokedex()" class="close-btn">闔上圖鑑</button>
-        </div>
-    </div>
-
-    <div id="roulette-page" class="hidden">
-        <h1 id="roulette-title">進入捕獲階段</h1>
-        <div id="wheel-container">
-            <div id="wheel-pointer"></div>
-            <div id="wheel"></div>
-        </div>
-        <div id="roulette-result" class="hidden">
-            <div id="result-ball" style="font-size: 100px;">🔴</div>
-            <h2 id="result-msg">判定中...</h2>
-            <div id="pay-confirm-box" class="hidden">
-                <p id="pay-ask-text" style="font-size:20px;"></p>
-                <button id="confirm-pay-btn" style="background:#4caf50; padding:15px 40px;">確認支付入包</button>
-                <button onclick="finishCapture()" style="background:#f44336; padding:15px 40px; margin-left:10px;">放棄離開</button>
+            <div id="skill-overlay" class="hidden">
+                <div class="skill-background-beam"></div> 
+                <div class="skill-cutin-box">
+                    <img id="skill-poke-img" src="" alt="大招大圖">
+                    <div class="skill-name-banner">
+                        <span id="skill-name-text">招式名稱</span>
+                    </div>
+                </div>
             </div>
-            <button id="fail-exit-btn" class="hidden" onclick="finishCapture()">結束戰鬥</button>
-        </div>
-        <button id="stop-btn" onclick="CaptureSystem.stop()">拍擊停止！</button>
-    </div>
 
-    <div id="extra-battle-pop" class="hidden">
-        <div class="pop-content">
-            <h2 style="color:#00bcd4; font-size:36px;">⚡ 偵測到強大的氣息！ ⚡</h2>
-            <p style="font-size:20px;">是否進行加賽？ (加賽場 6 星機率提升！)</p>
-            <div style="margin-top:30px;">
-                <button onclick="startExtraBattle()" style="background:#00bcd4; color:black; font-weight:bold;">進行加賽</button>
-                <button onclick="hideExtraPop()" style="background:#555; margin-left:20px;">結束遊玩</button>
+            <div id="pokedex-book-page" class="hidden">
+                <div class="pokedex-header">
+                    <h1>📖 寶可夢典藏之書</h1>
+                    <div class="pokedex-stats">目前進度: <span id="pokedex-count">0 / 100</span></div>
+                </div>
+                <div class="book-wrapper">
+                    <button class="book-nav prev" onclick="PokedexSystem.prevPage()">◀</button>
+                    <div class="book-main">
+                        <div id="pokedex-left-page" class="book-side"></div>
+                        <div class="book-spine"></div>
+                        <div id="pokedex-right-page" class="book-side"></div>
+                    </div>
+                    <button class="book-nav next" onclick="PokedexSystem.nextPage()">▶</button>
+                </div>
+                <div class="pokedex-footer">
+                    <span id="pokedex-page-info">第 1 / 17 頁</span>
+                    <button onclick="closePokedex()" class="close-btn">闔上圖鑑</button>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <div id="backpack-page" class="hidden">
-        <h1>🎒 我的背包</h1>
-        <button onclick="closeBackpack()" class="close-btn" style="margin-bottom:20px;">關閉背包</button>
-        <div id="backpack-grid"></div> 
-    </div>
+            <div id="roulette-page" class="hidden">
+                <h1 id="roulette-title">進入捕獲階段</h1>
+                <div id="wheel-container">
+                    <div id="wheel-pointer"></div>
+                    <div id="wheel"></div>
+                </div>
+                <div id="roulette-result" class="hidden">
+                    <div id="result-ball" style="font-size: 100px;">🔴</div>
+                    <h2 id="result-msg">判定中...</h2>
+                    <div id="pay-confirm-box" class="hidden">
+                        <p id="pay-ask-text" style="font-size:20px;"></p>
+                        <button id="confirm-pay-btn" style="background:#4caf50; padding:15px 40px;">確認支付入包</button>
+                        <button onclick="finishCapture()" style="background:#f44336; padding:15px 40px; margin-left:10px;">放棄離開</button>
+                    </div>
+                    <button id="fail-exit-btn" class="hidden" onclick="finishCapture()">結束戰鬥</button>
+                </div>
+                <button id="stop-btn" onclick="CaptureSystem.stop()">拍擊停止！</button>
+            </div>
 
-    <script src="pokemonData.js"></script>
+            <div id="extra-battle-pop" class="hidden">
+                <div class="pop-content">
+                    <h2 style="color:#00bcd4; font-size:36px;">⚡ 偵測到強大的氣息！ ⚡</h2>
+                    <p style="font-size:20px;">是否進行加賽？</p>
+                    <div style="margin-top:30px;">
+                        <button onclick="startExtraBattle()" style="background:#00bcd4; color:black; font-weight:bold;">進行加賽</button>
+                        <button onclick="hideExtraPop()" style="background:#555; margin-left:20px;">結束遊玩</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="backpack-page" class="hidden">
+                <h1>🎒 我的背包</h1>
+                <button onclick="closeBackpack()" class="close-btn" style="margin-bottom:20px;">關閉背包</button>
+                <div id="backpack-grid"></div> 
+            </div>
+
+        </div> </div> <script src="pokemonData.js"></script>
     <script src="typeChart.js"></script>
     <script src="config.js"></script>
     <script src="storage.js"></script>
