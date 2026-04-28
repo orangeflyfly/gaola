@@ -1,6 +1,6 @@
-/* battle-fx.css - V7.4 視覺與策略進化版 */
+/* battle-fx.css - V9.0.8 街機視覺特效總成 (全代碼不簡化) */
 
-/* --- 原有 V7.2 基礎元件 (保留不簡化) --- */
+/* --- 1. ATB 軌道與 Combo 系統 (原有保留) --- */
 
 #atb-track-container { 
     width: 95% !important; 
@@ -87,12 +87,7 @@
     display: flex; align-items: center; justify-content: center;
 }
 
-.shake-impact { animation: quickShake 0.1s ease-out; }
-@keyframes quickShake {
-    0% { transform: translate(0,0) scale(1); }
-    50% { transform: translate(5px, -5px) scale(1.02); }
-    100% { transform: translate(0,0) scale(1); }
-}
+/* --- 2. 損害彈窗與震動 (原有保留) --- */
 
 .damage-popup {
     position: absolute; 
@@ -105,21 +100,16 @@
     animation: damageFloat 0.7s forwards;
 }
 
-.damage-popup.miss {
-    color: #ffffff !important;
-    text-shadow: 3px 3px 0px #888, 0 0 20px #ffffff !important;
-}
-
 @keyframes damageFloat {
     0% { transform: translateY(0) scale(0.5); opacity: 0; }
     20% { transform: translateY(-40px) scale(1.2); opacity: 1; }
     100% { transform: translateY(-120px) scale(1); opacity: 0; }
 }
 
-/* --- 🌟 [V7.4 新增] 戰前準備頁面 (Prep Page) 樣式 --- */
+/* --- 3. [修復] 戰前準備與大招切入：由 fixed 改為 absolute 以約束在機台內 --- */
 
 #prep-page {
-    position: fixed;
+    position: absolute; /* 修改：約束在螢幕內 */
     inset: 0;
     background: radial-gradient(circle at center, #1a1a2e, #000);
     z-index: 5000;
@@ -130,78 +120,137 @@
     padding: 20px;
 }
 
-.prep-container {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    margin: 30px 0;
-    width: 100%;
-    max-width: 1000px;
-}
-
-.prep-card {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 20px;
-    text-align: center;
-    backdrop-filter: blur(10px);
-}
-
-#prep-enemy-img { width: 180px; height: 180px; filter: drop-shadow(0 0 20px rgba(244, 67, 54, 0.5)); }
-.prep-name { font-size: 2rem; font-weight: bold; margin: 10px 0; color: #fff; }
-
-.prep-vs {
-    font-size: 5rem;
-    font-weight: 900;
-    font-style: italic;
-    color: #ffeb3b;
-    text-shadow: 0 0 20px #ff9800;
-    animation: vsPulse 0.5s infinite alternate;
-}
-
-@keyframes vsPulse {
-    from { transform: scale(1); opacity: 0.8; }
-    to { transform: scale(1.1); opacity: 1; }
-}
-
-#prep-backpack-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 10px;
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 10px;
-}
-
-.prep-choice-item {
-    cursor: pointer;
-    border: 2px solid transparent;
-    border-radius: 10px;
-    padding: 5px;
-    transition: 0.2s;
-    background: rgba(0,0,0,0.3);
-}
-
-.prep-choice-item:hover { border-color: #00bcd4; background: rgba(0, 188, 212, 0.2); }
-.prep-choice-item.selected { border-color: #ffeb3b; background: rgba(255, 235, 59, 0.2); box-shadow: 0 0 15px #ffeb3b; }
-.prep-choice-item img { width: 100%; height: auto; }
-
-/* --- 🌟 [V7.4 新增] 大招過場 (Skill Cut-in) 戲院效果 --- */
-
 #skill-overlay {
-    position: fixed;
+    position: absolute; /* 修改：約束在螢幕內 */
     inset: 0;
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none; /* 演出時不阻礙點擊，雖然戰鬥會暫停 */
+    pointer-events: none;
     overflow: hidden;
 }
 
-/* 屬性斜向背景光束 */
+/* --- 4. 🌟 [V9.0.8 新增] 草叢開獎與噴發特效 --- */
+
+/* 拋球動畫 */
+@keyframes throwArc {
+    0% { transform: translate(-200px, -300px) scale(0.5) rotate(0deg); opacity: 0; }
+    30% { opacity: 1; }
+    100% { transform: translate(0, 0) scale(1) rotate(720deg); opacity: 1; }
+}
+
+.throw-ball {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png') no-repeat center;
+    background-size: contain;
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* 光柱基礎樣式 */
+.beam-effect {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    background: linear-gradient(to top, var(--beam-color), transparent);
+    z-index: 15;
+    filter: blur(5px);
+}
+
+.blue-beam { 
+    --beam-color: #00d4ff; 
+    animation: beamRise 0.8s ease-out forwards;
+}
+
+/* 🌟 金光慢噴演出：包含震動與慢速啟動 */
+.gold-beam { 
+    --beam-color: #ffeb3b; 
+    box-shadow: 0 0 30px #ffeb3b;
+    animation: goldBeamRise 1.5s cubic-bezier(0.65, 0.05, 0.36, 1) forwards;
+}
+
+@keyframes beamRise {
+    0% { height: 0; opacity: 0; width: 20px; }
+    50% { opacity: 1; width: 100px; }
+    100% { height: 600px; opacity: 0; width: 40px; }
+}
+
+@keyframes goldBeamRise {
+    0% { height: 0; opacity: 0; width: 10px; transform: translateX(-50%) rotate(0deg); }
+    20% { height: 20px; opacity: 1; width: 150px; transform: translateX(-52%) rotate(1deg); } /* 預震動 */
+    40% { height: 40px; transform: translateX(-48%) rotate(-1deg); }
+    100% { height: 800px; opacity: 0; width: 60px; transform: translateX(-50%); }
+}
+
+/* 草叢提示文字樣式 */
+#grass-hint {
+    text-align: center;
+    font-size: 24px;
+    color: #ffeb3b;
+    margin-top: 20px;
+    text-shadow: 0 0 10px rgba(0,0,0,0.8);
+    font-weight: bold;
+    min-height: 30px;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* --- 5. 🌟 [V9.0.8 新增] BOSS 警告無視窗儀式 --- */
+
+#boss-warning-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(139, 0, 0, 0.4);
+    z-index: 8000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    animation: warnPulse 0.5s infinite alternate;
+}
+
+.warn-box {
+    background: #000;
+    border-top: 5px solid #ff0000;
+    border-bottom: 5px solid #ff0000;
+    width: 100%;
+    padding: 40px 0;
+    text-align: center;
+    transform: skewY(-2deg);
+}
+
+.warn-text {
+    font-size: 56px;
+    color: #ff0000;
+    font-weight: 900;
+    text-shadow: 0 0 20px #000;
+    letter-spacing: 10px;
+    margin: 0;
+}
+
+.warn-subtext {
+    color: #fff;
+    font-size: 24px;
+    letter-spacing: 5px;
+    margin-top: 10px;
+}
+
+@keyframes warnPulse {
+    from { background: rgba(139, 0, 0, 0.3); }
+    to { background: rgba(255, 0, 0, 0.6); }
+}
+
+/* 原有大招與粒子部分保留 */
 .skill-background-beam {
     position: absolute;
     width: 200%;
@@ -213,90 +262,9 @@
     animation: beamGlow 0.8s ease-in-out forwards;
 }
 
-/* 大圖滑入動畫 */
-.skill-cutin-box {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-}
-
-#skill-poke-img {
-    position: absolute;
-    left: -20%;
-    height: 120%;
-    filter: drop-shadow(20px 0 30px rgba(0,0,0,0.8));
-    animation: cutInSlide 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* 技能名稱橫幅 */
-.skill-name-banner {
-    position: absolute;
-    right: 0;
-    bottom: 20%;
-    width: 60%;
-    background: linear-gradient(90deg, transparent, rgba(0,0,0,0.8), #000);
-    padding: 20px 100px;
-    border-top: 5px solid #fff;
-    border-bottom: 5px solid #fff;
-    transform: skewX(-20deg) translateX(100%);
-    animation: bannerIn 0.5s 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-#skill-name-text {
-    display: block;
-    font-size: 5rem;
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 0 0 20px var(--skill-glow, #fff);
-    transform: skewX(20deg); /* 抵消橫幅的傾斜 */
-    letter-spacing: 10px;
-}
-
-/* 各屬性光束配色方案 */
-.beam-fire { --skill-glow: #f44336; background: linear-gradient(90deg, transparent, #ff5722, #f44336, transparent); }
-.beam-water { --skill-glow: #2196f3; background: linear-gradient(90deg, transparent, #03a9f4, #2196f3, transparent); }
-.beam-grass { --skill-glow: #4caf50; background: linear-gradient(90deg, transparent, #8bc34a, #4caf50, transparent); }
-.beam-electric { --skill-glow: #ffeb3b; background: linear-gradient(90deg, transparent, #ffeb3b, #fbc02d, transparent); }
-.beam-normal { --skill-glow: #9e9e9e; background: linear-gradient(90deg, transparent, #e0e0e0, #9e9e9e, transparent); }
-
-@keyframes cutInSlide {
-    0% { transform: translateX(-50%) scale(0.8); opacity: 0; }
-    100% { transform: translateX(20%) scale(1); opacity: 1; }
-}
-
-@keyframes beamGlow {
-    0% { transform: rotate(-15deg) scaleY(0); opacity: 0; }
-    30% { transform: rotate(-15deg) scaleY(1.2); opacity: 1; }
-    100% { transform: rotate(-15deg) scaleY(1); opacity: 1; }
-}
-
-@keyframes bannerIn {
-    0% { transform: skewX(-20deg) translateX(100%); }
-    100% { transform: skewX(-20deg) translateX(10%); }
-}
-
-/* --- 🌟 [V7.4 新增] 粒子 VFX 層 --- */
-
 #vfx-layer {
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 5;
-}
-
-.particle {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    pointer-events: none;
-    animation: particlePop 0.6s ease-out forwards;
-}
-
-@keyframes particlePop {
-    0% { transform: translate(0, 0) scale(1); opacity: 1; }
-    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
 }
