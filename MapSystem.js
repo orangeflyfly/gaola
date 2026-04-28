@@ -1,9 +1,10 @@
-// MapSystem.js - V9.0 街機沉浸邏輯版 (全代碼不簡化，新增亮屏、剪影、三草叢)
+// MapSystem.js - V9.0.2 街機沉浸邏輯版 (全代碼不簡化，新增待機喚醒機制)
 
 const MapSystem = {
     options: [],
     currentIndex: 0,
     grassChoices: [], // 儲存三株草叢裡的寶可夢
+    isAwake: false,   // 🌟 新增：紀錄機台是否已經投幣喚醒
 
     // 1. 刷新地圖選項 (保留總監 GitHub 穩定來源)
     async refresh() {
@@ -69,31 +70,49 @@ const MapSystem = {
         }
     },
 
-    // 🌟 4. 確認地圖選擇 (實裝投幣亮屏演出)
+    // 🌟 4. 確認地圖選擇 (拆分為「投幣喚醒」與「確認地圖」兩階段)
     confirmSelection() {
-        const selectedEnemy = currentMapOptions[this.currentIndex];
-        
-        if (coins < 30) {
-            alert("⚠️ 金幣不足！請先去打工賺錢。");
-            return;
-        }
+        if (!this.isAwake) {
+            // --- 階段 1：投幣喚醒機台 ---
+            if (coins < 30) {
+                alert("⚠️ 金幣不足！請先點擊下方『🪙 打工』賺取金幣。");
+                return;
+            }
 
-        // 扣除金幣
-        coins -= 30;
-        if (typeof SoundSystem !== 'undefined') SoundSystem.play('coin_in');
-        const coinEl = document.getElementById('coin-count');
-        if(coinEl) coinEl.innerText = coins;
+            // 扣除金幣
+            coins -= 30;
+            if (typeof SoundSystem !== 'undefined') SoundSystem.play('coin_in');
+            const coinEl = document.getElementById('coin-count');
+            if(coinEl) coinEl.innerText = coins;
 
-        // 🚀 [亮屏演出] 畫面閃白光覺醒
-        const screen = document.getElementById('main-screen');
-        screen.classList.remove('screen-off');
-        screen.classList.add('screen-wake');
+            // 隱藏黑屏待機層
+            const standby = document.getElementById('standby-screen');
+            if(standby) standby.classList.add('hidden');
 
-        // 演出結束後進入草叢頁面
-        setTimeout(() => {
-            screen.classList.remove('screen-wake');
+            // 🚀 [亮屏演出] 畫面閃白光覺醒
+            const screen = document.getElementById('main-screen');
+            if(screen) {
+                screen.classList.remove('screen-off');
+                screen.classList.add('screen-wake');
+            }
+
+            this.isAwake = true;
+
+            // 動態更改按鈕文字為「確認地圖」
+            const physicalBtn = document.querySelector('.btn-red');
+            if(physicalBtn) physicalBtn.innerText = "⭕ 確認地圖 (前往草叢)";
+
+            const inScreenBtn = document.querySelector('.arcade-btn-main');
+            if(inScreenBtn) inScreenBtn.innerHTML = "⭕ 確認地圖<br>開始探索";
+
+        } else {
+            // --- 階段 2：確認地圖，進入草叢 ---
+            const selectedEnemy = currentMapOptions[this.currentIndex];
+            if (typeof SoundSystem !== 'undefined') SoundSystem.play('ui_click');
+
+            // 進入草叢頁面
             this.initGrassEvent(selectedEnemy);
-        }, 800);
+        }
     },
 
     // 🌟 5. [新增] 三草叢奇遇初始化
