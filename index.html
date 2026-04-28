@@ -2,18 +2,20 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>寶可夢加傲樂 V7.4 - 視覺與策略進化版</title>
+    <title>寶可夢加傲樂 V8.0 - 大師進化：典藏之書</title>
     
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/layout-ui.css">
     <link rel="stylesheet" href="css/battle-fx.css">
     <link rel="stylesheet" href="css/type-system.css">
+    <link rel="stylesheet" href="css/pokedex-book.css">
 </head>
 <body>
     <div id="coin-board">
         💰 <span id="coin-count">0</span> 
         <button onclick="earnCoins()">打工</button>
         <button onclick="openBackpack()">🎒 背包</button>
+        <button onclick="openPokedex()" style="background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; font-weight: bold; border: 2px solid #fff;">📖 圖鑑</button>
     </div>
 
     <div id="selection-page">
@@ -50,8 +52,7 @@
 
             <div id="prep-selection-area" class="prep-card">
                 <h3>選擇你的夥伴</h3>
-                <div id="prep-backpack-list">
-                    </div>
+                <div id="prep-backpack-list"></div>
             </div>
         </div>
         <button id="start-battle-btn" class="arcade-btn-main" style="display:none;" onclick="BattleSystem.launch()">正式開打！</button>
@@ -93,12 +94,37 @@
         </div>
 
         <div id="skill-overlay" class="hidden">
-            <div class="skill-background-beam"></div> <div class="skill-cutin-box">
+            <div class="skill-background-beam"></div> 
+            <div class="skill-cutin-box">
                 <img id="skill-poke-img" src="" alt="大招大圖">
                 <div class="skill-name-banner">
                     <span id="skill-name-text">招式名稱</span>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="pokedex-book-page" class="hidden">
+        <div class="pokedex-header">
+            <h1>📖 寶可夢典藏之書</h1>
+            <div class="pokedex-stats">目前進度: <span id="pokedex-count">0 / 100</span></div>
+        </div>
+
+        <div class="book-wrapper">
+            <button class="book-nav prev" onclick="PokedexSystem.prevPage()">◀</button>
+
+            <div class="book-main">
+                <div id="pokedex-left-page" class="book-side"></div>
+                <div class="book-spine"></div>
+                <div id="pokedex-right-page" class="book-side"></div>
+            </div>
+
+            <button class="book-nav next" onclick="PokedexSystem.nextPage()">▶</button>
+        </div>
+
+        <div class="pokedex-footer">
+            <span id="pokedex-page-info">第 1 / 17 頁</span>
+            <button onclick="closePokedex()" class="close-btn">闔上圖鑑</button>
         </div>
     </div>
 
@@ -144,6 +170,10 @@
     <script src="storage.js"></script>
     <script src="SoundSystem.js"></script>
     <script src="ui.js"></script>
+    
+    <script src="EffectSystem.js"></script>
+    <script src="PokedexSystem.js"></script>
+    
     <script src="MapSystem.js"></script>
     <script src="BattleSystem.js"></script>
     <script src="CaptureSystem.js"></script>
