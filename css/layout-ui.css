@@ -1,41 +1,65 @@
-/* layout-ui.css - V9.0.3 街機介面強化版 (排版解鎖與特效實裝，嚴禁簡化) */
+/* layout-ui.css - V9.0.8 街機佈局與開獎特效全集成 (全代碼不簡化) */
 
-/* 🌟 [修正] 為了讓 UI 待在機台螢幕內，調整定位參考 */
+/* 🌟 [核心鎖定] 確保所有 UI 待在 1100x800 機台螢幕內 */
 #coin-board { 
-    position: absolute; top: 20px; right: 20px; background: #000;
-    padding: 10px 25px; border: 3px solid var(--arcade-gold);
-    color: var(--arcade-gold); font-size: 28px; border-radius: 15px; z-index: 600;
+    position: absolute; 
+    top: 20px; 
+    right: 20px; 
+    background: #000;
+    padding: 10px 25px; 
+    border: 3px solid var(--arcade-gold);
+    color: var(--arcade-gold); 
+    font-size: 28px; 
+    border-radius: 15px; 
+    z-index: 600;
 }
 
 #selection-page, #guaranteed-page, #prep-page, #fighting-page, #roulette-page, #backpack-page, #pokedex-book-page, #grass-event-page {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    overflow: hidden; /* 防止內容溢出機台 */
 }
 
-/* 🌟 V9.0.1 修正：約束大廳標題大小，避免擠壓地圖大框 */
+/* 🌟 區域 1：遊樂場大廳 (地圖選擇) */
 #selection-page h1 {
     font-size: 38px;
     margin-bottom: 25px;
+    color: #fff;
     text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
 }
 
 #carousel-area {
-    display: flex; align-items: center; justify-content: center; gap: 40px;
-    background: rgba(0,0,0,0.4); padding: 30px; border-radius: 30px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 40px;
+    background: rgba(0,0,0,0.4); 
+    padding: 30px; 
+    border-radius: 30px;
     border: 2px solid rgba(0, 212, 255, 0.2);
     width: 90%;
 }
 
-/* 🌟 V9.0 新增：大型地圖展示框 */
 #single-map-display {
-    width: 600px; height: 350px; 
-    background: rgba(0,0,0,0.6); border: 5px solid var(--primary-glow);
-    border-radius: 20px; overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
+    width: 600px; 
+    height: 350px; 
+    background: rgba(0,0,0,0.6); 
+    border: 5px solid var(--primary-glow);
+    border-radius: 20px; 
+    overflow: hidden;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
     box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
 }
 
-/* 🌟 V9.0.3 修正：專屬大型地圖內部排版，解除 !important 擠壓，強制不斷行 */
 .large-map-content {
     display: flex;
     align-items: center;
@@ -43,15 +67,19 @@
     width: 100%;
     padding: 20px;
 }
+
 .large-map-content .poke-sprite {
-    width: 200px; /* 稍微縮小圖片，讓文字有空間 */
+    width: 200px; 
     height: 200px;
-}
-.large-map-content .card-info {
-    white-space: nowrap; /* 核心修正：絕對不准斷行 */
+    filter: drop-shadow(0 0 20px rgba(0,212,255,0.4));
 }
 
-/* 🌟 V9.0 新增：地圖下方剪影區佈局 */
+.large-map-content .card-info {
+    white-space: nowrap; 
+    color: #fff;
+}
+
+/* 區域出沒預報 (剪影區) */
 #map-silhouettes-container {
     margin-top: 20px;
     background: rgba(0,0,0,0.5);
@@ -62,32 +90,60 @@
 }
 
 #map-silhouettes {
-    display: flex; gap: 25px; justify-content: center; align-items: center;
+    display: flex; 
+    gap: 25px; 
+    justify-content: center; 
+    align-items: center;
 }
 
-/* 剪影樣式：全黑但帶有發光邊緣 */
 .silhouette-icon {
-    width: 80px; height: 80px;
+    width: 80px; 
+    height: 80px;
     filter: brightness(0) drop-shadow(0 0 5px var(--primary-glow));
-    opacity: 0.7; transition: 0.3s;
+    opacity: 0.7; 
+    transition: 0.3s;
 }
 
-/* 🌟 V9.0 新增：草叢奇遇頁面樣式 */
+/* 🌟 區域 2：草叢奇遇頁面佈局 */
+#grass-event-page h1 {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+#grass-hint {
+    min-height: 40px;
+    font-size: 24px;
+    color: #ffeb3b;
+    text-shadow: 0 0 10px #000;
+    margin-bottom: 30px;
+}
+
 .grass-container {
-    display: flex; gap: 50px; margin-top: 50px;
-    position: relative; /* 為了讓特效能定位 */
+    display: flex; 
+    gap: 50px; 
+    margin-top: 20px;
+    position: relative;
+    z-index: 10;
 }
 
 .grass-box {
-    width: 200px; height: 200px;
-    cursor: pointer; position: relative;
+    width: 200px; 
+    height: 200px;
+    cursor: pointer; 
+    position: relative;
     transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.grass-box:hover { transform: scale(1.1); }
+.grass-box:hover { 
+    transform: scale(1.05); 
+}
 
 .grass-sprite {
-    width: 100%; height: 100%;
+    width: 100%; 
+    height: 100%;
     background: url('https://img.icons8.com/color/160/grass.png') no-repeat center;
     background-size: contain;
     animation: grassShake 3s infinite ease-in-out;
@@ -99,77 +155,111 @@
     75% { transform: rotate(-5deg); }
 }
 
-/* 🌟 V9.0.3 新增：丟球動畫 */
+/* 🌟 區域 3：V9.0.8 拋球與開獎光束演出 */
+
+/* 拋球特效 */
 .throw-ball {
     position: absolute;
-    width: 40px; height: 40px;
+    width: 60px; 
+    height: 60px;
     background: url('https://img.icons8.com/color/96/pokeball-2.png') no-repeat center;
     background-size: contain;
     z-index: 100;
     pointer-events: none;
-    /* 動畫會在 JS 中動態加入 */
+    bottom: 50%; /* 初始位置於盒中 */
 }
 
+/* 拋球動畫：從下方飛入草叢 */
 @keyframes throwArc {
-    0% { bottom: -200px; left: 50%; transform: scale(2) rotate(0deg); opacity: 1; }
-    50% { bottom: 100px; transform: scale(1.5) rotate(180deg); }
-    100% { bottom: 0px; transform: scale(1) rotate(360deg); opacity: 0; }
+    0% { transform: translate(-200px, 400px) scale(2) rotate(0deg); opacity: 0; }
+    30% { opacity: 1; }
+    100% { transform: translate(0, 0) scale(1) rotate(720deg); opacity: 1; }
 }
 
-/* 🌟 V9.0.3 新增：光束爆發特效 */
+/* 光束爆發特效 */
 .beam-effect {
     position: absolute;
-    bottom: 50px; left: 50%;
+    bottom: 30px; 
+    left: 50%;
     transform: translateX(-50%);
-    width: 60px;
-    height: 0; /* 初始高度 0 */
-    border-radius: 50% 50% 0 0;
+    width: 80px;
+    height: 0; 
     z-index: 50;
     pointer-events: none;
-    filter: blur(5px);
-    animation: beamShoot 1s ease-out forwards;
+    filter: blur(8px);
 }
 
-.gold-beam {
-    background: linear-gradient(to top, rgba(255,235,59,0.8), rgba(255,215,0,0.2));
-    box-shadow: 0 0 30px #ffeb3b, 0 0 60px #ffd700;
-}
-
+/* 一般藍光：快速噴發 */
 .blue-beam {
-    background: linear-gradient(to top, rgba(0,212,255,0.8), rgba(0,150,255,0.2));
-    box-shadow: 0 0 20px #00d4ff;
-    width: 40px; /* 藍光細一點 */
+    background: linear-gradient(to top, rgba(0,212,255,0.9), transparent);
+    box-shadow: 0 0 30px #00d4ff;
+    width: 50px;
+    animation: beamShoot 0.8s ease-out forwards;
+}
+
+/* 🌟 金光：慢速預震動噴發 (對齊 MapSystem 演出時間) */
+.gold-beam {
+    background: linear-gradient(to top, rgba(255,235,59,0.9), transparent);
+    box-shadow: 0 0 40px #ffeb3b, 0 0 70px #ffd700;
+    width: 100px;
+    animation: goldBeamShoot 1.5s cubic-bezier(0.65, 0.05, 0.36, 1) forwards;
 }
 
 @keyframes beamShoot {
     0% { height: 0; opacity: 1; }
-    50% { height: 600px; opacity: 1; } /* 衝上天際 */
     100% { height: 800px; opacity: 0; }
 }
 
-/* [核心] 背包佈局 (保留總監原始設定) */
+@keyframes goldBeamShoot {
+    0% { height: 0; opacity: 0; transform: translateX(-50%) rotate(0deg); }
+    20% { height: 20px; opacity: 1; transform: translateX(-52%) rotate(2deg); } /* 預熱震動 */
+    40% { height: 40px; transform: translateX(-48%) rotate(-2deg); }
+    100% { height: 900px; opacity: 0; transform: translateX(-50%); }
+}
+
+/* 🌟 區域 4：背包與卡匣通用樣式 (保留總監原始設定) */
 #backpack-page {
-    background: rgba(0, 5, 15, 0.98); z-index: 500;
+    background: rgba(0, 5, 15, 0.98); 
+    z-index: 700;
 }
 
 #backpack-grid {
-    width: 1000px; display: grid; grid-template-columns: 420px 420px;
-    justify-content: center; gap: 40px; padding: 30px;
-    overflow-y: auto; max-height: 70vh;
-    border: 4px solid #333; background: rgba(255,255,255,0.02); border-radius: 25px;
+    width: 1000px; 
+    display: grid; 
+    grid-template-columns: 420px 420px;
+    justify-content: center; 
+    gap: 40px; 
+    padding: 30px;
+    overflow-y: auto; 
+    max-height: 550px; /* 約束在機台高度內 */
+    border: 4px solid #333; 
+    background: rgba(255,255,255,0.02); 
+    border-radius: 25px;
 }
 
-/* 卡匣通用尺寸 (保留總監原始設定) */
 .map-card, .backpack-item, .combatant { 
-    width: 420px !important; height: 145px !important;
-    background: var(--card-bg); border-radius: 18px; border: 4px solid #888;
-    display: flex; align-items: center; padding: 15px; gap: 20px;
-    box-sizing: border-box; flex-shrink: 0;
+    width: 420px !important; 
+    height: 145px !important;
+    background: var(--card-bg, #222); 
+    border-radius: 18px; 
+    border: 4px solid #888;
+    display: flex; 
+    align-items: center; 
+    padding: 15px; 
+    gap: 20px;
+    box-sizing: border-box; 
+    flex-shrink: 0;
+    color: #fff;
 }
 
-.poke-sprite { width: 110px; height: 110px; flex-shrink: 0; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
+.poke-sprite { 
+    width: 110px; 
+    height: 110px; 
+    flex-shrink: 0; 
+    filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); 
+}
 
-/* --- 轉盤 2.0 專用定位 (保留總監原始設定) --- */
+/* --- 轉盤與加賽視窗 (保留總監原始設定) --- */
 #wheel-container {
     position: relative;
     width: 350px;
@@ -177,25 +267,14 @@
     margin: 50px auto;
 }
 
-#wheel-pointer {
-    position: absolute; 
-    top: -30px; 
-    left: 50%; 
-    transform: translateX(-50%);
-    width: 0; height: 0;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-top: 45px solid var(--arcade-gold);
-    z-index: 10001;
-    filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
-}
-
-/* 🌟 V9.0.1 修正：加賽視窗圖層升級，徹底解決按鍵失靈 */
 #extra-battle-pop {
     position: absolute; 
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85); /* 變暗背景，強調彈窗 */
-    z-index: 99999; /* 絕對最上層，蓋過所有轉盤和 UI */
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85); 
+    z-index: 10000; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -208,23 +287,17 @@
     border-radius: 30px;
     text-align: center;
     box-shadow: 0 0 80px rgba(0, 188, 212, 0.6);
-    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-@keyframes popIn {
-    0% { transform: scale(0.5); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-/* 🌟 V9.0.1 新增：實體機台操控台 (為 index.html 按鈕搬家做準備) */
+/* 🌟 區域 5：實體控制面板 */
 .arcade-control-panel {
     position: absolute;
-    bottom: -90px; /* 放在機台黑框下方 */
+    bottom: -90px;
     left: 0;
     width: 100%;
     display: flex;
     justify-content: center;
-    gap: 40px;
+    gap: 30px;
     z-index: 1000;
 }
 
@@ -239,16 +312,22 @@
     box-shadow: 0 10px 0 #111, 0 15px 20px rgba(0,0,0,0.6);
     cursor: pointer;
     transition: 0.1s;
-    text-transform: uppercase;
 }
 
 .physical-btn:active {
-    transform: translateY(10px);
-    box-shadow: 0 0 0 #111, 0 5px 10px rgba(0,0,0,0.6);
+    transform: translateY(8px);
+    box-shadow: 0 2px 0 #111;
 }
 
-.physical-btn.btn-red { border-color: #ff5f5f; background: linear-gradient(to bottom, #ff3b3b, #8b0000); box-shadow: 0 10px 0 #4a0000; }
-.physical-btn.btn-red:active { box-shadow: 0 0 0 #4a0000; }
+.physical-btn.btn-red { 
+    border-color: #ff5f5f; 
+    background: linear-gradient(to bottom, #ff3b3b, #8b0000); 
+    box-shadow: 0 10px 0 #4a0000; 
+}
 
-.physical-btn.btn-gold { border-color: #fff8b0; background: linear-gradient(to bottom, #ffeb3b, #b8860b); color: #000; box-shadow: 0 10px 0 #6b4e00; }
-.physical-btn.btn-gold:active { box-shadow: 0 0 0 #6b4e00; }
+.physical-btn.btn-gold { 
+    border-color: #fff8b0; 
+    background: linear-gradient(to bottom, #ffeb3b, #b8860b); 
+    color: #000; 
+    box-shadow: 0 10px 0 #6b4e00; 
+}
