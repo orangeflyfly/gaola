@@ -1,4 +1,6 @@
-/* battle-fx.css - V7.2 旗艦重裝校準版 */
+/* battle-fx.css - V7.4 視覺與策略進化版 */
+
+/* --- 原有 V7.2 基礎元件 (保留不簡化) --- */
 
 #atb-track-container { 
     width: 95% !important; 
@@ -8,7 +10,6 @@
     flex-shrink: 0;
 }
 
-/* 🌟 [V7.2 新增] Combo 連擊顯示區 */
 #combo-display {
     position: absolute;
     top: -60px;
@@ -22,7 +23,6 @@
     transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Combo 不同階段的發光顏色 */
 .combo-lv1 { color: #ffffff; text-shadow: 0 0 10px #fff; }
 .combo-lv2 { color: #ffeb3b; text-shadow: 0 0 20px #ffeb3b, 0 0 30px #ff9800; font-size: 3.5rem !important; }
 .combo-lv3 { color: #ff00ea; text-shadow: 0 0 25px #ff00ea, 0 0 45px #ff0000; font-size: 4rem !important; animation: feverShake 0.1s infinite; }
@@ -44,7 +44,6 @@
     transition: all 0.5s ease;
 }
 
-/* 🌟 [V7.2 新增] FEVER 模式賽道特效 */
 .fever-mode {
     border-color: #ff00ea !important;
     box-shadow: 0 0 60px #ff00ea, inset 0 0 20px #ff00ea !important;
@@ -56,14 +55,12 @@
     to { filter: brightness(1.5); }
 }
 
-/* 🌟 [V7.2 關鍵修正] 頭像垂直居中與邊界鎖定方案 */
-/* 使用 translate(-X%, -50%) 確保 0% 不出左界，100% 不出右界 */
 #player-racer, #enemy-racer {
     position: absolute !important; 
     top: 50% !important; 
-    transform: translateY(-50%) !important; /* 🌟 鎖死垂直置中 */
+    transform: translateY(-50%) !important;
     z-index: 10;
-    transition: left 0.1s linear; /* 專心負責平移的滑順感 */
+    transition: left 0.1s linear;
 }
 
 #player-racer img, #enemy-racer img {
@@ -90,7 +87,6 @@
     display: flex; align-items: center; justify-content: center;
 }
 
-/* 🌟 [V7.2 新增] 物理震動特效 (用於 A/D 按鍵回饋) */
 .shake-impact { animation: quickShake 0.1s ease-out; }
 @keyframes quickShake {
     0% { transform: translate(0,0) scale(1); }
@@ -98,7 +94,6 @@
     100% { transform: translate(0,0) scale(1); }
 }
 
-/* 傷害噴字與 MISS 字體 */
 .damage-popup {
     position: absolute; 
     color: #ff1a1a; 
@@ -110,7 +105,6 @@
     animation: damageFloat 0.7s forwards;
 }
 
-/* 🌟 [V7.2 新增] MISS 專用顏色 */
 .damage-popup.miss {
     color: #ffffff !important;
     text-shadow: 3px 3px 0px #888, 0 0 20px #ffffff !important;
@@ -120,4 +114,189 @@
     0% { transform: translateY(0) scale(0.5); opacity: 0; }
     20% { transform: translateY(-40px) scale(1.2); opacity: 1; }
     100% { transform: translateY(-120px) scale(1); opacity: 0; }
+}
+
+/* --- 🌟 [V7.4 新增] 戰前準備頁面 (Prep Page) 樣式 --- */
+
+#prep-page {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, #1a1a2e, #000);
+    z-index: 5000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.prep-container {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    margin: 30px 0;
+    width: 100%;
+    max-width: 1000px;
+}
+
+.prep-card {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+#prep-enemy-img { width: 180px; height: 180px; filter: drop-shadow(0 0 20px rgba(244, 67, 54, 0.5)); }
+.prep-name { font-size: 2rem; font-weight: bold; margin: 10px 0; color: #fff; }
+
+.prep-vs {
+    font-size: 5rem;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffeb3b;
+    text-shadow: 0 0 20px #ff9800;
+    animation: vsPulse 0.5s infinite alternate;
+}
+
+@keyframes vsPulse {
+    from { transform: scale(1); opacity: 0.8; }
+    to { transform: scale(1.1); opacity: 1; }
+}
+
+#prep-backpack-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.prep-choice-item {
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 5px;
+    transition: 0.2s;
+    background: rgba(0,0,0,0.3);
+}
+
+.prep-choice-item:hover { border-color: #00bcd4; background: rgba(0, 188, 212, 0.2); }
+.prep-choice-item.selected { border-color: #ffeb3b; background: rgba(255, 235, 59, 0.2); box-shadow: 0 0 15px #ffeb3b; }
+.prep-choice-item img { width: 100%; height: auto; }
+
+/* --- 🌟 [V7.4 新增] 大招過場 (Skill Cut-in) 戲院效果 --- */
+
+#skill-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none; /* 演出時不阻礙點擊，雖然戰鬥會暫停 */
+    overflow: hidden;
+}
+
+/* 屬性斜向背景光束 */
+.skill-background-beam {
+    position: absolute;
+    width: 200%;
+    height: 300px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+    transform: rotate(-15deg);
+    box-shadow: 0 0 100px rgba(255,255,255,0.5);
+    z-index: 1;
+    animation: beamGlow 0.8s ease-in-out forwards;
+}
+
+/* 大圖滑入動畫 */
+.skill-cutin-box {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+#skill-poke-img {
+    position: absolute;
+    left: -20%;
+    height: 120%;
+    filter: drop-shadow(20px 0 30px rgba(0,0,0,0.8));
+    animation: cutInSlide 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 技能名稱橫幅 */
+.skill-name-banner {
+    position: absolute;
+    right: 0;
+    bottom: 20%;
+    width: 60%;
+    background: linear-gradient(90deg, transparent, rgba(0,0,0,0.8), #000);
+    padding: 20px 100px;
+    border-top: 5px solid #fff;
+    border-bottom: 5px solid #fff;
+    transform: skewX(-20deg) translateX(100%);
+    animation: bannerIn 0.5s 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+#skill-name-text {
+    display: block;
+    font-size: 5rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 20px var(--skill-glow, #fff);
+    transform: skewX(20deg); /* 抵消橫幅的傾斜 */
+    letter-spacing: 10px;
+}
+
+/* 各屬性光束配色方案 */
+.beam-fire { --skill-glow: #f44336; background: linear-gradient(90deg, transparent, #ff5722, #f44336, transparent); }
+.beam-water { --skill-glow: #2196f3; background: linear-gradient(90deg, transparent, #03a9f4, #2196f3, transparent); }
+.beam-grass { --skill-glow: #4caf50; background: linear-gradient(90deg, transparent, #8bc34a, #4caf50, transparent); }
+.beam-electric { --skill-glow: #ffeb3b; background: linear-gradient(90deg, transparent, #ffeb3b, #fbc02d, transparent); }
+.beam-normal { --skill-glow: #9e9e9e; background: linear-gradient(90deg, transparent, #e0e0e0, #9e9e9e, transparent); }
+
+@keyframes cutInSlide {
+    0% { transform: translateX(-50%) scale(0.8); opacity: 0; }
+    100% { transform: translateX(20%) scale(1); opacity: 1; }
+}
+
+@keyframes beamGlow {
+    0% { transform: rotate(-15deg) scaleY(0); opacity: 0; }
+    30% { transform: rotate(-15deg) scaleY(1.2); opacity: 1; }
+    100% { transform: rotate(-15deg) scaleY(1); opacity: 1; }
+}
+
+@keyframes bannerIn {
+    0% { transform: skewX(-20deg) translateX(100%); }
+    100% { transform: skewX(-20deg) translateX(10%); }
+}
+
+/* --- 🌟 [V7.4 新增] 粒子 VFX 層 --- */
+
+#vfx-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.particle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particlePop 0.6s ease-out forwards;
+}
+
+@keyframes particlePop {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
 }
