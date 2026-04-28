@@ -1,20 +1,19 @@
-// MapSystem.js - V9.0.3 街機開獎儀式版 (全代碼不簡化，新增丟球與光束開獎)
+// MapSystem.js - V9.0.4 街機保底與遭遇機制版 (全代碼不簡化)
 
 const MapSystem = {
     options: [],
     currentIndex: 0,
     grassChoices: [], // 儲存三株草叢裡的寶可夢
     isAwake: false,   // 紀錄機台是否已經投幣喚醒
+    canPickGrass: false, // 確保球落地後玩家才能點擊
 
-    // 1. 刷新地圖選項 (保留總監 GitHub 穩定來源)
+    // 1. 刷新地圖選項
     async refresh() {
         currentMapOptions = [];
         const imageBaseUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
         
         for (let i = 0; i < 5; i++) {
             let p = machineInventory[Math.floor(Math.random() * machineInventory.length)];
-            
-            // V9.0 新增：為每個區域預抽 4 個「黑色剪影」寶可夢
             let silhouettes = [];
             for(let j=0; j<4; j++) {
                 let s = machineInventory[Math.floor(Math.random() * machineInventory.length)];
@@ -24,10 +23,9 @@ const MapSystem = {
             currentMapOptions.push({ 
                 ...p, 
                 image: `${imageBaseUrl}${p.id}.png`,
-                silhouettes: silhouettes // 將剪影資料死死刻入地圖選項
+                silhouettes: silhouettes
             });
         }
-        
         this.currentIndex = 0;
         this.render(); 
     },
@@ -39,15 +37,13 @@ const MapSystem = {
         this.render();
     },
 
-    // 3. 渲染主畫面與剪影 (🌟 V9.0.3 修正：解除排版衝突，防止字體斷行)
+    // 3. 渲染主畫面
     render() {
         const data = currentMapOptions[this.currentIndex];
         const display = document.getElementById('single-map-display');
         const silhouetteContainer = document.getElementById('map-silhouettes');
-        
         if(!data || !display) return;
 
-        // 🚀 修正：改用 large-map-content 類別，避免繼承 map-card 的 420px 限制
         display.innerHTML = `
             <div class="large-map-content ${data.rarity >= 6 ? 'rarity-6' : ''}">
                 <img src="${data.image}" class="poke-sprite">
@@ -62,7 +58,6 @@ const MapSystem = {
                 </div>
             </div>`;
 
-        // 渲染下方黑色剪影
         if(silhouetteContainer) {
             silhouetteContainer.innerHTML = data.silhouettes.map(s => `
                 <img src="${s.image}" class="silhouette-icon">
@@ -70,7 +65,7 @@ const MapSystem = {
         }
     },
 
-    // 4. 確認地圖選擇 (拆分為「投幣喚醒」與「確認地圖」兩階段)
+    // 4. 確認地圖選擇：第一階段投幣保底
     confirmSelection() {
         if (!this.isAwake) {
             if (coins < 30) {
@@ -101,7 +96,7 @@ const MapSystem = {
         }
     },
 
-    // 5. 三草叢奇遇初始化
+    // 5. 三草叢初始化：系統自動撒網
     initGrassEvent(mapBoss) {
         currentScreen = 'grass';
         const imageBaseUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
@@ -115,75 +110,101 @@ const MapSystem = {
         this.grassChoices.sort(() => Math.random() - 0.5);
 
         if(typeof GameUI !== 'undefined') GameUI.switchPage('grass-event-page');
+
+        this.canPickGrass = false;
+        const grassBoxes = document.querySelectorAll('.grass-box');
+        
+        // 系統自動連續丟出三顆精靈球
+        grassBoxes.forEach((box, index) => {
+            box.dataset.selected = "false";
+            box.innerHTML = `<div class="grass-sprite"></div>`;
+
+            setTimeout(() => {
+                const ball = document.createElement('div');
+                ball.className = 'throw-ball';
+                box.appendChild(ball);
+                ball.style.animation = 'throwArc 0.6s ease-in-out forwards';
+
+                setTimeout(() => {
+                    if (ball.parentNode === box) ball.remove();
+                    // 第三顆球落地後開放玩家點擊
+                    if (index === 2) { 
+                        if (typeof SoundSystem !== 'undefined') SoundSystem.play('attack_hit');
+                        this.canPickGrass = true; 
+                    }
+                }, 600);
+            }, index * 200); 
+        });
     },
 
-    // 🌟 6. [V9.0.3 修正] 點擊草叢邏輯 (實裝丟球動作與光束儀式)
+    // 6. 點擊開獎：獲得保底怪，隨後進入戰鬥遭遇
     selectGrass(index) {
+        if (!this.canPickGrass) return;
+
         const picked = this.grassChoices[index];
         const grassBoxes = document.querySelectorAll('.grass-box');
         const targetGrass = grassBoxes[index];
         
-        if (targetGrass.dataset.selected === "true") return; // 防止重複點擊
-        targetGrass.dataset.selected = "true";
+        this.canPickGrass = false;
+        grassBoxes.forEach(box => box.dataset.selected = "true");
 
         if (typeof SoundSystem !== 'undefined') SoundSystem.play('ui_click');
 
-        // --- Step 1: 建立丟球動畫 ---
-        const ball = document.createElement('div');
-        ball.className = 'throw-ball';
-        targetGrass.appendChild(ball);
-        ball.style.animation = 'throwArc 0.6s ease-in-out forwards';
+        // 噴發開獎光束
+        const beam = document.createElement('div');
+        beam.className = `beam-effect ${picked.rarity >= 6 ? 'gold-beam' : 'blue-beam'}`;
+        targetGrass.appendChild(beam);
 
-        // --- Step 2: 球命中後觸發光束 ---
+        if (picked.rarity >= 6 && typeof SoundSystem !== 'undefined') {
+            SoundSystem.play('shiny_spawn'); 
+        }
+
         setTimeout(() => {
-            ball.remove();
-            if (typeof SoundSystem !== 'undefined') SoundSystem.play('attack_hit');
-
-            // 建立光束容器
-            const beam = document.createElement('div');
-            beam.className = `beam-effect ${picked.rarity >= 6 ? 'gold-beam' : 'blue-beam'}`;
-            targetGrass.appendChild(beam);
-
-            // 如果是 6 星，播放傳說級音效 (如果有)
-            if (picked.rarity >= 6 && typeof SoundSystem !== 'undefined') {
-                SoundSystem.play('shiny_spawn'); 
+            beam.remove();
+            targetGrass.innerHTML = `<img src="${picked.image}" style="width:100%; animation: pulse 0.5s;">`;
+            
+            // 🌟 [保底邏輯] 開獎後直接將此怪加入背包
+            if (typeof backpack !== 'undefined') {
+                backpack.push({...picked});
+                if (typeof StorageSystem !== 'undefined') StorageSystem.save();
+                console.log("獲得保底寶可夢：", picked.name);
             }
 
-            // --- Step 3: 光束結束後揭曉 ---
+            // 🌟 [戰鬥遭遇] 判定接下來要打誰 (區域BOSS機率提升)
             setTimeout(() => {
-                beam.remove();
-                targetGrass.innerHTML = `<img src="${picked.image}" style="width:100%; animation: pulse 0.5s;">`;
-                console.log("開獎揭曉：", picked.name);
+                let finalEnemy = picked; // 預設對手
+                
+                // 70% 機率直接遭遇剛剛選的地圖 BOSS
+                const encounterSeed = Math.random();
+                if(encounterSeed < 0.7) {
+                    finalEnemy = currentMapOptions[this.currentIndex]; 
+                    console.log("遭遇區域 BOSS：", finalEnemy.name);
+                } else {
+                    // 30% 機率隨機從庫存抽一隻路人怪
+                    let p = machineInventory[Math.floor(Math.random() * machineInventory.length)];
+                    const imageBaseUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
+                    finalEnemy = { ...p, image: `${imageBaseUrl}${p.id}.png` };
+                    console.log("遭遇隨機野生寶可夢：", finalEnemy.name);
+                }
 
-                // 延遲進入戰前準備
-                setTimeout(() => {
-                    let finalEnemy = picked;
-                    if(Math.random() < 0.2) {
-                        finalEnemy = currentMapOptions[this.currentIndex]; 
-                        alert("❗ 突然間，一股強大的氣息亂入了戰場！");
-                    }
-                    BattleSystem.initPrep(finalEnemy);
-                }, 1000);
-            }, 1000); // 光束維持時間
-        }, 600); // 丟球飛行時間
+                BattleSystem.initPrep(finalEnemy);
+            }, 1200);
+        }, 1000);
     },
 
-    // 7. 顯示投幣後的三選一 (原封不動保留)
+    // 7. 顯示投幣後的三選一
     async showGuaranteed() {
         currentScreen = 'guaranteed';
         document.getElementById('selection-page').classList.add('hidden');
         document.getElementById('guaranteed-page').classList.remove('hidden');
-        
         const container = document.getElementById('guaranteed-choices');
-        container.innerHTML = "<div style='font-size:28px; color:#00fbff; font-weight:bold;'>📡 棲息地掃描中...</div>";
-        
+        container.innerHTML = "<div style='font-size:28px; color:#00fbff; font-weight:bold;'>📡 掃描中...</div>";
         const imageBaseUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
         let choices = [];
         for(let i=0; i<3; i++) {
             let p = machineInventory[Math.floor(Math.random() * machineInventory.length)];
             choices.push({ ...p, image: `${imageBaseUrl}${p.id}.png` });
         }
-        
         container.innerHTML = "";
         choices.forEach(p => {
             const div = document.createElement('div');
@@ -193,10 +214,10 @@ const MapSystem = {
                 <div class="card-info">
                     <b style="font-size: 26px;">${p.name}</b><br>
                     <div style="margin: 8px 0;">
-                        <span style="font-size: 18px; color: #ffeb3b; font-weight: bold;">GRADE ★${p.rarity}</span>
+                        <span style="font-size: 18px; color: #ffeb3b; font-weight: bold;">★${p.rarity}</span>
                     </div>
                     <button onclick='App.buyPokemon(${JSON.stringify(p)}, 0)' 
-                            style="margin-top: 5px; width: 100%; height: 45px; background: linear-gradient(to bottom, #00fbff, #008183); color: #000; font-weight: 900; border: 2px solid #fff; border-radius: 8px; cursor: pointer;">
+                            style="margin-top: 5px; width: 100%; background: linear-gradient(to bottom, #00fbff, #008183); color: #000; font-weight: 900; border-radius: 8px;">
                         確認收服
                     </button>
                 </div>`;
