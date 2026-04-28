@@ -1,4 +1,4 @@
-/* layout-ui.css - V9.0 街機介面強化版 (嚴禁簡化) */
+/* layout-ui.css - V9.0.1 街機介面強化版 (圖層修復與不簡化) */
 
 /* 🌟 [修正] 為了讓 UI 待在機台螢幕內，調整定位參考 */
 #coin-board { 
@@ -10,6 +10,13 @@
 #selection-page, #guaranteed-page, #prep-page, #fighting-page, #roulette-page, #backpack-page, #pokedex-book-page, #grass-event-page {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+
+/* 🌟 V9.0.1 修正：約束大廳標題大小，避免擠壓地圖大框 */
+#selection-page h1 {
+    font-size: 38px;
+    margin-bottom: 25px;
+    text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
 }
 
 #carousel-area {
@@ -117,3 +124,66 @@
     z-index: 10001;
     filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
 }
+
+/* 🌟 V9.0.1 修正：加賽視窗圖層升級，徹底解決按鍵失靈 */
+#extra-battle-pop {
+    position: absolute; 
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); /* 變暗背景，強調彈窗 */
+    z-index: 99999; /* 絕對最上層，蓋過所有轉盤和 UI */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#extra-battle-pop .pop-content {
+    background: linear-gradient(135deg, #111, #000);
+    border: 5px solid #00bcd4;
+    padding: 50px;
+    border-radius: 30px;
+    text-align: center;
+    box-shadow: 0 0 80px rgba(0, 188, 212, 0.6);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* 🌟 V9.0.1 新增：實體機台操控台 (為 index.html 按鈕搬家做準備) */
+.arcade-control-panel {
+    position: absolute;
+    bottom: -90px; /* 放在機台黑框下方 */
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    z-index: 1000;
+}
+
+.physical-btn {
+    padding: 18px 40px;
+    font-size: 22px;
+    font-weight: 900;
+    border-radius: 12px;
+    border: 4px solid #444;
+    background: linear-gradient(to bottom, #555, #222);
+    color: #fff;
+    box-shadow: 0 10px 0 #111, 0 15px 20px rgba(0,0,0,0.6);
+    cursor: pointer;
+    transition: 0.1s;
+    text-transform: uppercase;
+}
+
+.physical-btn:active {
+    transform: translateY(10px);
+    box-shadow: 0 0 0 #111, 0 5px 10px rgba(0,0,0,0.6);
+}
+
+.physical-btn.btn-red { border-color: #ff5f5f; background: linear-gradient(to bottom, #ff3b3b, #8b0000); box-shadow: 0 10px 0 #4a0000; }
+.physical-btn.btn-red:active { box-shadow: 0 0 0 #4a0000; }
+
+.physical-btn.btn-gold { border-color: #fff8b0; background: linear-gradient(to bottom, #ffeb3b, #b8860b); color: #000; box-shadow: 0 10px 0 #6b4e00; }
+.physical-btn.btn-gold:active { box-shadow: 0 0 0 #6b4e00; }
