@@ -1,4 +1,4 @@
-// CaptureSystem.js - V8.5.3 街機完美復刻修正版
+// CaptureSystem.js - V8.5.4 街機完美復刻修正版 (實體精靈球圖案升級)
 
 const CaptureSystem = {
     // 20 等分球種分佈 (維持精準街機體感)
@@ -9,7 +9,14 @@ const CaptureSystem = {
     colors: { 'M': '#9c27b0', 'U': '#ffeb3b', 'G': '#2196f3', 'P': '#f44336' },
     names: { 'M': '大師球', 'U': '高級球', 'G': '超級球', 'P': '精靈球' },
     rates: { 'M': 100, 'U': 2.5, 'G': 1.5, 'P': 1.0 },
-    balls: { 'M': '🟣', 'U': '🟡', 'G': '🔵', 'P': '🔴' },
+    
+    // 🌟 [關鍵修正] 將原本的 Emoji 替換為真實的精靈球圖片，並加上對應顏色的發光陰影
+    balls: { 
+        'M': '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png" style="width:120px; height:120px; filter: drop-shadow(0 0 20px rgba(156, 39, 176, 0.9));">', 
+        'U': '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png" style="width:120px; height:120px; filter: drop-shadow(0 0 20px rgba(255, 235, 59, 0.9));">', 
+        'G': '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png" style="width:120px; height:120px; filter: drop-shadow(0 0 20px rgba(33, 150, 243, 0.9));">', 
+        'P': '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" style="width:120px; height:120px; filter: drop-shadow(0 0 20px rgba(244, 67, 54, 0.9));">' 
+    },
 
     currentDeg: 0,
     isSpinning: false,
@@ -94,7 +101,10 @@ const CaptureSystem = {
 
         if(!resultBox) return;
         resultBox.classList.remove('hidden');
-        ballEmoji.innerText = this.balls[ballCode];
+        
+        // 🌟 [修正] 由於改成了 HTML 圖片標籤，這裡必須使用 innerHTML 而不是 innerText
+        ballEmoji.innerHTML = this.balls[ballCode];
+        
         msgEl.innerText = `丟出了 ${this.names[ballCode]}！ 判定中...`;
 
         if(typeof GameUI !== 'undefined') GameUI.shake('result-ball');
