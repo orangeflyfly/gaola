@@ -1,4 +1,4 @@
-// game.js - V8.5.3 閃耀捕獲對接版 (流程修正版)
+// game.js - V9.0.5 營業閉環與黑屏重置版 (全代碼不簡化)
 
 let state = GameStorage.load();
 let coins = state.coins;
@@ -10,7 +10,7 @@ let currentEnemy = null, isPaused = false, isExtraBattle = false;
 
 const App = {
     init() { 
-        console.log("V8.5 閃耀中樞啟動...");
+        console.log("V9.0.5 街機中樞啟動...");
         if(myPartner) {
             myPartner.image = `${GAME_CONFIG.ASSET_PATH}${myPartner.id}.png`;
             if(!myPartner.skill) {
@@ -32,8 +32,9 @@ const App = {
         }
     },
 
+    // 負責處理輪盤捕獲後的結算與入包
     buyPokemon(p, cost) {
-        if (coins < cost) return alert("金幣不足！");
+        if (coins < cost) return alert("金幣不足！請去打工。");
 
         const processCapture = () => {
             coins -= cost;
@@ -49,7 +50,7 @@ const App = {
             if (exists) { 
                 let refund = p.rarity * 10; 
                 coins += refund; 
-                alert(`獲得重複卡匣！已轉化為 ${refund} 金幣。`); 
+                alert(`獲得重複卡匣！已化為 ${refund} 星塵金幣。`); 
             } else { 
                 myBackpack.push(p); 
                 if(typeof GameStorage !== 'undefined') {
@@ -59,11 +60,8 @@ const App = {
             
             this.updateAll();
 
-            if (currentScreen === 'guaranteed') {
-                if(typeof BattleSystem !== 'undefined') BattleSystem.initPrep(null); 
-            } else {
-                this.finish();
-            }
+            // 完成捕獲後，進入加賽或結束判定
+            this.finish();
         };
 
         if(typeof EffectSystem !== 'undefined') {
@@ -73,29 +71,48 @@ const App = {
         }
     },
 
-    // 🌟 [修正] 調整加賽判定時機
     finish() {
-        // 🚀 修正：不要在這裡切換 switchPage('selection-page')
         const extraChance = GAME_CONFIG.EXTRA_BATTLE_RATE || 0.6;
         
+        // 捕獲失敗 (沒抓到) 或 已經是加賽場 -> 直接回大廳
         if(!isExtraBattle && Math.random() < extraChance) { 
-            // 留在當前捕獲頁面，彈出加賽視窗
+            // 彈出加賽視窗
             document.getElementById('extra-battle-pop').classList.remove('hidden'); 
         } else { 
-            // 沒有加賽，才回到大廳
             this.goToLobby(); 
         }
     },
 
-    // 🌟 [新增] 專門處理回到大廳的邏輯
+    // 🌟 [修正] 處理回到大廳與機台待機重置的邏輯
     goToLobby() {
         isExtraBattle = false;
         currentScreen = 'selection';
+        
         if(typeof GameUI !== 'undefined') {
             GameUI.switchPage('selection-page');
+            document.getElementById('extra-battle-pop').classList.add('hidden'); // 確保加賽視窗關閉
         }
-        // 如果總監希望徹底重置，可以解除下面註解
-        // this.reload(); 
+
+        // 🌟 重置機台狀態，蓋回「請投幣」黑屏
+        if(typeof MapSystem !== 'undefined') {
+            MapSystem.isAwake = false; // 重設大腦狀態
+            
+            const standby = document.getElementById('standby-screen');
+            if(standby) standby.classList.remove('hidden'); // 蓋回黑屏
+
+            const screen = document.getElementById('main-screen');
+            if(screen) {
+                screen.classList.remove('screen-wake');
+                screen.classList.add('screen-off'); // 準備下一次覺醒
+            }
+
+            // 按鈕文字復原
+            const physicalBtn = document.querySelector('.btn-red');
+            if(physicalBtn) physicalBtn.innerText = "🔴 投幣 30 啟動";
+
+            // 換一批新地圖吸引下一位玩家
+            MapSystem.refresh();
+        }
     },
 
     reload() { location.reload(); }
@@ -120,7 +137,13 @@ function changeMap(dir) {
 function startExtraBattle() { 
     document.getElementById('extra-battle-pop').classList.add('hidden'); 
     isExtraBattle = true; 
-    if(typeof BattleSystem !== 'undefined') BattleSystem.initPrep(null); 
+    
+    // 隨機抽一隻更強的怪進行加賽
+    let p = machineInventory[Math.floor(Math.random() * machineInventory.length)];
+    const imageBaseUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
+    let extraEnemy = { ...p, image: `${imageBaseUrl}${p.id}.png` };
+    
+    if(typeof BattleSystem !== 'undefined') BattleSystem.initPrep(extraEnemy); 
 }
 
 function openBackpack() { 
@@ -145,9 +168,7 @@ function setPartner(id) {
 
 function spinWheel() { if(typeof CaptureSystem !== 'undefined') CaptureSystem.spin(); }
 
-// 🌟 [修正] 放棄加賽或關閉彈窗時，呼叫 goToLobby
 function hideExtraPop() { App.goToLobby(); } 
-
 function finishCapture() { App.finish(); }
 function refreshMachine() { if(typeof MapSystem !== 'undefined') MapSystem.refresh(); }
 
