@@ -1,11 +1,11 @@
-// ui.js - V8.5.1 佈局與特效修正版 (核心組件化)
+// ui.js - V9.0 頁面擴充版 (核心組件化，嚴禁簡化)
 const GameUI = {
-    // 🌟 [修正] 統一頁面管理器
+    // 🌟 [V9.0 修正] 統一頁面管理器：加入 grass-event-page
     switchPage: function(targetId) {
         const pages = [
             'selection-page', 'guaranteed-page', 'prep-page', 
             'fighting-page', 'roulette-page', 'backpack-page',
-            'pokedex-book-page'
+            'pokedex-book-page', 'grass-event-page' // 🌟 新增草叢頁面 ID
         ];
         pages.forEach(id => {
             const el = document.getElementById(id);
@@ -122,13 +122,11 @@ const GameUI = {
     },
 
     // 3. 視覺演出系列
-    // 🌟 [修正] 大招特寫演出：暫停背景模糊，確保特寫層不受濾鏡干擾
     showSkillCutIn: function(poke) {
         const overlay = document.getElementById('skill-overlay');
         const beam = document.querySelector('.skill-background-beam');
         const text = document.getElementById('skill-name-text');
 
-        // 🚀 [V8.5.1 修正] 特寫瞬間暫停 Fever 模糊效果，避免大招圖被切掉或變形
         if(typeof EffectSystem !== 'undefined') EffectSystem.applyFeverBlur(false);
 
         const typeMap = { "火": "fire", "水": "water", "草": "grass", "電": "electric", "一般": "normal" };
@@ -141,10 +139,8 @@ const GameUI = {
         overlay.classList.remove('hidden');
         if(typeof SoundSystem !== 'undefined') SoundSystem.play('skill_cutin');
 
-        // 演出停頓時間後關閉
         setTimeout(() => {
             overlay.classList.add('hidden');
-            // 如果連擊還在，戰鬥循環會自動在下一幀重新判定是否開啟模糊
         }, GAME_CONFIG.BATTLE.SKILL_CUTIN_DURATION);
     },
 
@@ -235,7 +231,6 @@ const GameUI = {
         return m[type] || "type-normal";
     },
 
-    // 更新連擊顯示，並觸發模糊特效
     updateCombo: function(count) {
         const display = document.getElementById('combo-display');
         const track = document.querySelector('.track-bg');
@@ -257,7 +252,6 @@ const GameUI = {
             display.innerText = `${count} COMBO! [FEVER]`;
             display.className = 'combo-lv3';
             track.classList.add('fever-mode');
-            // 進入 Fever 模式：開啟模糊
             if(typeof EffectSystem !== 'undefined') EffectSystem.applyFeverBlur(true);
         } else {
             display.innerText = `${count} COMBO`;
