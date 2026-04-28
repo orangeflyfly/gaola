@@ -1,6 +1,6 @@
-// ui.js - V7.3 絕對防禦視覺版 (全代碼)
+// ui.js - V7.4 視覺與策略進化版 (全代碼)
 const GameUI = {
-    // 1. 更新主畫面顯示
+    // 1. 更新主畫面顯示 (保留 V7.3 絕對鎖定邏輯)
     updateDisplay: function(coins, pHP, eHP, pATB, eATB, partner, enemy) {
         const coinEl = document.getElementById('coin-count');
         if(coinEl) coinEl.innerText = coins;
@@ -15,7 +15,7 @@ const GameUI = {
         if(pText) pText.innerText = `${Math.ceil(pHP)} / 100`;
         if(eText) eText.innerText = `${Math.ceil(eHP)} / 100`;
         
-        // 🌟 [V7.3 絕對鎖定公式] 0% 扣 0px，100% 剛好扣除圖片的 90px
+        // 🌟 [V7.3 絕對鎖定公式]
         const pRacer = document.getElementById('player-racer');
         const eRacer = document.getElementById('enemy-racer');
         let safePATB = Math.min(pATB, 100);
@@ -41,7 +41,93 @@ const GameUI = {
         if(typeClassMap[typeName]) el.classList.add(typeClassMap[typeName]);
     },
 
-    // 2. 橫式卡匣渲染 (大廳專用)
+    // 🌟 [V7.4 新增] 戰前準備頁面渲染
+    renderPrepPage: function(enemy, backpack) {
+        document.getElementById('prep-page').classList.remove('hidden');
+        
+        // 渲染敵方預覽
+        document.getElementById('prep-enemy-img').src = enemy.image;
+        document.getElementById('prep-enemy-name').innerText = enemy.name;
+        this.updateTypeTag('prep-enemy-type-tag', enemy.type);
+
+        // 渲染我方背包清單
+        const listEl = document.getElementById('prep-backpack-list');
+        listEl.innerHTML = '';
+        
+        backpack.forEach((poke, index) => {
+            const item = document.createElement('div');
+            item.className = 'prep-choice-item';
+            item.innerHTML = `<img src="${poke.image}" title="${poke.name}">`;
+            
+            item.onclick = () => {
+                // 清除其他選取狀態
+                document.querySelectorAll('.prep-choice-item').forEach(el => el.classList.remove('selected'));
+                item.classList.add('selected');
+                
+                // 設定當前出戰夥伴 (這會存入全域 myPartner)
+                myPartner = poke;
+                document.getElementById('start-battle-btn').style.display = 'block';
+                SoundSystem.play('ui_click');
+            };
+            listEl.appendChild(item);
+        });
+    },
+
+    // 🌟 [V7.4 新增] 大招過場過場啟動器
+    showSkillCutIn: function(poke) {
+        const overlay = document.getElementById('skill-overlay');
+        const beam = document.querySelector('.skill-background-beam');
+        const img = document.getElementById('skill-poke-img');
+        const text = document.getElementById('skill-name-text');
+
+        // 1. 根據屬性設定光束顏色
+        const typeMap = { "火": "fire", "水": "water", "草": "grass", "電": "electric", "一般": "normal" };
+        const typeClass = typeMap[poke.type] || "normal";
+        beam.className = `skill-background-beam beam-${typeClass}`;
+
+        // 2. 設定圖片與技能文字
+        img.src = poke.image;
+        text.innerText = poke.skill || "全力攻擊！！";
+
+        // 3. 顯示圖層
+        overlay.classList.remove('hidden');
+        SoundSystem.play('skill_cutin');
+
+        // 4. 1秒後自動隱藏
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+        }, 1000);
+    },
+
+    // 🌟 [V7.4 新增] 輕量化粒子噴發引擎
+    spawnParticles: function(targetId, type) {
+        const layer = document.getElementById('vfx-layer');
+        const target = document.getElementById(targetId);
+        if(!layer || !target) return;
+
+        const rect = target.getBoundingClientRect();
+        const colors = { "火": "#ff5722", "水": "#03a9f4", "草": "#8bc34a", "電": "#ffeb3b" };
+        const color = colors[type] || "#fff";
+
+        for(let i=0; i<15; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.backgroundColor = color;
+            p.style.left = (rect.left + rect.width/2) + 'px';
+            p.style.top = (rect.top + rect.height/2) + 'px';
+            
+            // 隨機噴射路徑
+            const tx = (Math.random() - 0.5) * 300;
+            const ty = (Math.random() - 0.5) * 300;
+            p.style.setProperty('--tx', `${tx}px`);
+            p.style.setProperty('--ty', `${ty}px`);
+            
+            layer.appendChild(p);
+            setTimeout(() => p.remove(), 600);
+        }
+    },
+
+    // 2. 橫式卡匣渲染 (保留)
     renderCarousel: function(idx, options) {
         const data = options[idx];
         const display = document.getElementById('single-map-display');
@@ -61,7 +147,7 @@ const GameUI = {
             </div>`;
     },
 
-    // 3. 背包卡匣統一渲染
+    // 3. 背包卡匣渲染 (保留)
     renderBackpack: function(backpackData) {
         const grid = document.getElementById('backpack-grid');
         if(!grid) return;
@@ -96,10 +182,14 @@ const GameUI = {
         return m[type] || "";
     },
 
-    // 4. 傷害噴字特效 (加入閃避判斷)
-    showDamage: function(id, amt, multiplier = 1) {
+    // 4. 傷害噴字特效 (連動粒子噴發)
+    showDamage: function(id, amt, multiplier = 1, type = "一般") {
         const card = document.getElementById(id);
         if(!card) return;
+        
+        // 🌟 [V7.4 升級] 只要有傷害就噴粒子
+        if (amt > 0) this.spawnParticles(id, type);
+
         const rect = card.getBoundingClientRect();
         const d = document.createElement('div');
         d.className = 'damage-popup';
@@ -124,14 +214,6 @@ const GameUI = {
         setTimeout(() => d.remove(), 800);
     },
 
-    shake: function(id) {
-        const el = document.getElementById(id);
-        if(el) {
-            el.classList.add('shake');
-            setTimeout(() => el.classList.remove('shake'), 400);
-        }
-    },
-
     shakeImpact: function(id) {
         const el = document.getElementById(id);
         if(el) {
@@ -141,7 +223,7 @@ const GameUI = {
         }
     },
 
-    // 5. 動態 Combo 顯示引擎
+    // 5. 動態 Combo 顯示 (保留)
     updateCombo: function(count) {
         const display = document.getElementById('combo-display');
         const track = document.querySelector('.track-bg');
