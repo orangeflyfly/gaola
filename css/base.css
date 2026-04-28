@@ -1,4 +1,4 @@
-/* base.css - V9.0 街機框體與螢幕覺醒修正版 (全代碼不簡化) */
+/* base.css - V9.0.1 街機框體與真待機黑屏版 (全代碼不簡化) */
 :root {
     --primary-glow: #00d4ff;
     --arcade-red: #ff3b3b;
@@ -7,7 +7,7 @@
     --card-bg: linear-gradient(135deg, #444 0%, #111 100%);
     --btn-shadow: 0 6px 0 #222;
     
-    /* 🌟 修正機台視覺變數：螢幕預設改回待機展示漸層，不再是死機黑屏 */
+    /* 🌟 機台視覺變數 */
     --monitor-border: #111;
     --screen-bg: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
 }
@@ -47,9 +47,41 @@ body {
     transition: background 0.5s ease;
 }
 
-/* (刪除了導致大廳消失的 .screen-off 語法，解鎖投幣按鈕) */
+/* 🌟 3. 新增：真正的待機黑屏覆蓋層 (擋在大廳前面，投幣後才消失) */
+.standby-layer {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #050505; /* 極致黑，模擬未開機 */
+    z-index: 800; /* 蓋住大廳，但不能蓋住我們之後要移出去的實體按鈕 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    transition: opacity 0.5s ease;
+}
 
-/* 🌟 3. 亮屏覺醒動畫 */
+/* 投幣後隱藏黑屏 */
+.standby-layer.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 🌟 4. 新增：待機畫面的閃爍文字 */
+.insert-coin-text {
+    color: #ff3b3b;
+    font-size: 48px;
+    font-weight: 900;
+    letter-spacing: 5px;
+    text-shadow: 0 0 20px rgba(255, 59, 59, 0.8);
+    animation: blinkText 1.2s infinite;
+}
+
+@keyframes blinkText {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.1; }
+}
+
+/* 🌟 5. 亮屏覺醒動畫 */
 .screen-wake {
     animation: screenWakeFlash 0.8s forwards;
 }
