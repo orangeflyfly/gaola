@@ -97,7 +97,7 @@ const BattleSystem = {
         if (currentScreen !== 'fight' || isPaused) return;
 
         playerATB += 0.005; 
-        enemyATB += (0.25 + (currentEnemy.rarity * 0.06));
+        enemyATB += (0.05 + (currentEnemy.rarity * 0.02));
 
         if (playerATB > 100) playerATB = 100;
         if (enemyATB > 100) enemyATB = 100;
