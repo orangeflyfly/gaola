@@ -24,7 +24,8 @@
     flex-direction: column; 
     align-items: center; 
     justify-content: center;
-    overflow: hidden; /* 防止內容溢出機台 */
+    /* 🌟 核心修正：將原本的 hidden 改為 visible，光束才能噴出頁面 */
+    overflow: visible !important; 
 }
 
 /* 🌟 區域 1：遊樂場大廳 (地圖選擇) */
@@ -53,7 +54,7 @@
     background: rgba(0,0,0,0.6); 
     border: 5px solid var(--primary-glow);
     border-radius: 20px; 
-    overflow: hidden;
+    overflow: hidden; /* 地圖內部保持裁切 */
     display: flex; 
     align-items: center; 
     justify-content: center;
@@ -124,6 +125,7 @@
     margin-top: 20px;
     position: relative;
     z-index: 10;
+    overflow: visible !important; /* 確保光束容器不被裁切 */
 }
 
 .grass-box {
@@ -135,6 +137,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: visible !important; /* 🌟 修正：讓內部的光束可以噴出來 */
 }
 
 .grass-box:hover { 
@@ -166,7 +169,7 @@
     background-size: contain;
     z-index: 100;
     pointer-events: none;
-    bottom: 50%; /* 初始位置於盒中 */
+    bottom: 50%; 
 }
 
 /* 拋球動畫：從下方飛入草叢 */
@@ -184,7 +187,7 @@
     transform: translateX(-50%);
     width: 80px;
     height: 0; 
-    z-index: 50;
+    z-index: 500; /* 🌟 提升 Z-index，確保在所有草叢上方 */
     pointer-events: none;
     filter: blur(8px);
 }
@@ -207,14 +210,14 @@
 
 @keyframes beamShoot {
     0% { height: 0; opacity: 1; }
-    100% { height: 800px; opacity: 0; }
+    100% { height: 900px; opacity: 0; }
 }
 
 @keyframes goldBeamShoot {
     0% { height: 0; opacity: 0; transform: translateX(-50%) rotate(0deg); }
     20% { height: 20px; opacity: 1; transform: translateX(-52%) rotate(2deg); } /* 預熱震動 */
     40% { height: 40px; transform: translateX(-48%) rotate(-2deg); }
-    100% { height: 900px; opacity: 0; transform: translateX(-50%); }
+    100% { height: 1000px; opacity: 0; transform: translateX(-50%); }
 }
 
 /* 🌟 區域 4：背包與卡匣通用樣式 (保留總監原始設定) */
@@ -231,7 +234,7 @@
     gap: 40px; 
     padding: 30px;
     overflow-y: auto; 
-    max-height: 550px; /* 約束在機台高度內 */
+    max-height: 550px; 
     border: 4px solid #333; 
     background: rgba(255,255,255,0.02); 
     border-radius: 25px;
