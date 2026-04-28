@@ -1,4 +1,4 @@
-// CaptureSystem.js - V8.5.2 儀式對接與佈局修正版
+// CaptureSystem.js - V8.5.3 街機完美復刻修正版
 
 const CaptureSystem = {
     // 20 等分球種分佈 (維持精準街機體感)
@@ -44,6 +44,7 @@ const CaptureSystem = {
         this.startSpin();
     },
 
+    // 🌟 [復原] 恢復轉盤所有視覺樣式，確保 350px 尺寸與圓形邊框
     renderWheel() {
         const wheel = document.getElementById('wheel');
         if(!wheel) return;
@@ -53,6 +54,13 @@ const CaptureSystem = {
             gradient.push(`${color} ${i * 18}deg ${(i + 1) * 18}deg`);
         }
         wheel.style.background = `conic-gradient(${gradient.join(', ')})`;
+        
+        // --- 恢復被刪掉的樣式 ---
+        wheel.style.borderRadius = '50%';
+        wheel.style.width = '350px';
+        wheel.style.height = '350px';
+        wheel.style.border = '8px solid #fff';
+        wheel.style.boxShadow = '0 0 30px rgba(255, 235, 59, 0.4)';
         wheel.style.transition = 'transform 0s'; 
     },
 
@@ -106,7 +114,6 @@ const CaptureSystem = {
                 msgEl.innerText = `✨ 成功捕獲 ${this.targetEnemy.name}！ ✨`;
                 msgEl.style.color = "#4caf50";
                 
-                // 異色版額外提示
                 if (this.targetEnemy.isShiny) {
                     msgEl.innerText = `✨ 成功捕獲閃耀之星 ${this.targetEnemy.name}！ ✨`;
                 }
@@ -114,12 +121,9 @@ const CaptureSystem = {
                 document.getElementById('pay-ask-text').innerText = `是否投入 10 金幣將卡匣印出？`;
                 document.getElementById('pay-confirm-box').classList.remove('hidden');
 
-                // 🚀 [V8.5.2 關鍵對接] 點擊確認後，呼叫 App 的大儀式購買邏輯
                 document.getElementById('confirm-pay-btn').onclick = () => {
-                    // 檢查金幣餘額 (直接對接 App 邏輯，App 內含 EffectSystem 儀式)
                     if (coins >= 10) {
                         App.buyPokemon(this.targetEnemy, 10);
-                        // 隱藏對話框，避免重複點擊
                         document.getElementById('pay-confirm-box').classList.add('hidden');
                     } else {
                         alert("❌ 投幣餘額不足！");
