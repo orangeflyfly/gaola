@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>寶可夢加傲樂 V8.0 - 大師進化：典藏之書</title>
+    <title>寶可夢加傲樂 V8.5.1 - 大師進化：佈局修正版</title>
     
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/layout-ui.css">
@@ -92,14 +92,14 @@
                 <div class="bar-bg"><div id="player-hp-bar-real" class="hp-bar"></div></div>
             </div>
         </div>
+    </div>
 
-        <div id="skill-overlay" class="hidden">
-            <div class="skill-background-beam"></div> 
-            <div class="skill-cutin-box">
-                <img id="skill-poke-img" src="" alt="大招大圖">
-                <div class="skill-name-banner">
-                    <span id="skill-name-text">招式名稱</span>
-                </div>
+    <div id="skill-overlay" class="hidden">
+        <div class="skill-background-beam"></div> 
+        <div class="skill-cutin-box">
+            <img id="skill-poke-img" src="" alt="大招大圖">
+            <div class="skill-name-banner">
+                <span id="skill-name-text">招式名稱</span>
             </div>
         </div>
     </div>
@@ -112,13 +112,11 @@
 
         <div class="book-wrapper">
             <button class="book-nav prev" onclick="PokedexSystem.prevPage()">◀</button>
-
             <div class="book-main">
                 <div id="pokedex-left-page" class="book-side"></div>
                 <div class="book-spine"></div>
                 <div id="pokedex-right-page" class="book-side"></div>
             </div>
-
             <button class="book-nav next" onclick="PokedexSystem.nextPage()">▶</button>
         </div>
 
@@ -170,10 +168,8 @@
     <script src="storage.js"></script>
     <script src="SoundSystem.js"></script>
     <script src="ui.js"></script>
-    
     <script src="EffectSystem.js"></script>
     <script src="PokedexSystem.js"></script>
-    
     <script src="MapSystem.js"></script>
     <script src="BattleSystem.js"></script>
     <script src="CaptureSystem.js"></script>
