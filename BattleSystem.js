@@ -1,4 +1,4 @@
-// BattleSystem.js - V8.0 大師架構重組版 (戰鬥運算中樞)
+// BattleSystem.js - V8.0.2 視覺大師對接版
 
 const BattleSystem = {
     comboCount: 0,
@@ -7,8 +7,6 @@ const BattleSystem = {
     // 1. 戰前準備階段
     initPrep(enemyData) {
         currentScreen = 'prep'; 
-        
-        // 如果沒有傳入敵方，則從資料庫隨機抽取
         if (!enemyData) {
             enemyData = machineInventory[Math.floor(Math.random() * machineInventory.length)];
         }
@@ -18,23 +16,24 @@ const BattleSystem = {
             image: `${GAME_CONFIG.ASSET_PATH}${enemyData.id}.png`
         };
 
-        // 渲染準備頁面 (使用 App 定義的 myBackpack)
+        // 🌟 [V8.0 新增] 遇見敵人即錄入圖鑑剪影
+        if (typeof GameStorage !== 'undefined') {
+            GameStorage.updatePokedex(currentEnemy.id, 'seen');
+        }
+
         const targetBackpack = (typeof myBackpack !== 'undefined') ? myBackpack : [];
         if(typeof GameUI !== 'undefined') {
             GameUI.renderPrepPage(currentEnemy, targetBackpack);
-            // 🌟 [V8.0 優化] 統一由 GameUI 管理頁面顯示
             GameUI.switchPage('prep-page');
         }
     },
 
-    // 2. 正式開打 (由準備頁面按鈕觸發)
+    // 2. 正式開打
     launch() {
         if (!myPartner) return; 
 
         currentScreen = 'fight';
         isPaused = false;
-        
-        // 重置戰鬥數值
         playerHP = GAME_CONFIG.PLAYER_MAX_HP; 
         enemyHP = GAME_CONFIG.ENEMY_MAX_HP; 
         playerATB = 0; 
@@ -42,10 +41,8 @@ const BattleSystem = {
         
         myPartner.image = `${GAME_CONFIG.ASSET_PATH}${myPartner.id}.png`;
 
-        // 進入戰鬥畫面
         if(typeof GameUI !== 'undefined') GameUI.switchPage('fighting-page');
 
-        // UI 初始化
         const setElSrc = (id, src) => { if(document.getElementById(id)) document.getElementById(id).src = src; };
         const setElText = (id, text) => { if(document.getElementById(id)) document.getElementById(id).innerText = text; };
 
@@ -60,7 +57,7 @@ const BattleSystem = {
         if(this.comboTimer) clearTimeout(this.comboTimer);
         if(typeof GameUI !== 'undefined') GameUI.updateCombo(0);
 
-        // 🌟 [V8.0 優化] 鍵盤連打引擎 (讀取 Config 數值)
+        // 鍵盤連打引擎
         window.onkeydown = (e) => {
             if (currentScreen === 'fight' && !isPaused) {
                 const key = e.key.toLowerCase();
@@ -70,16 +67,26 @@ const BattleSystem = {
                     this.comboCount++;
                     if(typeof GameUI !== 'undefined') GameUI.updateCombo(this.comboCount);
 
+                    // 🌟 [V8.0.2 新增] 連打噴錢特效：每 5 連擊噴發一次
+                    if (typeof EffectSystem !== 'undefined' && this.comboCount % 5 === 0) {
+                        EffectSystem.spawnCoinShower('player-card');
+                    }
+
                     if (this.comboTimer) clearTimeout(this.comboTimer);
                     this.comboTimer = setTimeout(() => {
                         this.comboCount = 0;
-                        if(typeof GameUI !== 'undefined') GameUI.updateCombo(0);
+                        if(typeof GameUI !== 'undefined') {
+                            GameUI.updateCombo(0);
+                            // 停止 FEVER 模糊
+                            if(typeof EffectSystem !== 'undefined') EffectSystem.applyFeverBlur(false);
+                        }
                     }, 1500);
 
-                    // 讀取設定好的推力
                     let atbGain = GAME_CONFIG.BATTLE.PLAYER_ACTIVE_GAIN || 1.8;
                     if (this.comboCount >= GAME_CONFIG.BATTLE.COMBO_FEVER_THRESHOLD) {
                         atbGain *= 1.2; 
+                        // 🌟 [V8.0.2 新增] 進入 FEVER 時啟動模糊特效
+                        if(typeof EffectSystem !== 'undefined') EffectSystem.applyFeverBlur(true);
                     }
                     playerATB += atbGain; 
                     
@@ -105,11 +112,9 @@ const BattleSystem = {
         }
     },
 
-    // 🌟 [V8.0 優化] 核心循環 (完全數值化)
     loop() {
         if (currentScreen !== 'fight' || isPaused) return;
 
-        // 讀取設定檔跑速
         playerATB += (GAME_CONFIG.BATTLE.PLAYER_PASSIVE_ATB || 0.005);
         enemyATB += (GAME_CONFIG.BATTLE.ENEMY_BASE_SPEED || 0.05) + 
                     (currentEnemy.rarity * (GAME_CONFIG.BATTLE.ENEMY_RARITY_WEIGHT || 0.02));
@@ -117,7 +122,6 @@ const BattleSystem = {
         if (playerATB > 100) playerATB = 100;
         if (enemyATB > 100) enemyATB = 100;
 
-        // 呼叫 UI 更新位置
         this.updateBars();
 
         if (playerATB >= 100) {
@@ -133,31 +137,34 @@ const BattleSystem = {
         isPaused = true;
         let attackerObj = (attacker === 'player') ? myPartner : currentEnemy;
         
-        // 演出大招
         if(typeof GameUI !== 'undefined') GameUI.showSkillCutIn(attackerObj);
 
         setTimeout(() => {
             let baseDamage = (attacker === 'player') ? 20 : 15;
-            let multiplier = 1.0;
-            let isMiss = false;
-
-            let dodgeChance = (attacker === 'player') ? (currentEnemy.rarity * 2) : 5; 
-            if (Math.random() * 100 < dodgeChance) isMiss = true;
+            let multiplier = typeof getDamageMultiplier === 'function' ? 
+                             getDamageMultiplier(attackerObj.type, (attacker === 'player' ? currentEnemy.type : myPartner.type)) : 1.0;
+            let isMiss = Math.random() * 100 < (attacker === 'player' ? currentEnemy.rarity * 2 : 5);
 
             if (attacker === 'player') {
-                multiplier = typeof getDamageMultiplier === 'function' ? 
-                             getDamageMultiplier(myPartner.type, currentEnemy.type) : 1.0;
                 let finalDmg = isMiss ? 0 : Math.floor(baseDamage * multiplier);
-                
                 this.showMsg(isMiss ? `💨 敵方閃開了！` : `💥 ${myPartner.skill}！！`);
+                
+                // 🌟 [V8.0.2 新增] 爆擊螢幕震動：效果絕佳時大震動
+                if (!isMiss && multiplier > 1 && typeof EffectSystem !== 'undefined') {
+                    EffectSystem.shakeScreen(GAME_CONFIG.VISUAL.SCREEN_SHAKE_STRENGTH || 15);
+                }
+
                 enemyHP -= finalDmg;
                 if(typeof GameUI !== 'undefined') GameUI.showDamage('enemy-card', finalDmg, multiplier, myPartner.type);
             } else {
-                multiplier = typeof getDamageMultiplier === 'function' ? 
-                             getDamageMultiplier(currentEnemy.type, myPartner.type) : 1.0;
                 let finalDmg = isMiss ? 0 : Math.floor(baseDamage * multiplier);
-
                 this.showMsg(isMiss ? `💨 漂亮閃過！` : `💥 敵方的 ${currentEnemy.skill}！`);
+                
+                // 🌟 [V8.0.2 新增] 被打也要小震動一下，增加痛感
+                if (!isMiss && typeof EffectSystem !== 'undefined') {
+                    EffectSystem.shakeScreen(5);
+                }
+
                 playerHP -= finalDmg;
                 if(typeof GameUI !== 'undefined') GameUI.showDamage('player-card', finalDmg, multiplier, currentEnemy.type);
             }
@@ -190,10 +197,10 @@ const BattleSystem = {
         if(this.comboTimer) clearTimeout(this.comboTimer);
         if(typeof GameUI !== 'undefined') {
             GameUI.updateCombo(0);
+            if(typeof EffectSystem !== 'undefined') EffectSystem.applyFeverBlur(false);
             this.showMsg("戰鬥結束！準備捕捉...");
             
             setTimeout(() => {
-                // 切換至捕獲準備 (由 CaptureSystem 接手)
                 if(typeof CaptureSystem !== 'undefined') CaptureSystem.init(currentEnemy);
             }, 1500);
         }
