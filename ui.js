@@ -1,10 +1,11 @@
-// ui.js - V8.0 大師架構重組版 (核心組件化)
+// ui.js - V8.0.1 大師架構重組版 (修正圖鑑分頁邏輯)
 const GameUI = {
-    // 🌟 [V8.0 新增] 統一頁面管理器：一鍵切換視窗
+    // 🌟 [V8.0.1 修正] 統一頁面管理器：補上圖鑑頁面 ID，解決關不掉的問題
     switchPage: function(targetId) {
         const pages = [
             'selection-page', 'guaranteed-page', 'prep-page', 
-            'fighting-page', 'roulette-page', 'backpack-page'
+            'fighting-page', 'roulette-page', 'backpack-page',
+            'pokedex-book-page' // 👈 [關鍵修正] 讓圖鑑能被正確切換/隱藏
         ];
         pages.forEach(id => {
             const el = document.getElementById(id);
@@ -15,13 +16,11 @@ const GameUI = {
     },
 
     // 🌟 [V8.0 新增] 核心卡匣組件：生成標準化的卡匣 HTML
-    // 用途：地圖、背包、圖鑑、準備頁面通通共用這套公式
     createCardHtml: function(poke, mode = 'normal') {
         const typeClass = this.getTypeColorClass(poke.type);
         const rarityClass = poke.rarity >= 6 ? 'rarity-6' : '';
         const imgUrl = poke.image || `${GAME_CONFIG.ASSET_PATH}${poke.id}.png`;
 
-        // 根據不同模式輸出稍微不同的佈局
         if (mode === 'backpack') {
             const isP = (typeof myPartner !== 'undefined' && myPartner.id === poke.id);
             return `
@@ -39,7 +38,6 @@ const GameUI = {
                 </div>`;
         }
 
-        // 預設模式 (用於地圖或三選一)
         return `
             <div class="map-card ${rarityClass}">
                 <img src="${imgUrl}" class="poke-sprite">
@@ -69,7 +67,6 @@ const GameUI = {
         if(document.getElementById('enemy-hp-text'))
             document.getElementById('enemy-hp-text').innerText = `${Math.ceil(eHP)} / 100`;
         
-        // 絕對鎖定公式 (優化語法)
         const updateRacer = (id, atb) => {
             const el = document.getElementById(id);
             if(el) {
@@ -94,7 +91,7 @@ const GameUI = {
         el.className = 'type-tag ' + this.getTypeColorClass(typeName);
     },
 
-    // 2. 戰前準備頁面 (使用組件化渲染)
+    // 2. 戰前準備頁面
     renderPrepPage: function(enemy, backpack) {
         this.switchPage('prep-page');
         
@@ -120,7 +117,7 @@ const GameUI = {
         });
     },
 
-    // 3. 視覺演出系列 (準備分家至 EffectSystem)
+    // 3. 視覺演出系列
     showSkillCutIn: function(poke) {
         const overlay = document.getElementById('skill-overlay');
         const beam = document.querySelector('.skill-background-beam');
@@ -205,7 +202,7 @@ const GameUI = {
         setTimeout(() => d.remove(), 800);
     },
 
-    // 4. 渲染核心 (簡化為調用組件)
+    // 4. 渲染核心
     renderCarousel: function(idx, options) {
         const display = document.getElementById('single-map-display');
         if(display && options[idx]) {
