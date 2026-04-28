@@ -1,4 +1,4 @@
-// MapSystem.js - V6.2.6 職責校正與路徑修正版
+// MapSystem.js - V7.4 策略進化與路徑修正版 (全代碼不簡化)
 const MapSystem = {
     options: [],
     currentIndex: 0,
@@ -23,14 +23,14 @@ const MapSystem = {
         this.render(); 
     },
 
-    // 2. 切換選單 (由外部 game.js 或按鈕觸發)
+    // 2. 切換選單
     change(dir) {
         if (typeof SoundSystem !== 'undefined') SoundSystem.play('button_click');
         this.currentIndex = (this.currentIndex + dir + 5) % 5;
         this.render();
     },
 
-    // 3. 渲染主畫面地圖卡匣 (圖左字右)
+    // 3. 渲染主畫面地圖卡匣
     render() {
         const data = currentMapOptions[this.currentIndex];
         const display = document.getElementById('single-map-display');
@@ -50,7 +50,31 @@ const MapSystem = {
             </div>`;
     },
 
-    // 4. 顯示投幣後的三選一 (橫式卡匣版)
+    // 🌟 [V7.4 新增] 4. 確認地圖選擇：進入戰前準備階段
+    confirmSelection() {
+        const selectedEnemy = currentMapOptions[this.currentIndex];
+        
+        // 檢查金幣是否足夠 (30金幣)
+        if (coins < 30) {
+            alert("⚠️ 金幣不足！請先去打工賺錢。");
+            return;
+        }
+
+        // 扣除金幣並播放音效
+        coins -= 30;
+        if (typeof SoundSystem !== 'undefined') SoundSystem.play('coin_in');
+        
+        // 更新頂部金幣顯示
+        const coinEl = document.getElementById('coin-count');
+        if(coinEl) coinEl.innerText = coins;
+
+        // 🚀 [關鍵路徑] 不再直接進入 BattleSystem.start
+        // 而是進入 V7.4 新增的「戰前準備」流程
+        console.log("進入準備階段，遭遇對手：", selectedEnemy.name);
+        BattleSystem.initPrep(selectedEnemy);
+    },
+
+    // 5. 顯示投幣後的三選一 (橫式卡匣版)
     async showGuaranteed() {
         currentScreen = 'guaranteed';
         document.getElementById('selection-page').classList.add('hidden');
@@ -91,3 +115,13 @@ const MapSystem = {
         });
     }
 };
+
+// 🌟 [V7.4 全域橋接] 確保 HTML 中的 onclick="confirmMapSelection()" 能夠運作
+function confirmMapSelection() {
+    MapSystem.confirmSelection();
+}
+
+// 橋接 changeMap 函數
+function changeMap(dir) {
+    MapSystem.change(dir);
+}
