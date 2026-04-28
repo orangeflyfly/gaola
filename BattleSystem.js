@@ -1,24 +1,36 @@
-// BattleSystem.js - V8.0.2 視覺大師對接版
+// BattleSystem.js - V8.5 閃耀進化對接版 (戰鬥運算中樞)
 
 const BattleSystem = {
     comboCount: 0,
     comboTimer: null,
 
-    // 1. 戰前準備階段
+    // 1. 戰前準備階段 (實裝異色判定)
     initPrep(enemyData) {
         currentScreen = 'prep'; 
+        
         if (!enemyData) {
             enemyData = machineInventory[Math.floor(Math.random() * machineInventory.length)];
         }
         
+        // 🌟 [V8.5 新增] 異色判定邏輯
+        const shinyRoll = Math.random() < (GAME_CONFIG.BATTLE.SHINY_CHANCE || 0.01);
+        
         currentEnemy = {
             ...enemyData,
+            isShiny: shinyRoll, // 紀錄此怪是否為異色版
             image: `${GAME_CONFIG.ASSET_PATH}${enemyData.id}.png`
         };
 
-        // 🌟 [V8.0 新增] 遇見敵人即錄入圖鑑剪影
+        // 遇見敵人即錄入圖鑑剪影
         if (typeof GameStorage !== 'undefined') {
             GameStorage.updatePokedex(currentEnemy.id, 'seen');
+        }
+
+        // 🌟 [V8.5 新增] 若為異色版，在準備頁面噴發閃爍特效
+        if (shinyRoll && typeof EffectSystem !== 'undefined') {
+            setTimeout(() => {
+                EffectSystem.spawnShinySparkle('prep-enemy-img');
+            }, 500);
         }
 
         const targetBackpack = (typeof myBackpack !== 'undefined') ? myBackpack : [];
@@ -53,6 +65,11 @@ const BattleSystem = {
         setElSrc('enemy-icon', currentEnemy.image);
         setElSrc('enemy-racer-img', currentEnemy.image);
 
+        // 🌟 [V8.5 新增] 戰鬥開始時若敵方是異色，再噴一次閃光加深印象
+        if (currentEnemy.isShiny && typeof EffectSystem !== 'undefined') {
+            EffectSystem.spawnShinySparkle('enemy-icon');
+        }
+
         this.comboCount = 0;
         if(this.comboTimer) clearTimeout(this.comboTimer);
         if(typeof GameUI !== 'undefined') GameUI.updateCombo(0);
@@ -67,7 +84,6 @@ const BattleSystem = {
                     this.comboCount++;
                     if(typeof GameUI !== 'undefined') GameUI.updateCombo(this.comboCount);
 
-                    // 🌟 [V8.0.2 新增] 連打噴錢特效：每 5 連擊噴發一次
                     if (typeof EffectSystem !== 'undefined' && this.comboCount % 5 === 0) {
                         EffectSystem.spawnCoinShower('player-card');
                     }
@@ -77,7 +93,6 @@ const BattleSystem = {
                         this.comboCount = 0;
                         if(typeof GameUI !== 'undefined') {
                             GameUI.updateCombo(0);
-                            // 停止 FEVER 模糊
                             if(typeof EffectSystem !== 'undefined') EffectSystem.applyFeverBlur(false);
                         }
                     }, 1500);
@@ -85,7 +100,6 @@ const BattleSystem = {
                     let atbGain = GAME_CONFIG.BATTLE.PLAYER_ACTIVE_GAIN || 1.8;
                     if (this.comboCount >= GAME_CONFIG.BATTLE.COMBO_FEVER_THRESHOLD) {
                         atbGain *= 1.2; 
-                        // 🌟 [V8.0.2 新增] 進入 FEVER 時啟動模糊特效
                         if(typeof EffectSystem !== 'undefined') EffectSystem.applyFeverBlur(true);
                     }
                     playerATB += atbGain; 
@@ -149,7 +163,6 @@ const BattleSystem = {
                 let finalDmg = isMiss ? 0 : Math.floor(baseDamage * multiplier);
                 this.showMsg(isMiss ? `💨 敵方閃開了！` : `💥 ${myPartner.skill}！！`);
                 
-                // 🌟 [V8.0.2 新增] 爆擊螢幕震動：效果絕佳時大震動
                 if (!isMiss && multiplier > 1 && typeof EffectSystem !== 'undefined') {
                     EffectSystem.shakeScreen(GAME_CONFIG.VISUAL.SCREEN_SHAKE_STRENGTH || 15);
                 }
@@ -160,7 +173,6 @@ const BattleSystem = {
                 let finalDmg = isMiss ? 0 : Math.floor(baseDamage * multiplier);
                 this.showMsg(isMiss ? `💨 漂亮閃過！` : `💥 敵方的 ${currentEnemy.skill}！`);
                 
-                // 🌟 [V8.0.2 新增] 被打也要小震動一下，增加痛感
                 if (!isMiss && typeof EffectSystem !== 'undefined') {
                     EffectSystem.shakeScreen(5);
                 }
