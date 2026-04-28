@@ -1,11 +1,11 @@
-// ui.js - V8.0.1 大師架構重組版 (修正圖鑑分頁邏輯)
+// ui.js - V8.0.2 大師架構重組版 (特效系統聯動版)
 const GameUI = {
-    // 🌟 [V8.0.1 修正] 統一頁面管理器：補上圖鑑頁面 ID，解決關不掉的問題
+    // 🌟 統一頁面管理器
     switchPage: function(targetId) {
         const pages = [
             'selection-page', 'guaranteed-page', 'prep-page', 
             'fighting-page', 'roulette-page', 'backpack-page',
-            'pokedex-book-page' // 👈 [關鍵修正] 讓圖鑑能被正確切換/隱藏
+            'pokedex-book-page'
         ];
         pages.forEach(id => {
             const el = document.getElementById(id);
@@ -15,7 +15,7 @@ const GameUI = {
         if (target) target.classList.remove('hidden');
     },
 
-    // 🌟 [V8.0 新增] 核心卡匣組件：生成標準化的卡匣 HTML
+    // 🌟 核心卡匣組件
     createCardHtml: function(poke, mode = 'normal') {
         const typeClass = this.getTypeColorClass(poke.type);
         const rarityClass = poke.rarity >= 6 ? 'rarity-6' : '';
@@ -52,7 +52,7 @@ const GameUI = {
             </div>`;
     },
 
-    // 1. 更新主畫面數值 (同步 GAME_CONFIG)
+    // 1. 更新主畫面數值
     updateDisplay: function(coins, pHP, eHP, pATB, eATB, partner, enemy) {
         if(document.getElementById('coin-count')) 
             document.getElementById('coin-count').innerText = coins;
@@ -223,6 +223,7 @@ const GameUI = {
         return m[type] || "type-normal";
     },
 
+    // 🌟 [V8.0.2 聯動修正] 更新連擊顯示，並觸發模糊特效
     updateCombo: function(count) {
         const display = document.getElementById('combo-display');
         const track = document.querySelector('.track-bg');
@@ -232,6 +233,8 @@ const GameUI = {
             display.innerText = '';
             display.className = '';
             track.classList.remove('fever-mode');
+            // 🌟 關閉模糊
+            if(typeof EffectSystem !== 'undefined') EffectSystem.applyFeverBlur(false);
             return;
         }
 
@@ -243,10 +246,14 @@ const GameUI = {
             display.innerText = `${count} COMBO! [FEVER]`;
             display.className = 'combo-lv3';
             track.classList.add('fever-mode');
+            // 🌟 開啟模糊
+            if(typeof EffectSystem !== 'undefined') EffectSystem.applyFeverBlur(true);
         } else {
             display.innerText = `${count} COMBO`;
             display.className = count > 10 ? 'combo-lv2' : 'combo-lv1';
             track.classList.remove('fever-mode');
+            // 🌟 雖然在連打，但還沒到 Fever，保持清晰
+            if(typeof EffectSystem !== 'undefined') EffectSystem.applyFeverBlur(false);
         }
     }
 };
