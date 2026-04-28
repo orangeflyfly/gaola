@@ -1,17 +1,16 @@
-// config.js - V8.5 閃耀進化設定版 (全域中樞)
+// config.js - V9.0.5 街機營業參數中樞 (全代碼不簡化)
+
 const GAME_CONFIG = {
     // 1. 基礎營運設定
-    INITIAL_COINS: 100,
-    MAP_REFRESH_COST: 30,
-    GUARANTEED_PRINT_COST: 0, 
-    NORMAL_CATCH_COST: 20,
-    EXTRA_CATCH_COST: 30,
-
+    INITIAL_COINS: 100,             // 初始金幣
+    ENTRY_COST: 30,                 // 🌟 投幣啟動/保底入園費用
+    POST_BATTLE_PRINT_COST: 10,     // 🌟 戰鬥後捕獲成功後的印卡費用
+    
     // 2. 戰鬥基礎數值
     PLAYER_MAX_HP: 100,
     ENEMY_MAX_HP: 100,
     
-    // 🌟 [V8.5 更新] 戰鬥平衡與異色判定
+    // 3. 戰鬥平衡與異色判定
     BATTLE: {
         PLAYER_PASSIVE_ATB: 0.02,
         PLAYER_ACTIVE_GAIN: 2.5,
@@ -19,24 +18,35 @@ const GAME_CONFIG = {
         ENEMY_RARITY_WEIGHT: 0.01,
         COMBO_FEVER_THRESHOLD: 30,
         SKILL_CUTIN_DURATION: 1000,
-        SHINY_CHANCE: 0.05           // 🌟 異色機率 (測試用 5%，正式上線建議調回 0.01)
+        SHINY_CHANCE: 0.05           // 異色機率 (測試用 5%)
     },
 
-    // 資源路徑管理
+    // 4. 🌟 V9.0.5 新增：草叢開獎與遭遇參數
+    MAP_SYSTEM: {
+        BOSS_ENCOUNTER_RATE: 0.7,    // 🌟 拿到保底怪後，遭遇區域 BOSS 的機率 (70%)
+        INTER_BALL_DELAY: 200,       // 系統連丟三球的間隔時間 (ms)
+        THROW_BALL_DURATION: 600,    // 球在空中飛行的時間 (ms)
+        BEAM_GLOW_DURATION: 1000,    // 開獎光束維持的時間 (ms)
+        EXTRA_BOSS_RATE: 0.2         // 點擊草叢時，強大氣息亂入的機率 (20%)
+    },
+
+    // 5. 資源路徑管理
     ASSET_PATH: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/",
 
-    // 🌟 [V8.5 更新] 視覺演出參數
+    // 6. 視覺演出參數
     VISUAL: {
-        SCREEN_SHAKE_STRENGTH: 12,   // 爆擊震動加強
+        SCREEN_SHAKE_STRENGTH: 12,   // 爆擊震動強度
         FEVER_BLUR_AMOUNT: "4px",
         CRITICAL_COLOR: "#ffeb3b",
-        SHINY_GLOW: "hue-rotate(180deg) drop-shadow(0 0 10px gold)" // 異色版視覺特效
+        SHINY_GLOW: "hue-rotate(180deg) drop-shadow(0 0 10px gold)", // 異色版視覺特效
+        BEAM_GOLD: "#ffeb3b",        // 6星金柱顏色
+        BEAM_BLUE: "#00d4ff"         // 一般藍光顏色
     },
 
-    // 3. 機率設定
+    // 7. 機率設定 (一般與加賽)
     RARITY_CHANCE: { 6: 0.02, 5: 0.10, 4: 0.40, 3: 0.48 },
     EXTRA_RARITY_CHANCE: { 6: 0.15, 5: 0.45, 4: 0.40 },
-    EXTRA_BATTLE_RATE: 0.6
+    EXTRA_BATTLE_RATE: 0.6           // 完賽後觸發加賽的機率
 };
 
 // 圖鑑書本設定
