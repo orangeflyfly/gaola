@@ -1,4 +1,4 @@
-// config.js - V9.0.5 街機營業參數中樞 (全代碼不簡化)
+// config.js - V9.0.8 街機營業參數中樞 (全代碼不簡化)
 
 const GAME_CONFIG = {
     // 1. 基礎營運設定
@@ -21,12 +21,19 @@ const GAME_CONFIG = {
         SHINY_CHANCE: 0.05           // 異色機率 (測試用 5%)
     },
 
-    // 4. 🌟 V9.0.5 新增：草叢開獎與遭遇參數
+    // 4. 🌟 V9.0.8 修正：全自動開獎與 BOSS 警告參數
     MAP_SYSTEM: {
-        BOSS_ENCOUNTER_RATE: 0.7,    // 🌟 拿到保底怪後，遭遇區域 BOSS 的機率 (70%)
+        BOSS_ENCOUNTER_RATE: 0.7,    // 拿到保底怪後，遭遇區域 BOSS 的機率 (70%)
         INTER_BALL_DELAY: 200,       // 系統連丟三球的間隔時間 (ms)
         THROW_BALL_DURATION: 600,    // 球在空中飛行的時間 (ms)
-        BEAM_GLOW_DURATION: 1000,    // 開獎光束維持的時間 (ms)
+        
+        // 🌟 自動引爆節奏控制
+        AUTO_REVEAL_INTERVAL: 300,   // 1->2->3 球與球之間引爆的間隔 (ms)
+        REVEAL_DELAY_NORMAL: 800,    // 一般藍光光束維持時間 (ms)
+        REVEAL_DELAY_GOLD: 1500,     // 🌟 傳說金光光束維持時間 (慢速震撼演出) (ms)
+        
+        // 🌟 BOSS 警告儀式
+        BOSS_WARNING_DURATION: 3000, // BOSS 警告文字閃爍的總時長 (ms)
         EXTRA_BOSS_RATE: 0.2         // 點擊草叢時，強大氣息亂入的機率 (20%)
     },
 
@@ -49,9 +56,11 @@ const GAME_CONFIG = {
     EXTRA_BATTLE_RATE: 0.6           // 完賽後觸發加賽的機率
 };
 
-// 圖鑑書本設定
+// 8. 圖鑑書本設定 (鎖定物理規格)
 const POKEDEX_CONFIG = {
-    ITEMS_PER_PAGE: 3,
-    ITEMS_PER_SPREAD: 6,
-    TOTAL_ENTRIES: 100
+    ITEMS_PER_PAGE: 3,               // 單頁 3 隻
+    ITEMS_PER_SPREAD: 6,             // 對開 6 隻
+    TOTAL_ENTRIES: 100,              // 總數 100 隻
+    BOOK_WIDTH: 1100,                // 螢幕寬度約束
+    BOOK_HEIGHT: 800                 // 螢幕高度約束
 };
