@@ -1,6 +1,6 @@
-// ui.js - V8.0.2 大師架構重組版 (特效系統聯動版)
+// ui.js - V8.5.1 佈局與特效修正版 (核心組件化)
 const GameUI = {
-    // 🌟 統一頁面管理器
+    // 🌟 [修正] 統一頁面管理器
     switchPage: function(targetId) {
         const pages = [
             'selection-page', 'guaranteed-page', 'prep-page', 
@@ -15,19 +15,21 @@ const GameUI = {
         if (target) target.classList.remove('hidden');
     },
 
-    // 🌟 核心卡匣組件
+    // 🌟 [V8.5 強化] 核心卡匣組件：支援異色 (Shiny) 視覺外觀
     createCardHtml: function(poke, mode = 'normal') {
         const typeClass = this.getTypeColorClass(poke.type);
         const rarityClass = poke.rarity >= 6 ? 'rarity-6' : '';
+        // 判斷是否為異色版
+        const shinyClass = poke.isShiny ? 'shiny-pokemon' : '';
         const imgUrl = poke.image || `${GAME_CONFIG.ASSET_PATH}${poke.id}.png`;
 
         if (mode === 'backpack') {
             const isP = (typeof myPartner !== 'undefined' && myPartner.id === poke.id);
             return `
-                <div class="backpack-item ${rarityClass}">
-                    <img src="${imgUrl}" class="poke-sprite">
+                <div class="backpack-item ${rarityClass} ${shinyClass}">
+                    <img src="${imgUrl}" class="poke-sprite" style="${poke.isShiny ? GAME_CONFIG.VISUAL.SHINY_GLOW : ''}">
                     <div class="card-info">
-                        <div style="font-size: 12px; opacity: 0.6;">ID: ${poke.id}</div>
+                        <div style="font-size: 12px; opacity: 0.6;">ID: ${poke.id} ${poke.isShiny ? '✨' : ''}</div>
                         <b>${poke.name}</b><br>
                         <span style="color:#ffeb3b; font-weight:bold;">★ ${poke.rarity}</span>
                         <button onclick="setPartner(${poke.id})" ${isP ? 'disabled' : ''} 
@@ -38,9 +40,11 @@ const GameUI = {
                 </div>`;
         }
 
+        // 預設模式 (用於地圖或三選一)
         return `
-            <div class="map-card ${rarityClass}">
-                <img src="${imgUrl}" class="poke-sprite">
+            <div class="map-card ${rarityClass} ${shinyClass}">
+                ${poke.isShiny ? '<div class="shiny-tag">✨ SHINY</div>' : ''}
+                <img src="${imgUrl}" class="poke-sprite" style="${poke.isShiny ? GAME_CONFIG.VISUAL.SHINY_GLOW : ''}">
                 <div class="card-info">
                     <div style="font-size: 14px; color: var(--arcade-cyan); font-weight: bold;">REGION DATA</div>
                     <div style="font-size: 26px; font-weight: bold;">${poke.name}</div>
@@ -118,10 +122,14 @@ const GameUI = {
     },
 
     // 3. 視覺演出系列
+    // 🌟 [修正] 大招特寫演出：暫停背景模糊，確保特寫層不受濾鏡干擾
     showSkillCutIn: function(poke) {
         const overlay = document.getElementById('skill-overlay');
         const beam = document.querySelector('.skill-background-beam');
         const text = document.getElementById('skill-name-text');
+
+        // 🚀 [V8.5.1 修正] 特寫瞬間暫停 Fever 模糊效果，避免大招圖被切掉或變形
+        if(typeof EffectSystem !== 'undefined') EffectSystem.applyFeverBlur(false);
 
         const typeMap = { "火": "fire", "水": "water", "草": "grass", "電": "electric", "一般": "normal" };
         if(beam) beam.className = `skill-background-beam beam-${typeMap[poke.type] || "normal"}`;
@@ -133,7 +141,11 @@ const GameUI = {
         overlay.classList.remove('hidden');
         if(typeof SoundSystem !== 'undefined') SoundSystem.play('skill_cutin');
 
-        setTimeout(() => overlay.classList.add('hidden'), GAME_CONFIG.BATTLE.SKILL_CUTIN_DURATION);
+        // 演出停頓時間後關閉
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            // 如果連擊還在，戰鬥循環會自動在下一幀重新判定是否開啟模糊
+        }, GAME_CONFIG.BATTLE.SKILL_CUTIN_DURATION);
     },
 
     spawnParticles: function(targetId, type) {
@@ -223,7 +235,7 @@ const GameUI = {
         return m[type] || "type-normal";
     },
 
-    // 🌟 [V8.0.2 聯動修正] 更新連擊顯示，並觸發模糊特效
+    // 更新連擊顯示，並觸發模糊特效
     updateCombo: function(count) {
         const display = document.getElementById('combo-display');
         const track = document.querySelector('.track-bg');
@@ -233,7 +245,6 @@ const GameUI = {
             display.innerText = '';
             display.className = '';
             track.classList.remove('fever-mode');
-            // 🌟 關閉模糊
             if(typeof EffectSystem !== 'undefined') EffectSystem.applyFeverBlur(false);
             return;
         }
@@ -246,13 +257,12 @@ const GameUI = {
             display.innerText = `${count} COMBO! [FEVER]`;
             display.className = 'combo-lv3';
             track.classList.add('fever-mode');
-            // 🌟 開啟模糊
+            // 進入 Fever 模式：開啟模糊
             if(typeof EffectSystem !== 'undefined') EffectSystem.applyFeverBlur(true);
         } else {
             display.innerText = `${count} COMBO`;
             display.className = count > 10 ? 'combo-lv2' : 'combo-lv1';
             track.classList.remove('fever-mode');
-            // 🌟 雖然在連打，但還沒到 Fever，保持清晰
             if(typeof EffectSystem !== 'undefined') EffectSystem.applyFeverBlur(false);
         }
     }
