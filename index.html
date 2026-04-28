@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>寶可夢加傲樂 V7.0 - 屬性覺醒旗艦機</title>
+    <title>寶可夢加傲樂 V7.4 - 視覺與策略進化版</title>
     
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/layout-ui.css">
@@ -32,7 +32,34 @@
         <div id="guaranteed-choices"></div>
     </div>
 
+    <div id="prep-page" class="hidden">
+        <div class="prep-header">
+            <h1 style="color:#ffeb3b;">⚠️ 偵測到野生寶可夢！</h1>
+            <p>請根據屬性相剋，派出最適合的隊員</p>
+        </div>
+        
+        <div class="prep-container">
+            <div id="prep-enemy-info" class="prep-card">
+                <h3>敵方戰力</h3>
+                <img id="prep-enemy-img" src="" alt="敵方">
+                <div id="prep-enemy-name" class="prep-name">---</div>
+                <div id="prep-enemy-type-tag" class="type-tag">--</div>
+            </div>
+
+            <div class="prep-vs">VS</div>
+
+            <div id="prep-selection-area" class="prep-card">
+                <h3>選擇你的夥伴</h3>
+                <div id="prep-backpack-list">
+                    </div>
+            </div>
+        </div>
+        <button id="start-battle-btn" class="arcade-btn-main" style="display:none;" onclick="BattleSystem.launch()">正式開打！</button>
+    </div>
+
     <div id="fighting-page" class="hidden">
+        <div id="vfx-layer"></div>
+
         <div class="combatant" id="enemy-card">
             <img id="enemy-icon" class="poke-sprite" src="">
             <div class="card-info">
@@ -44,7 +71,6 @@
 
         <div id="atb-track-container">
             <div id="combo-display"></div>
-
             <div class="track-bg">
                 <div class="finish-line"></div>
                 <div id="player-racer">
@@ -63,6 +89,15 @@
                 <div class="type-tag" id="player-type">--</div> <h2 id="player-name" style="margin:0;">我方</h2>
                 <div class="hp-info"><span>HP</span> <span id="player-hp-text">100/100</span></div>
                 <div class="bar-bg"><div id="player-hp-bar-real" class="hp-bar"></div></div>
+            </div>
+        </div>
+
+        <div id="skill-overlay" class="hidden">
+            <div class="skill-background-beam"></div> <div class="skill-cutin-box">
+                <img id="skill-poke-img" src="" alt="大招大圖">
+                <div class="skill-name-banner">
+                    <span id="skill-name-text">招式名稱</span>
+                </div>
             </div>
         </div>
     </div>
@@ -104,7 +139,8 @@
     </div>
 
     <script src="pokemonData.js"></script>
-    <script src="typeChart.js"></script> <script src="config.js"></script>
+    <script src="typeChart.js"></script>
+    <script src="config.js"></script>
     <script src="storage.js"></script>
     <script src="SoundSystem.js"></script>
     <script src="ui.js"></script>
