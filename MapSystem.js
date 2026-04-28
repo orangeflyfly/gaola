@@ -119,10 +119,13 @@ const MapSystem = {
             hintEl.innerText = "📡 正在鎖定棲息地寶可夢...";
         }
 
+        // 🌟 確保初始鎖死點擊
         this.canPickGrass = false;
         
-        // Step 1: 系統自動撒網連丟 (不需落地緩衝，直接演出拋球)
+        // Step 1: 系統自動撒網連丟
         grassBoxes.forEach((box, index) => {
+            box.style.opacity = "1"; // 確保草叢可見
+            box.style.transform = "scale(1)"; // 重置縮放
             box.innerHTML = `<div class="grass-sprite"></div>`;
             setTimeout(() => {
                 const ball = document.createElement('div');
@@ -132,17 +135,20 @@ const MapSystem = {
             }, index * 200);
         });
 
-        // Step 2: 啟動 1-2-3 自動引爆鏈
+        // Step 2: 🌟 [修復點] 改用明確的對象引用，並延後啟動，確保拋球完成
         setTimeout(() => {
-            this.autoRevealChain(0);
-        }, 1000); 
+            console.log("啟動自動開獎鏈...");
+            MapSystem.autoRevealChain(0);
+        }, 1200); 
     },
 
     // 🌟 連環引爆邏輯：依序爆發，金光加長演出
     autoRevealChain(index) {
         const grassBoxes = document.querySelectorAll('.grass-box');
+        
+        // 判定是否結束
         if (index >= grassBoxes.length) {
-            // 全部開獎完畢
+            console.log("自動開獎結束，開放玩家點擊。");
             this.canPickGrass = true;
             const hintEl = document.getElementById('grass-hint');
             if(hintEl) {
@@ -171,22 +177,24 @@ const MapSystem = {
             SoundSystem.play(isGold ? 'shiny_spawn' : 'attack_hit');
         }
 
-        // 🌟 演出時長：金光噴慢一點，讓玩家享受
+        // 🌟 使用 config 參數或預設演出時長
         const revealDelay = isGold ? 1500 : 800;
 
         setTimeout(() => {
+            // 移除光柱並顯示寶可夢
             beam.remove();
             box.innerHTML = `<img src="${picked.image}" style="width:100%; animation: pulse 0.5s;">`;
             
-            // 遞迴呼叫下一隻
+            // 遞迴呼叫下一隻，帶一點小間隔增加層次感
             setTimeout(() => {
-                this.autoRevealChain(index + 1);
-            }, 300); // 兩次爆發之間的小間隔
+                MapSystem.autoRevealChain(index + 1);
+            }, 300); 
         }, revealDelay);
     },
 
     // 6. 點擊開獎：獲得保底怪，隨後進入戰鬥遭遇儀式
     selectGrass(index) {
+        // 🌟 如果自動開獎還沒跑完，禁止點擊
         if (!this.canPickGrass) return;
 
         const picked = this.grassChoices[index];
@@ -233,7 +241,7 @@ const MapSystem = {
         const warningUI = document.getElementById('boss-warning-overlay');
         if (warningUI) {
             warningUI.classList.remove('hidden');
-            if (typeof SoundSystem !== 'undefined') SoundSystem.play('boss_warn'); // 假設有警告音效
+            if (typeof SoundSystem !== 'undefined') SoundSystem.play('boss_warn'); 
             
             // 點擊警告視窗後正式進入對戰
             warningUI.onclick = () => {
@@ -241,7 +249,6 @@ const MapSystem = {
                 BattleSystem.initPrep(bossData);
             };
         } else {
-            // 防呆：若沒寫 HTML 則直接進對戰
             alert("⚠️ 偵測到強大氣息！BOSS 現身！");
             BattleSystem.initPrep(bossData);
         }
