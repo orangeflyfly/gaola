@@ -1,4 +1,4 @@
-// game.js - V8.5 閃耀捕獲對接版 (指揮中樞)
+// game.js - V8.5.3 閃耀捕獲對接版 (流程修正版)
 
 let state = GameStorage.load();
 let coins = state.coins;
@@ -32,15 +32,12 @@ const App = {
         }
     },
 
-    // 🌟 [V8.5 重大更新] 收服邏輯對接入包儀式
     buyPokemon(p, cost) {
         if (coins < cost) return alert("金幣不足！");
 
-        // 1. 準備收服成功的內部邏輯 (等儀式演完才執行)
         const processCapture = () => {
             coins -= cost;
             
-            // 格式化資料
             p.image = `${GAME_CONFIG.ASSET_PATH}${p.id}.png`;
             const data = machineInventory.find(i => i.id === p.id);
             if(data) {
@@ -48,7 +45,6 @@ const App = {
                 p.type = data.type;
             }
 
-            // 背包與圖鑑同步
             const exists = myBackpack.find(item => item.id === p.id);
             if (exists) { 
                 let refund = p.rarity * 10; 
@@ -56,7 +52,6 @@ const App = {
                 alert(`獲得重複卡匣！已轉化為 ${refund} 金幣。`); 
             } else { 
                 myBackpack.push(p); 
-                // 🌟 同步更新典藏之書
                 if(typeof GameStorage !== 'undefined') {
                     GameStorage.updatePokedex(p.id, 'caught');
                 }
@@ -64,7 +59,6 @@ const App = {
             
             this.updateAll();
 
-            // 跳轉判定
             if (currentScreen === 'guaranteed') {
                 if(typeof BattleSystem !== 'undefined') BattleSystem.initPrep(null); 
             } else {
@@ -72,24 +66,36 @@ const App = {
             }
         };
 
-        // 2. 啟動視覺大師演出
         if(typeof EffectSystem !== 'undefined') {
-            // 呼叫黑屏虹光儀式，演完後執行上述邏輯
             EffectSystem.playCaptureRitual(processCapture);
         } else {
-            // 如果沒特效系統，直接走邏輯 (防呆)
             processCapture();
         }
     },
 
+    // 🌟 [修正] 調整加賽判定時機
     finish() {
-        GameUI.switchPage('selection-page');
+        // 🚀 修正：不要在這裡切換 switchPage('selection-page')
         const extraChance = GAME_CONFIG.EXTRA_BATTLE_RATE || 0.6;
+        
         if(!isExtraBattle && Math.random() < extraChance) { 
+            // 留在當前捕獲頁面，彈出加賽視窗
             document.getElementById('extra-battle-pop').classList.remove('hidden'); 
         } else { 
-            this.reload(); 
+            // 沒有加賽，才回到大廳
+            this.goToLobby(); 
         }
+    },
+
+    // 🌟 [新增] 專門處理回到大廳的邏輯
+    goToLobby() {
+        isExtraBattle = false;
+        currentScreen = 'selection';
+        if(typeof GameUI !== 'undefined') {
+            GameUI.switchPage('selection-page');
+        }
+        // 如果總監希望徹底重置，可以解除下面註解
+        // this.reload(); 
     },
 
     reload() { location.reload(); }
@@ -138,7 +144,10 @@ function setPartner(id) {
 }
 
 function spinWheel() { if(typeof CaptureSystem !== 'undefined') CaptureSystem.spin(); }
-function hideExtraPop() { App.reload(); }
+
+// 🌟 [修正] 放棄加賽或關閉彈窗時，呼叫 goToLobby
+function hideExtraPop() { App.goToLobby(); } 
+
 function finishCapture() { App.finish(); }
 function refreshMachine() { if(typeof MapSystem !== 'undefined') MapSystem.refresh(); }
 
