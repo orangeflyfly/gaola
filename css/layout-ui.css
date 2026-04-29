@@ -312,3 +312,38 @@
 .warn-text { font-size: 56px; color: #ff0000; font-weight: 900; letter-spacing: 10px; margin: 0; }
 .warn-subtext { color: #fff; font-size: 24px; letter-spacing: 5px; margin-top: 10px; }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* 🌟 V9.0.8 修正：戰備頁面 (prep-page) 右側背包選單無限延伸問題 */
+#prep-selection-area {
+    width: 450px; /* 限制右側選擇區的總寬度 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#prep-backpack-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 設定一排顯示 3 隻寶可夢 */
+    gap: 15px; /* 寶可夢之間的間距 */
+    width: 100%;
+    max-height: 400px; /* 🌟 核心約束：最高不能超過 400px */
+    overflow-y: auto; /* 🌟 核心約束：超過高度就出現垂直滾動條 */
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.5); /* 加上半透明黑底，讓畫面更乾淨 */
+    border-radius: 15px;
+    border: 2px solid #555;
+    box-sizing: border-box;
+}
+
+/* 🌟 美化：讓背包選單的滾動條更有街機感 */
+#prep-backpack-list::-webkit-scrollbar {
+    width: 8px;
+}
+#prep-backpack-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+#prep-backpack-list::-webkit-scrollbar-thumb {
+    background: var(--arcade-gold, #ffeb3b); 
+    border-radius: 4px;
+}
