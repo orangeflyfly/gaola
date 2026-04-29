@@ -268,3 +268,55 @@
     pointer-events: none;
     z-index: 5;
 }
+
+/* =========================================
+   🌟 [新增修復] 大招特寫 (Cut-in) 橫幅定位與特效
+   ========================================= */
+
+/* 大圖與橫幅的定位基準點 */
+.skill-cutin-box {
+    position: relative; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: cutInZoom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* 限制大招圖片尺寸，並加上霸氣發光 */
+.skill-cutin-box img {
+    max-width: 500px;
+    max-height: 500px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.8));
+}
+
+/* 霸氣招式橫幅 */
+.skill-name-banner {
+    position: absolute;
+    bottom: 10%; /* 將文字浮動在圖片下方偏上，解決掉落問題 */
+    left: 50%;
+    transform: translateX(-50%) skewX(-15deg);
+    background: linear-gradient(90deg, #ffeb3b, #ff9800);
+    border: 4px solid #fff;
+    padding: 10px 50px;
+    box-shadow: 0 15px 25px rgba(0,0,0,0.6);
+    white-space: nowrap;
+    z-index: 10;
+}
+
+/* 橫幅內的文字 */
+#skill-name-text {
+    font-size: 42px;
+    font-weight: 900;
+    color: #000;
+    letter-spacing: 8px;
+    transform: skewX(15deg); /* 把字體轉正 */
+    display: block;
+    text-shadow: 2px 2px 0px rgba(255,255,255,0.8);
+}
+
+@keyframes cutInZoom {
+    0% { transform: scale(0) translateX(-100%); opacity: 0; }
+    100% { transform: scale(1) translateX(0); opacity: 1; }
+}
