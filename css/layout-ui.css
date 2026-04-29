@@ -7,11 +7,18 @@
     color: var(--arcade-gold); font-size: 28px; border-radius: 15px; z-index: 600;
 }
 
-#selection-page, #guaranteed-page, #prep-page, #fighting-page, #roulette-page, #backpack-page, #pokedex-book-page, #grass-event-page {
+/* 🌟 1. 恢復多數頁面的邊界約束，防止戰鬥畫面崩潰跑掉 */
+#selection-page, #guaranteed-page, #prep-page, #fighting-page, #roulette-page, #backpack-page, #pokedex-book-page {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    /* 🌟 核心修正：解除溢出限制，讓光束噴到螢幕頂端 */
-    overflow: visible !important; 
+    overflow: hidden; /* 蓋回蓋子，把元素鎖死在機台螢幕內 */
+}
+
+/* 🌟 2. 單獨「特權解放」草叢頁面，讓開獎光束能順利噴上天 */
+#grass-event-page {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    overflow: visible !important; /* 只有草叢有突破天際的特權 */
 }
 
 /* 🌟 V9.0.1 修正：約束大廳標題大小，避免擠壓地圖大框 */
