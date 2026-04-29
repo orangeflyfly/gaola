@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <title>寶可夢加傲樂 V9.0.8 - 街機沉浸體驗版</title>
     
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout-ui.css">
-    <link rel="stylesheet" href="css/battle-fx.css">
-    <link rel="stylesheet" href="css/type-system.css">
-    <link rel="stylesheet" href="css/pokedex-book.css">
+    <!-- ✅ 修正：CSS 路徑 + 防快取 -->
+    <link rel="stylesheet" href="./CSS/base.css?v=1">
+    <link rel="stylesheet" href="./CSS/layout-ui.css?v=1">
+    <link rel="stylesheet" href="./CSS/battle-fx.css?v=1">
+    <link rel="stylesheet" href="./CSS/type-system.css?v=1">
+    <link rel="stylesheet" href="./CSS/pokedex-book.css?v=1">
 </head>
 <body>
 
@@ -19,7 +20,6 @@
                 <div class="insert-coin-text">INSERT COIN</div>
                 <div style="color: #aaa; margin-top: 20px; font-size: 20px; font-weight: bold; letter-spacing: 2px;">請投入 30 金幣喚醒機台</div>
             </div>
-
             <div id="selection-page">
                 <h1>遊樂場大廳</h1>
                 <div id="carousel-area">
@@ -197,17 +197,17 @@
 
     </div> 
 
-    <script src="pokemonData.js"></script>
-    <script src="typeChart.js"></script>
-    <script src="config.js"></script>
-    <script src="storage.js"></script>
-    <script src="SoundSystem.js"></script>
-    <script src="ui.js"></script>
-    <script src="EffectSystem.js"></script>
-    <script src="PokedexSystem.js"></script>
-    <script src="MapSystem.js"></script>
-    <script src="BattleSystem.js"></script>
-    <script src="CaptureSystem.js"></script>
-    <script src="game.js"></script>
-</body>
+    <script src="./pokemonData.js?v=1" defer></script>
+    <script src="./typeChart.js?v=1" defer></script>
+    <script src="./config.js?v=1" defer></script>
+    <script src="./storage.js?v=1" defer></script>
+    <script src="./SoundSystem.js?v=1" defer></script>
+    <script src="./ui.js?v=1" defer></script>
+    <script src="./EffectSystem.js?v=1" defer></script>
+    <script src="./PokedexSystem.js?v=1" defer></script>
+    <script src="./MapSystem.js?v=1" defer></script>
+    <script src="./BattleSystem.js?v=1" defer></script>
+    <script src="./CaptureSystem.js?v=1" defer></script>
+    <script src="./game.js?v=1" defer></script>
+    </body>
 </html>
