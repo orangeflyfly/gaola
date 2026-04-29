@@ -275,6 +275,36 @@
 .physical-btn.btn-gold { border-color: #fff8b0; background: linear-gradient(to bottom, #ffeb3b, #b8860b); color: #000; box-shadow: 0 10px 0 #6b4e00; }
 .physical-btn.btn-gold:active { box-shadow: 0 0 0 #6b4e00; }
 
+/* 🌟 V9.0.8 修正：戰備頁面 (prep-page) 巨獸縮小術，嚴防撐爆螢幕 */
+#prep-enemy-img {
+    max-width: 150px;
+    max-height: 150px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+}
+
+#prep-selection-area img {
+    max-width: 100px; /* 限制準備選擇區裡的我方寶可夢圖片大小 */
+    max-height: 100px;
+    object-fit: contain;
+}
+
+.prep-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px; /* 確保 VS 文字與兩邊卡片有足夠呼吸空間 */
+    width: 100%;
+}
+
+.prep-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
 /* 🌟 V9.0.8 新增：開獎提示文字與 BOSS 警告樣式 (置於末端) */
 #grass-hint { text-align: center; font-size: 24px; color: #ffeb3b; margin-top: 20px; text-shadow: 0 0 10px #000; font-weight: bold; }
 #boss-warning-overlay { position: absolute; inset: 0; background: rgba(139, 0, 0, 0.4); z-index: 8000; display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer; backdrop-filter: blur(4px); }
